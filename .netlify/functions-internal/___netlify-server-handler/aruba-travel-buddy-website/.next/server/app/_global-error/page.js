@@ -1,0 +1,11 @@
+var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/_global-error/page.js")
+R.c("server/chunks/ssr/[root-of-the-server]__35981a63._.js")
+R.c("server/chunks/ssr/aruba-travel-buddy-website_5facdcf3._.js")
+R.c("server/chunks/ssr/58e81_next_dist_0c377a39._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__70973575._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__a8c63945._.js")
+R.c("server/chunks/ssr/58e81_next_dist_c6e5efc3._.js")
+R.c("server/chunks/ssr/aruba-travel-buddy-website_src_app_6ba159af._.js")
+R.c("server/chunks/ssr/75504__next-internal_server_app__global-error_page_actions_b8fadb1c.js")
+R.m(99399)
+module.exports=R.m(99399).exports

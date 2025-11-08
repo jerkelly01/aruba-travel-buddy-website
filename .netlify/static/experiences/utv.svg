@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="g" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <g fill="#fff" opacity="0.95">
+    <rect x="120" y="220" width="400" height="40" rx="8"/>
+    <circle cx="200" cy="280" r="32"/>
+    <circle cx="440" cy="280" r="32"/>
+    <rect x="170" y="170" width="300" height="40" rx="6"/>
+    <rect x="260" y="120" width="120" height="40" rx="6"/>
+  </g>
+  <text x="24" y="40" font-size="28" font-family="system-ui, -apple-system, Segoe UI, Roboto" fill="#fff" opacity="0.95">UTV Adventure</text>
+</svg>

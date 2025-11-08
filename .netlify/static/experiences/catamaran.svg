@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#sky)"/>
+  <g fill="#0ea5e9" opacity="0.9">
+    <rect x="60" y="260" width="520" height="20"/>
+    <rect x="150" y="200" width="100" height="60"/>
+    <rect x="390" y="200" width="100" height="60"/>
+    <rect x="310" y="100" width="10" height="120"/>
+    <polygon points="315,100 380,180 250,180" fill="#22d3ee"/>
+  </g>
+  <text x="24" y="40" font-size="28" font-family="system-ui, -apple-system, Segoe UI, Roboto" fill="#0f172a" opacity="0.9">Catamaran Sail</text>
+</svg>

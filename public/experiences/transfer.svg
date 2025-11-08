@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#e5e7eb"/>
+  <g fill="#0ea5e9" opacity="0.95">
+    <rect x="100" y="220" width="440" height="40" rx="8"/>
+    <rect x="140" y="180" width="200" height="40" rx="8"/>
+    <rect x="360" y="180" width="120" height="40" rx="8"/>
+    <circle cx="200" cy="280" r="28" fill="#1f2937"/>
+    <circle cx="440" cy="280" r="28" fill="#1f2937"/>
+  </g>
+  <text x="24" y="40" font-size="28" font-family="system-ui, -apple-system, Segoe UI, Roboto" fill="#111827" opacity="0.9">Airport Transfer</text>
+</svg>

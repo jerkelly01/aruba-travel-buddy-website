@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#sea)"/>
+  <g fill="#fff" opacity="0.95">
+    <circle cx="180" cy="180" r="60"/>
+    <rect x="230" y="160" width="220" height="40" rx="8"/>
+    <rect x="420" y="110" width="16" height="60" rx="8"/>
+  </g>
+  <text x="24" y="40" font-size="28" font-family="system-ui, -apple-system, Segoe UI, Roboto" fill="#fff" opacity="0.95">Snorkel Cruise</text>
+</svg>
