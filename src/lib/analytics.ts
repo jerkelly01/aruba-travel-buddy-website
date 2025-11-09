@@ -90,7 +90,12 @@ class AnalyticsTracker {
       const pageInfo = this.getPageInfo();
       const deviceInfo = this.getDeviceInfo();
 
-      await fetch(`${API_BASE_URL}/admin/analytics/website/track`, {
+      // Analytics tracking endpoint - use Express API for now (not migrated to Edge Functions yet)
+      const trackingUrl = USE_SUPABASE_EDGE_FUNCTIONS
+        ? `${EXPRESS_API_URL}/admin/analytics/website/track` // Fallback to Express API for analytics
+        : `${API_BASE_URL}/admin/analytics/website/track`;
+      
+      await fetch(trackingUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
