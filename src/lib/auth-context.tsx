@@ -56,10 +56,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       
       // Add Supabase API key for Edge Functions
+      // Supabase Edge Functions require both apikey and Authorization headers
       if (USE_SUPABASE) {
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
         if (supabaseAnonKey) {
           headers['apikey'] = supabaseAnonKey;
+          // Also send as Authorization Bearer token (required by Supabase Edge Functions)
+          headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
         }
       }
       

@@ -87,10 +87,16 @@ async function apiRequest<T>(
   }
 
   // Add Supabase API key for Edge Functions
+  // Supabase Edge Functions require both apikey and Authorization headers
   if (USE_SUPABASE_EDGE_FUNCTIONS) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
     if (supabaseAnonKey) {
       headers['apikey'] = supabaseAnonKey;
+      // Also send as Authorization Bearer token (required by Supabase Edge Functions)
+      // Only set if not already set by token above
+      if (!headers['Authorization']) {
+        headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
+      }
     }
   }
 
