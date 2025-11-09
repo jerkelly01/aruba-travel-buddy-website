@@ -13,6 +13,15 @@ export const metadata: Metadata = {
   title: "Aruba Travel Buddy - Your Personal Travel Guide",
   description: "Discover the best of Aruba with personalized recommendations, offline maps, and smart itinerary planning - all in one app.",
   keywords: ["Aruba", "travel", "guide", "itinerary", "vacation", "tourism"],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/logo.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
