@@ -87,11 +87,20 @@ class AnalyticsTracker {
     custom_properties?: Record<string, any>;
   }) {
     try {
-      // Skip analytics tracking if API URL is localhost (production doesn't have Express server)
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-      if (apiUrl.includes('localhost') && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-        // In production, skip tracking if API is localhost
-        return;
+      // Skip analytics tracking in production if API is localhost
+      // Analytics tracking requires Express backend which isn't available in production
+      if (typeof window !== 'undefined') {
+        const isProduction = !window.location.hostname.includes('localhost') && 
+                            !window.location.hostname.includes('127.0.0.1');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const trackingUrl = USE_SUPABASE_EDGE_FUNCTIONS
+          ? `${EXPRESS_API_URL}/admin/analytics/website/track`
+          : `${API_BASE_URL}/admin/analytics/website/track`;
+        
+        // Skip if in production and API URL is localhost
+        if (isProduction && (apiUrl.includes('localhost') || trackingUrl.includes('localhost'))) {
+          return; // Silently skip - analytics not available in production
+        }
       }
 
       const pageInfo = this.getPageInfo();
@@ -101,11 +110,6 @@ class AnalyticsTracker {
       const trackingUrl = USE_SUPABASE_EDGE_FUNCTIONS
         ? `${EXPRESS_API_URL}/admin/analytics/website/track` // Fallback to Express API for analytics
         : `${API_BASE_URL}/admin/analytics/website/track`;
-      
-      // Only track if URL is not localhost in production
-      if (trackingUrl.includes('localhost') && typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-        return; // Skip tracking in production if API is localhost
-      }
       
       await fetch(trackingUrl, {
         method: 'POST',
