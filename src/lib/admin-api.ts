@@ -60,10 +60,15 @@ async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const token = localStorage.getItem('authToken');
+  // Get token from localStorage (works in browser)
+  let token: string | null = null;
+  if (typeof window !== 'undefined') {
+    token = localStorage.getItem('authToken');
+  }
   
   // Check if token exists
   if (!token || token === 'mock-token-for-demo') {
+    console.warn('No auth token found. Available keys:', typeof window !== 'undefined' ? Object.keys(localStorage) : 'N/A');
     return {
       success: false,
       error: 'Authentication required. Please log in.',
@@ -92,11 +97,9 @@ async function apiRequest<T>(
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
     if (supabaseAnonKey) {
       headers['apikey'] = supabaseAnonKey;
-      // Also send as Authorization Bearer token (required by Supabase Edge Functions)
-      // Only set if not already set by token above
-      if (!headers['Authorization']) {
-        headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
-      }
+      // For Edge Functions, Authorization should contain the user's access token
+      // (already set above if token exists). If no token, we can't make authenticated calls.
+      // The apikey header is for platform authentication, Authorization is for user auth.
     }
   }
 
