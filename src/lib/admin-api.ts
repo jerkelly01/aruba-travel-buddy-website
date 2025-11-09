@@ -1,10 +1,59 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Use Supabase Edge Functions if SUPABASE_URL is set, otherwise fall back to Express API
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ydycncbqobpljrtknpqd.supabase.co';
+const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
+// Determine which API to use
+const USE_SUPABASE_EDGE_FUNCTIONS = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+const API_BASE_URL = USE_SUPABASE_EDGE_FUNCTIONS 
+  ? `${SUPABASE_URL}/functions/v1` 
+  : EXPRESS_API_URL;
 
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
   details?: any;
+}
+
+// Map Express API endpoints to Supabase Edge Functions
+function mapEndpointToSupabaseFunction(endpoint: string): string {
+  if (!USE_SUPABASE_EDGE_FUNCTIONS) {
+    return endpoint;
+  }
+
+  // Auth endpoints
+  if (endpoint === '/auth/login') {
+    return '/admin-auth';
+  }
+
+  // Dashboard analytics
+  if (endpoint.startsWith('/admin/analytics/website/overview')) {
+    return '/admin-dashboard';
+  }
+
+  // Content management (tours, events, experiences, restaurants, etc.)
+  const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'transportation', 'support-locals', 'photo-challenges'];
+  for (const type of contentTypes) {
+    if (endpoint.startsWith(`/admin/${type}`)) {
+      // Extract the rest of the path (e.g., /123 or empty)
+      const rest = endpoint.replace(`/admin/${type}`, '');
+      // Pass content type in the path for the Edge Function
+      return `/admin-content/${type}${rest}`;
+    }
+  }
+
+  // Map locations
+  if (endpoint.startsWith('/admin/map-locations')) {
+    return endpoint.replace('/admin/map-locations', '/admin-map-locations');
+  }
+
+  // Client profiles
+  if (endpoint.startsWith('/admin/clients')) {
+    return endpoint.replace('/admin/clients', '/admin-clients');
+  }
+
+  // Default: return as-is (for endpoints not yet migrated)
+  return endpoint;
 }
 
 async function apiRequest<T>(
@@ -25,6 +74,9 @@ async function apiRequest<T>(
     };
   }
   
+  // Map endpoint to Supabase function if using Edge Functions
+  const mappedEndpoint = mapEndpointToSupabaseFunction(endpoint);
+  
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
@@ -34,8 +86,16 @@ async function apiRequest<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  // Add Supabase API key for Edge Functions
+  if (USE_SUPABASE_EDGE_FUNCTIONS) {
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+    if (supabaseAnonKey) {
+      headers['apikey'] = supabaseAnonKey;
+    }
+  }
+
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE_URL}${mappedEndpoint}`, {
       ...options,
       headers,
     });
@@ -311,7 +371,7 @@ export const clientProfileApi = {
   }>) => {
     return apiRequest(`/admin/clients/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(updates),
+      body: JSON.stringify({ id, ...updates }),
     });
   },
 
@@ -480,7 +540,7 @@ function createContentApi(type: string) {
     update: async (id: string, updates: any) => {
       return apiRequest(`/admin/${type}/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(updates),
+        body: JSON.stringify({ id, ...updates }),
       });
     },
 
@@ -565,7 +625,7 @@ export const mapLocationsApi = {
   }>) => {
     return apiRequest(`/admin/map-locations/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(updates),
+      body: JSON.stringify({ id, ...updates }),
     });
   },
 

@@ -41,15 +41,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+    // Use Supabase Edge Function if available, otherwise Express API
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ydycncbqobpljrtknpqd.supabase.co';
+    const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+    const USE_SUPABASE = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    
+    const API_BASE_URL = USE_SUPABASE 
+      ? `${SUPABASE_URL}/functions/v1/admin-auth`
+      : `${EXPRESS_API_URL}/auth/login`;
     
     try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add Supabase API key for Edge Functions
+      if (USE_SUPABASE) {
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+        if (supabaseAnonKey) {
+          headers['apikey'] = supabaseAnonKey;
+        }
+      }
+      
       // Try backend authentication first
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(API_BASE_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ email, password }),
       });
 
