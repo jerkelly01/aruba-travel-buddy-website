@@ -15,12 +15,13 @@ export const metadata: Metadata = {
   keywords: ["Aruba", "travel", "guide", "itinerary", "vacation", "tourism"],
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.ico?v=2', sizes: 'any' },
       { url: '/logo.png', type: 'image/png', sizes: '32x32' },
     ],
     apple: [
       { url: '/logo.png', sizes: '180x180', type: 'image/png' },
     ],
+    shortcut: '/favicon.ico?v=2',
   },
 };
 
@@ -31,6 +32,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <link rel="icon" href="/favicon.ico?v=2" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" />
+      </head>
       <body className={`${inter.className} ${playfair.variable}`}>
         <Providers>
           <AnalyticsTracker />
