@@ -132,6 +132,7 @@ export default function ContactUs() {
                       type="text"
                       id="firstName"
                       name="firstName"
+                      autoComplete="given-name"
                       required
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--brand-aruba)] focus:border-[var(--brand-aruba)] transition-all"
                       placeholder="Your first name"
@@ -145,6 +146,7 @@ export default function ContactUs() {
                       type="text"
                       id="lastName"
                       name="lastName"
+                      autoComplete="family-name"
                       required
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--brand-aruba)] focus:border-[var(--brand-aruba)] transition-all"
                       placeholder="Your last name"
@@ -160,6 +162,7 @@ export default function ContactUs() {
                     type="email"
                     id="email"
                     name="email"
+                    autoComplete="email"
                     required
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--brand-aruba)] focus:border-[var(--brand-aruba)] transition-all"
                     placeholder="your.email@example.com"

@@ -46,6 +46,9 @@ export function LocationInput({ location, latitude, longitude, onChange }: Locat
         </label>
         <input
           type="text"
+          id="location-name"
+          name="location-name"
+          autoComplete="address-line1"
           value={location || ''}
           onChange={(e) => handleLocationChange(e.target.value)}
           placeholder="e.g., Eagle Beach, Aruba or Palm Beach, Oranjestad"
@@ -87,6 +90,8 @@ export function LocationInput({ location, latitude, longitude, onChange }: Locat
               </label>
               <input
                 type="number"
+                id="latitude"
+                name="latitude"
                 step="any"
                 value={lat}
                 onChange={(e) => {
@@ -105,6 +110,8 @@ export function LocationInput({ location, latitude, longitude, onChange }: Locat
               </label>
               <input
                 type="number"
+                id="longitude"
+                name="longitude"
                 step="any"
                 value={lng}
                 onChange={(e) => {
