@@ -73,12 +73,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data) {
-          const { user, tokens } = data.data;
-          
-          // Store token and user info
+      const responseData = await response.json().catch(() => ({ error: 'Failed to parse response' }));
+      
+      if (response.ok && responseData.success && responseData.data) {
+        const { user, tokens } = responseData.data;
+        
+        // Verify tokens exist
+        if (!tokens || !tokens.accessToken) {
+          console.error('Login response missing tokens:', responseData);
+          throw new Error('Login failed: No access token received');
+        }
+        
+        // Store token and user info
+        try {
           localStorage.setItem('authToken', tokens.accessToken);
           localStorage.setItem('refreshToken', tokens.refreshToken || '');
           localStorage.setItem('user', JSON.stringify({
@@ -87,18 +94,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: user.first_name || user.email,
           }));
           
+          // Verify token was stored
+          const storedToken = localStorage.getItem('authToken');
+          if (!storedToken) {
+            console.error('Failed to store token in localStorage');
+            throw new Error('Failed to store authentication token');
+          }
+          
           setUser({
             id: user.id,
             email: user.email,
             name: user.first_name || user.email,
           });
           return;
+        } catch (storageError) {
+          console.error('localStorage error:', storageError);
+          throw new Error('Failed to save authentication data. Please check browser settings.');
         }
       }
       
       // If backend returns error, throw it
-      const errorData = await response.json().catch(() => ({ error: 'Login failed' }));
-      throw new Error(errorData.error || 'Invalid credentials');
+      throw new Error(responseData.error || responseData.message || 'Invalid credentials');
     } catch (error) {
       // Check if it's a network error (backend not running)
       if (error instanceof TypeError && error.message.includes('fetch')) {

@@ -68,7 +68,10 @@ async function apiRequest<T>(
   
   // Check if token exists
   if (!token || token === 'mock-token-for-demo') {
-    console.warn('No auth token found. Available keys:', typeof window !== 'undefined' ? Object.keys(localStorage) : 'N/A');
+    // Only log warning in development to avoid console noise
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('No auth token found. Available keys:', typeof window !== 'undefined' ? Object.keys(localStorage) : 'N/A');
+    }
     return {
       success: false,
       error: 'Authentication required. Please log in.',
