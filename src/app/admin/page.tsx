@@ -55,17 +55,29 @@ export default function AdminDashboard() {
 
       const analytics = analyticsResponse.success ? (analyticsResponse.data as any) : null;
 
+      // Helper to extract count from response
+      const getCount = (res: any) => {
+        if (!res.success || !res.data) return 0;
+        // Check for pagination.total
+        if (res.data.pagination?.total !== undefined) return res.data.pagination.total;
+        // Check if data is an array
+        if (Array.isArray(res.data)) return res.data.length;
+        // Check for items array
+        if (Array.isArray(res.data.items)) return res.data.items.length;
+        return 0;
+      };
+
       setStats({
         totalVisitors: analytics?.totalVisitors || 0,
         totalPageViews: analytics?.totalPageViews || 0,
         bounceRate: analytics?.bounceRate || 0,
         avgSessionDuration: analytics?.avgSessionDuration || 0,
-        totalTours: toursRes.success && (toursRes.data as any)?.pagination ? (toursRes.data as any).pagination.total : 0,
-        totalEvents: eventsRes.success && (eventsRes.data as any)?.pagination ? (eventsRes.data as any).pagination.total : 0,
-        totalExperiences: experiencesRes.success && (experiencesRes.data as any)?.pagination ? (experiencesRes.data as any).pagination.total : 0,
-        totalRestaurants: restaurantsRes.success && (restaurantsRes.data as any)?.pagination ? (restaurantsRes.data as any).pagination.total : 0,
-        totalLocations: locationsRes.success && (locationsRes.data as any)?.pagination ? (locationsRes.data as any).pagination.total : 0,
-        totalClients: clientsRes.success && (clientsRes.data as any)?.pagination ? (clientsRes.data as any).pagination.total : 0,
+        totalTours: getCount(toursRes),
+        totalEvents: getCount(eventsRes),
+        totalExperiences: getCount(experiencesRes),
+        totalRestaurants: getCount(restaurantsRes),
+        totalLocations: getCount(locationsRes),
+        totalClients: getCount(clientsRes),
       });
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);

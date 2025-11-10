@@ -84,7 +84,27 @@ export function ContentManagementPage({
         featured: filters.featured === 'featured' ? true : undefined,
       });
       if (response.success && response.data) {
-        setItems(response.data.items || response.data[contentType] || []);
+        // Handle different response formats:
+        // 1. Array directly: { data: [...] }
+        // 2. Object with items: { data: { items: [...] } }
+        // 3. Object with contentType key: { data: { tours: [...] } }
+        let items = [];
+        if (Array.isArray(response.data)) {
+          items = response.data;
+        } else if (response.data.items && Array.isArray(response.data.items)) {
+          items = response.data.items;
+        } else if (response.data[contentType] && Array.isArray(response.data[contentType])) {
+          items = response.data[contentType];
+        }
+        
+        console.log(`[${contentType}] Fetched items:`, {
+          responseFormat: Array.isArray(response.data) ? 'array' : 'object',
+          itemsCount: items.length,
+          sampleItem: items[0],
+          fullResponse: response
+        });
+        
+        setItems(items);
       } else {
         setError(response.error || `Failed to fetch ${contentTypeLabel}`);
       }
