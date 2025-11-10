@@ -78,7 +78,11 @@ async function publicApiRequest<T>(
       };
     }
 
-    return { success: true, data };
+    // Edge Functions return { success: true, data: [...] }
+    // Extract the data from the response
+    const responseData = data.success && data.data ? data.data : data;
+    
+    return { success: true, data: responseData };
   } catch (error) {
     console.error('Public API request failed:', error);
     return {

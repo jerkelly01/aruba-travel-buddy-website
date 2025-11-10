@@ -35,21 +35,39 @@ export default function CulturalEventsPage() {
   const loadEvents = async () => {
     try {
       setLoading(true);
+      console.log('[Cultural Events] Fetching events...');
       const response = await publicCulturalEventsApi.getAll({ active: true });
+      
+      console.log('[Cultural Events] Response:', {
+        success: response.success,
+        hasData: !!response.data,
+        dataType: Array.isArray(response.data) ? 'array' : typeof response.data,
+        dataLength: Array.isArray(response.data) ? response.data.length : 'N/A',
+        error: response.error,
+        fullResponse: response
+      });
       
       if (response.success && response.data) {
         // Handle array response
-        const eventsData = Array.isArray(response.data) 
-          ? response.data 
-          : response.data.items || response.data.culturalEvents || [];
+        let eventsData: CulturalEvent[] = [];
+        if (Array.isArray(response.data)) {
+          eventsData = response.data;
+        } else if (response.data.items && Array.isArray(response.data.items)) {
+          eventsData = response.data.items;
+        } else if (response.data.culturalEvents && Array.isArray(response.data.culturalEvents)) {
+          eventsData = response.data.culturalEvents;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          eventsData = response.data.data;
+        }
         
+        console.log('[Cultural Events] Parsed events:', eventsData.length, eventsData);
         setEvents(eventsData);
       } else {
-        console.error('Failed to load events:', response.error);
+        console.error('[Cultural Events] Failed to load events:', response.error);
         setEvents([]);
       }
     } catch (error) {
-      console.error('Error loading events:', error);
+      console.error('[Cultural Events] Error loading events:', error);
       setEvents([]);
     } finally {
       setLoading(false);
