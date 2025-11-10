@@ -1,7 +1,13 @@
 // Website Analytics Tracking
 // Tracks page views, user interactions, and conversions
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Use Supabase Edge Functions if SUPABASE_URL is set, otherwise fall back to Express API
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const USE_SUPABASE_EDGE_FUNCTIONS = !!SUPABASE_URL;
+const API_BASE_URL = USE_SUPABASE_EDGE_FUNCTIONS 
+  ? `${SUPABASE_URL}/functions/v1` 
+  : EXPRESS_API_URL;
 
 class AnalyticsTracker {
   private sessionId: string;
