@@ -345,12 +345,6 @@ const Navbar = () => {
             >
               Download FREE
             </Link>
-            <Link
-              href="/admin"
-              className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 transition-all duration-300"
-            >
-              Admin
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -593,13 +587,6 @@ const Navbar = () => {
                   className="block w-full px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-center shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   Download FREE
-                </Link>
-                <Link
-                  href="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-base font-medium text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 transition-all duration-300"
-                >
-                  Admin
                 </Link>
               </div>
             </div>
