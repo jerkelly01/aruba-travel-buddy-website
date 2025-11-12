@@ -24,10 +24,12 @@ async function publicApiRequest<T>(
   // e.g., /api/tours -> /admin-content/tours
   let mappedEndpoint = endpoint;
   if (USE_SUPABASE_EDGE_FUNCTIONS) {
-    if (endpoint.startsWith('/api/tours')) {
-      mappedEndpoint = endpoint.replace('/api/tours', '/admin-content/tours');
-    } else if (endpoint.startsWith('/api/cultural-events')) {
-      mappedEndpoint = endpoint.replace('/api/cultural-events', '/admin-content/cultural-events');
+    const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'car-rentals', 'gear-rentals'];
+    for (const type of contentTypes) {
+      if (endpoint.startsWith(`/api/${type}`)) {
+        mappedEndpoint = endpoint.replace(`/api/${type}`, `/admin-content/${type}`);
+        break;
+      }
     }
   }
   
@@ -116,6 +118,58 @@ export const publicCulturalEventsApi = {
   },
   getById: async (id: string) => {
     return publicApiRequest(`/api/cultural-events/${id}`);
+  },
+};
+
+export const publicLocalExperiencesApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/local-experiences${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/local-experiences/${id}`);
+  },
+};
+
+export const publicRestaurantsApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/restaurants${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/restaurants/${id}`);
+  },
+};
+
+export const publicCarRentalsApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/car-rentals${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/car-rentals/${id}`);
+  },
+};
+
+export const publicGearRentalsApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/gear-rentals${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/gear-rentals/${id}`);
   },
 };
 
