@@ -36,7 +36,7 @@ export default function RootLayout({
         <Providers>
           <AnalyticsTracker />
           <Navbar />
-          <main className="pt-20">{children}</main>
+          <main className="pt-24">{children}</main>
           <Footer />
         </Providers>
       </body>
