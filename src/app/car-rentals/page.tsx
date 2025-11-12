@@ -39,14 +39,15 @@ export default function CarRentalsPage() {
       
       if (response.success && response.data) {
         let rentalsData: CarRental[] = [];
-        if (Array.isArray(response.data)) {
-          rentalsData = response.data;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          rentalsData = response.data.items;
-        } else if (response.data.carRentals && Array.isArray(response.data.carRentals)) {
-          rentalsData = response.data.carRentals;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          rentalsData = response.data.data;
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          rentalsData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          rentalsData = data.items;
+        } else if (data.carRentals && Array.isArray(data.carRentals)) {
+          rentalsData = data.carRentals;
+        } else if (data.data && Array.isArray(data.data)) {
+          rentalsData = data.data;
         }
         
         console.log('[Car Rentals] Parsed rentals:', rentalsData.length);

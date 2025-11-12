@@ -39,14 +39,15 @@ export default function GearRentalsPage() {
       
       if (response.success && response.data) {
         let rentalsData: GearRental[] = [];
-        if (Array.isArray(response.data)) {
-          rentalsData = response.data;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          rentalsData = response.data.items;
-        } else if (response.data.gearRentals && Array.isArray(response.data.gearRentals)) {
-          rentalsData = response.data.gearRentals;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          rentalsData = response.data.data;
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          rentalsData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          rentalsData = data.items;
+        } else if (data.gearRentals && Array.isArray(data.gearRentals)) {
+          rentalsData = data.gearRentals;
+        } else if (data.data && Array.isArray(data.data)) {
+          rentalsData = data.data;
         }
         
         console.log('[Gear Rentals] Parsed rentals:', rentalsData.length);

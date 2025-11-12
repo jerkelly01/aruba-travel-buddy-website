@@ -50,14 +50,15 @@ export default function CulturalEventsPage() {
       if (response.success && response.data) {
         // Handle array response
         let eventsData: CulturalEvent[] = [];
-        if (Array.isArray(response.data)) {
-          eventsData = response.data;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          eventsData = response.data.items;
-        } else if (response.data.culturalEvents && Array.isArray(response.data.culturalEvents)) {
-          eventsData = response.data.culturalEvents;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          eventsData = response.data.data;
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          eventsData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          eventsData = data.items;
+        } else if (data.culturalEvents && Array.isArray(data.culturalEvents)) {
+          eventsData = data.culturalEvents;
+        } else if (data.data && Array.isArray(data.data)) {
+          eventsData = data.data;
         }
         
         console.log('[Cultural Events] Parsed events:', eventsData.length, eventsData);
@@ -231,7 +232,7 @@ export default function CulturalEventsPage() {
                         </div>
                         {event.start_time && (
                           <div className="flex items-center gap-2">
-                            <Icon name="clock" className="w-4 h-4" />
+                            <Icon name="calendar-days" className="w-4 h-4" />
                             <span>
                               {formatTime(event.start_time)}
                               {event.end_time && ` - ${formatTime(event.end_time)}`}

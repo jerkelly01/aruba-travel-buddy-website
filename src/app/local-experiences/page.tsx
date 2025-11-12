@@ -39,14 +39,15 @@ export default function LocalExperiencesPage() {
       
       if (response.success && response.data) {
         let experiencesData: LocalExperience[] = [];
-        if (Array.isArray(response.data)) {
-          experiencesData = response.data;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          experiencesData = response.data.items;
-        } else if (response.data.localExperiences && Array.isArray(response.data.localExperiences)) {
-          experiencesData = response.data.localExperiences;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          experiencesData = response.data.data;
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          experiencesData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          experiencesData = data.items;
+        } else if (data.localExperiences && Array.isArray(data.localExperiences)) {
+          experiencesData = data.localExperiences;
+        } else if (data.data && Array.isArray(data.data)) {
+          experiencesData = data.data;
         }
         
         console.log('[Local Experiences] Parsed experiences:', experiencesData.length);
@@ -188,7 +189,7 @@ export default function LocalExperiencesPage() {
                         )}
                         {exp.duration && (
                           <div className="flex items-center gap-2">
-                            <Icon name="clock" className="w-4 h-4" />
+                            <Icon name="calendar-days" className="w-4 h-4" />
                             <span>{exp.duration}</span>
                           </div>
                         )}

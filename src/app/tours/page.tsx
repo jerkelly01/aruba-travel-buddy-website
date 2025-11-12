@@ -39,14 +39,15 @@ export default function ToursPage() {
       
       if (response.success && response.data) {
         let toursData: Tour[] = [];
-        if (Array.isArray(response.data)) {
-          toursData = response.data;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          toursData = response.data.items;
-        } else if (response.data.tours && Array.isArray(response.data.tours)) {
-          toursData = response.data.tours;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          toursData = response.data.data;
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          toursData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          toursData = data.items;
+        } else if (data.tours && Array.isArray(data.tours)) {
+          toursData = data.tours;
+        } else if (data.data && Array.isArray(data.data)) {
+          toursData = data.data;
         }
         
         console.log('[Tours] Parsed tours:', toursData.length);
@@ -188,7 +189,7 @@ export default function ToursPage() {
                         )}
                         {tour.duration && (
                           <div className="flex items-center gap-2">
-                            <Icon name="clock" className="w-4 h-4" />
+                            <Icon name="calendar-days" className="w-4 h-4" />
                             <span>{tour.duration}</span>
                           </div>
                         )}

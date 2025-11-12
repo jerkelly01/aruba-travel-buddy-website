@@ -18,7 +18,6 @@ package = "@netlify/plugin-nextjs"
 publish = "/Users/jeremykelly/Downloads/ArubaTravelBuddy-main/aruba-travel-buddy-website/.next"
 publishOrigin = "config"
 commandOrigin = "config"
-base = "/Users/jeremykelly/Downloads/ArubaTravelBuddy-main/aruba-travel-buddy-website"
 command = "npm run build"
 
 [build.environment]

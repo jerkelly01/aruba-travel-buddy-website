@@ -43,14 +43,15 @@ export default function RestaurantsPage() {
       
       if (response.success && response.data) {
         let restaurantsData: Restaurant[] = [];
-        if (Array.isArray(response.data)) {
-          restaurantsData = response.data;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          restaurantsData = response.data.items;
-        } else if (response.data.restaurants && Array.isArray(response.data.restaurants)) {
-          restaurantsData = response.data.restaurants;
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          restaurantsData = response.data.data;
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          restaurantsData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          restaurantsData = data.items;
+        } else if (data.restaurants && Array.isArray(data.restaurants)) {
+          restaurantsData = data.restaurants;
+        } else if (data.data && Array.isArray(data.data)) {
+          restaurantsData = data.data;
         }
         
         console.log('[Restaurants] Parsed restaurants:', restaurantsData.length);
