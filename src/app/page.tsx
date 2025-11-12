@@ -93,7 +93,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <Container className="relative z-[2] pt-24 pb-20">
+        <Container className="relative z-[2] pt-12 pb-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -104,17 +104,17 @@ export default function Home() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 shadow-lg"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-4 shadow-lg"
             >
-              <Icon name="sparkles" className="w-4 h-4 text-[var(--brand-sun)] animate-pulse" />
-              <span className="text-sm text-white/90 font-medium">Your Personal Aruba Guide</span>
+              <Icon name="sparkles" className="w-3.5 h-3.5 text-[var(--brand-sun)] animate-pulse" />
+              <span className="text-xs text-white/90 font-medium">Your Personal Aruba Guide</span>
             </motion.div>
             
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight mb-6 font-display drop-shadow-2xl"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 font-display drop-shadow-2xl"
             >
               <span className="block">Discover</span>
               <span className="block bg-gradient-to-r from-[var(--brand-aruba-light)] to-[var(--brand-sun)] bg-clip-text text-transparent drop-shadow-lg">
@@ -127,7 +127,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="text-xl sm:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl"
+              className="text-base sm:text-lg text-white/90 mb-6 leading-relaxed max-w-3xl"
             >
               Your comprehensive travel companion featuring Itinerary Generator trip planning, AR view, offline maps, local experiences, and authentic cultural immersion in One Happy Island.
             </motion.p>
@@ -136,7 +136,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row gap-3"
             >
               <Button
                 href="/download"
