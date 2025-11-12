@@ -24,7 +24,6 @@ const Navbar = () => {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Features', href: '/features' },
-    { name: 'Experiences', href: '/experiences' },
   ];
 
   const attractionsSubLinks = [
