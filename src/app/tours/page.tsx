@@ -80,17 +80,12 @@ export default function ToursPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-0 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Tours & Excursions"
             subtitle="Discover the best guided tours and excursions Aruba has to offer"
             center
-            compact
-            className="tours-hero !mb-0"
-            titleClassName="!mt-0 !text-xs sm:!text-sm lg:!text-base !leading-none"
-            subtitleClassName="!mt-0 !text-[10px] sm:!text-xs !leading-tight"
-            dividerClassName="hidden"
           />
         </Container>
       </section>
