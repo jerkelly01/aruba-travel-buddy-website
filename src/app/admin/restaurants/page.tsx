@@ -25,6 +25,7 @@ export default function RestaurantsPage() {
         featured: item.featured || false,
         active: item.active !== false,
         display_order: item.display_order || 0,
+        code_snippet: item.code_snippet || '',
       })}
       getEmptyItem={() => ({
         name: '',
@@ -40,6 +41,7 @@ export default function RestaurantsPage() {
         featured: false,
         active: true,
         display_order: 0,
+        code_snippet: '',
       })}
       renderCustomFields={(item, setItem) => (
         <>

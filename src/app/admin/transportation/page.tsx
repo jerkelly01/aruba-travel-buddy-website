@@ -24,6 +24,7 @@ export default function TransportationPage() {
         featured: item.featured || false,
         active: item.active !== false,
         display_order: item.display_order || 0,
+        code_snippet: item.code_snippet || '',
       })}
       getEmptyItem={() => ({
         name: '',
@@ -38,23 +39,24 @@ export default function TransportationPage() {
         featured: false,
         active: true,
         display_order: 0,
+        code_snippet: '',
       })}
       renderCustomFields={(item, setItem) => (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select
               value={item.type || 'car_rental'}
               onChange={(e) => setItem({ ...item, type: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="car_rental">Car Rental</option>
-              <option value="taxi">Taxi</option>
-              <option value="bus">Bus</option>
-              <option value="shuttle">Shuttle</option>
-              <option value="bike_rental">Bike Rental</option>
-              <option value="scooter">Scooter</option>
+              <option value="car_rental">Car Rentals</option>
+              <option value="bus_tour">Bus Tours</option>
+              <option value="private_transportation">Private Transportation</option>
             </select>
+            <p className="mt-1 text-xs text-gray-500">
+              Select the category to determine which page this item appears on
+            </p>
           </div>
           <ContactInfoInput
             value={item.contact_info || {}}

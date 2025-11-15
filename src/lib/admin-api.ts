@@ -103,17 +103,45 @@ async function apiRequest<T>(
       // For Edge Functions, Authorization should contain the user's access token
       // (already set above if token exists). If no token, we can't make authenticated calls.
       // The apikey header is for platform authentication, Authorization is for user auth.
+    } else {
+      console.error('[Admin API] NEXT_PUBLIC_SUPABASE_ANON_KEY is not set! Requests to Edge Functions will fail.');
+      console.error('[Admin API] Please set NEXT_PUBLIC_SUPABASE_ANON_KEY in Netlify environment variables.');
     }
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${mappedEndpoint}`, {
+    const fullUrl = `${API_BASE_URL}${mappedEndpoint}`;
+    console.log('[Admin API] Making request:', {
+      endpoint,
+      mappedEndpoint,
+      fullUrl,
+      method: options.method || 'GET',
+      useEdgeFunctions: USE_SUPABASE_EDGE_FUNCTIONS,
+      hasAnonKey: USE_SUPABASE_EDGE_FUNCTIONS ? !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY : 'N/A',
+      hasToken: !!token,
+      headers: Object.keys(headers),
+    });
+    
+    // For Edge Functions, ensure we handle CORS preflight
+    const fetchOptions: RequestInit = {
       ...options,
       headers,
+      mode: 'cors', // Explicitly set CORS mode
+      credentials: 'omit', // Don't send cookies
+    };
+    
+    const response = await fetch(fullUrl, fetchOptions);
+    
+    console.log('[Admin API] Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      headers: Object.fromEntries(response.headers.entries()),
     });
 
     // Read response as text first (we can only read the body once)
     const text = await response.text();
+    console.log('[Admin API] Response text (first 500 chars):', text.substring(0, 500));
     
     // Check if response is JSON before parsing
     const contentType = response.headers.get('content-type') || '';
@@ -284,12 +312,42 @@ async function apiRequest<T>(
     // Check if it's a network error (backend not running)
     if (error instanceof TypeError) {
       if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+        let errorMessage = `Cannot connect to backend server at ${API_BASE_URL}.`;
+        
+        if (USE_SUPABASE_EDGE_FUNCTIONS) {
+          const hasAnonKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+          if (!hasAnonKey) {
+            errorMessage += `\n\n⚠️ Missing Environment Variable: NEXT_PUBLIC_SUPABASE_ANON_KEY is not set in Netlify.`;
+            errorMessage += `\n\nTo fix this:`;
+            errorMessage += `\n1. Go to: https://app.netlify.com/sites/arubatravelbuddy1/configuration/env`;
+            errorMessage += `\n2. Add environment variable:`;
+            errorMessage += `\n   - Key: NEXT_PUBLIC_SUPABASE_ANON_KEY`;
+            errorMessage += `\n   - Value: (Get from Supabase Dashboard → Settings → API → anon/public key)`;
+            errorMessage += `\n3. Redeploy the site after adding the variable`;
+          } else {
+            errorMessage += `\n\nPossible issues:`;
+            errorMessage += `\n- CORS preflight request may be blocked (check browser console for CORS errors)`;
+            errorMessage += `\n- Network connectivity problem (check internet connection)`;
+            errorMessage += `\n- Browser extension blocking requests (try disabling ad blockers)`;
+            errorMessage += `\n\nTroubleshooting steps:`;
+            errorMessage += `\n1. Open browser DevTools (F12) → Network tab`;
+            errorMessage += `\n2. Try the request again and check if it appears in the Network tab`;
+            errorMessage += `\n3. Look for CORS errors or blocked requests`;
+            errorMessage += `\n4. Check the Console tab for detailed error messages`;
+          }
+        } else {
+          errorMessage += `\n\nMake sure the backend server is running and accessible.`;
+        }
+        
         return {
           success: false,
-          error: `Cannot connect to backend server at ${API_BASE_URL}. Make sure the backend server is running and accessible.`,
+          error: errorMessage,
           details: { 
             originalError: error.message,
-            endpoint: `${API_BASE_URL}${endpoint}`,
+            endpoint: `${API_BASE_URL}${mappedEndpoint}`,
+            fullUrl: `${API_BASE_URL}${mappedEndpoint}`,
+            useEdgeFunctions: USE_SUPABASE_EDGE_FUNCTIONS,
+            hasAnonKey: USE_SUPABASE_EDGE_FUNCTIONS ? !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY : 'N/A',
             type: 'NetworkError'
           },
         };

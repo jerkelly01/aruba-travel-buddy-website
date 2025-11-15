@@ -11,16 +11,16 @@ const Footer = () => {
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--brand-aruba)] via-[var(--brand-amber)] to-[var(--brand-aruba)] opacity-50" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
-              <div className="relative w-14 h-14 flex items-center justify-center">
+              <div className="relative w-32 h-32 flex items-center justify-center">
                 <Image
                   src="/logo.png"
                   alt="Aruba Travel Buddy"
-                  width={56}
-                  height={56}
+                  width={128}
+                  height={128}
                   className="transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
@@ -63,52 +63,33 @@ const Footer = () => {
           {/* Quick Links */}
           <div>
             <h4 className="text-sm font-bold mb-6 text-gray-900 uppercase tracking-wider">Quick Links</h4>
-            <ul className="space-y-3">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3">
               {[
                 { name: 'Home', href: '/' },
-                { name: 'Experiences', href: '/experiences' },
+                { name: 'About', href: '/about' },
                 { name: 'Features', href: '/features' },
-                { name: 'About Us', href: '/about' },
+                { name: 'Tours', href: '/tours' },
+                { name: 'Cultural Events', href: '/cultural-events' },
+                { name: 'Local Experiences', href: '/local-experiences' },
+                { name: 'Restaurants', href: '/restaurants' },
+                { name: 'Travel Tips', href: '/blogs' },
+                { name: 'Car Rentals', href: '/car-rentals' },
+                { name: 'Bus Tours', href: '/bus-tours' },
+                { name: 'Private Transportation', href: '/private-transportation' },
                 { name: 'Download FREE', href: '/download' },
               ].map((link) => (
-                <li key={link.name}>
-                  <Link 
-                    href={link.href} 
-                    className="text-gray-600 hover:text-[var(--brand-aruba)] transition-all duration-200 hover:translate-x-1 inline-block text-sm group"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                      {link.name}
-                    </span>
-                  </Link>
-                </li>
+                <Link 
+                  key={link.name}
+                  href={link.href} 
+                  className="text-gray-600 hover:text-[var(--brand-aruba)] transition-all duration-200 hover:translate-x-1 inline-block text-sm group"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    {link.name}
+                  </span>
+                </Link>
               ))}
-            </ul>
-          </div>
-
-          {/* Popular Experiences */}
-          <div>
-            <h4 className="text-sm font-bold mb-6 text-gray-900 uppercase tracking-wider">Popular Experiences</h4>
-            <ul className="space-y-3">
-              {[
-                { name: 'UTV Off-Road Adventure', href: '/experiences/utv-adventure' },
-                { name: 'Snorkel Cruise', href: '/experiences/snorkel-cruise' },
-                { name: 'Catamaran Sail', href: '/experiences/catamaran-sail' },
-                { name: 'Airport Transfer', href: '/experiences/airport-transfer' },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link 
-                    href={link.href} 
-                    className="text-gray-600 hover:text-[var(--brand-amber)] transition-all duration-200 hover:translate-x-1 inline-block text-sm group"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                      {link.name}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            </div>
           </div>
 
           {/* Company */}

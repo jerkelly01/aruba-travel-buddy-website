@@ -23,6 +23,7 @@ export default function ToursPage() {
         featured: item.featured || false,
         active: item.active !== false,
         display_order: item.display_order || 0,
+        code_snippet: item.code_snippet || '',
       })}
       getEmptyItem={() => ({
         title: '',
@@ -38,6 +39,7 @@ export default function ToursPage() {
         featured: false,
         active: true,
         display_order: 0,
+        code_snippet: '',
       })}
       renderCustomFields={(item, setItem) => (
         <>

@@ -127,16 +127,58 @@
       "namedRegex": "^/admin/transportation(?:/)?$"
     },
     {
+      "page": "/become-a-partner",
+      "regex": "^/become\\-a\\-partner(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/become\\-a\\-partner(?:/)?$"
+    },
+    {
+      "page": "/blogs",
+      "regex": "^/blogs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blogs(?:/)?$"
+    },
+    {
+      "page": "/bus-tours",
+      "regex": "^/bus\\-tours(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/bus\\-tours(?:/)?$"
+    },
+    {
+      "page": "/car-rentals",
+      "regex": "^/car\\-rentals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/car\\-rentals(?:/)?$"
+    },
+    {
       "page": "/contact-us",
       "regex": "^/contact\\-us(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/contact\\-us(?:/)?$"
     },
     {
+      "page": "/cultural-events",
+      "regex": "^/cultural\\-events(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cultural\\-events(?:/)?$"
+    },
+    {
+      "page": "/cultural-tips",
+      "regex": "^/cultural\\-tips(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cultural\\-tips(?:/)?$"
+    },
+    {
       "page": "/download",
       "regex": "^/download(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/download(?:/)?$"
+    },
+    {
+      "page": "/ed-card",
+      "regex": "^/ed\\-card(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ed\\-card(?:/)?$"
     },
     {
       "page": "/experiences",
@@ -157,10 +199,28 @@
       "namedRegex": "^/features(?:/)?$"
     },
     {
+      "page": "/gear-rentals",
+      "regex": "^/gear\\-rentals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/gear\\-rentals(?:/)?$"
+    },
+    {
+      "page": "/local-experiences",
+      "regex": "^/local\\-experiences(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/local\\-experiences(?:/)?$"
+    },
+    {
       "page": "/login",
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/photo-challenges",
+      "regex": "^/photo\\-challenges(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/photo\\-challenges(?:/)?$"
     },
     {
       "page": "/privacy-policy",
@@ -169,10 +229,34 @@
       "namedRegex": "^/privacy\\-policy(?:/)?$"
     },
     {
+      "page": "/private-transportation",
+      "regex": "^/private\\-transportation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/private\\-transportation(?:/)?$"
+    },
+    {
+      "page": "/restaurants",
+      "regex": "^/restaurants(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/restaurants(?:/)?$"
+    },
+    {
+      "page": "/support-locals",
+      "regex": "^/support\\-locals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/support\\-locals(?:/)?$"
+    },
+    {
       "page": "/terms-and-conditions",
       "regex": "^/terms\\-and\\-conditions(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/terms\\-and\\-conditions(?:/)?$"
+    },
+    {
+      "page": "/tours",
+      "regex": "^/tours(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tours(?:/)?$"
     }
   ],
   "dataRoutes": [],

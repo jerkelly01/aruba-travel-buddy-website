@@ -24,7 +24,7 @@ async function publicApiRequest<T>(
   // e.g., /api/tours -> /admin-content/tours
   let mappedEndpoint = endpoint;
   if (USE_SUPABASE_EDGE_FUNCTIONS) {
-    const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'car-rentals', 'gear-rentals'];
+    const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'car-rentals', 'gear-rentals', 'transportation', 'support-locals', 'photo-challenges'];
     for (const type of contentTypes) {
       if (endpoint.startsWith(`/api/${type}`)) {
         mappedEndpoint = endpoint.replace(`/api/${type}`, `/admin-content/${type}`);
@@ -39,24 +39,37 @@ async function publicApiRequest<T>(
   };
 
   // Add Supabase API key for Edge Functions (anon key for public access)
+  // Supabase Edge Functions require both apikey and Authorization headers for public access
   if (USE_SUPABASE_EDGE_FUNCTIONS) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
     if (supabaseAnonKey) {
       headers['apikey'] = supabaseAnonKey;
+      // Also add Authorization header with anon key for public access (Supabase requirement)
+      headers['Authorization'] = `Bearer ${supabaseAnonKey}`;
+    } else {
+      console.warn('[Public API] NEXT_PUBLIC_SUPABASE_ANON_KEY not set - requests may fail');
     }
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${mappedEndpoint}`, {
+    const fullUrl = `${API_BASE_URL}${mappedEndpoint}`;
+    console.log('[Public API] Request:', { endpoint, mappedEndpoint, fullUrl, useEdgeFunctions: USE_SUPABASE_EDGE_FUNCTIONS });
+    
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
 
+    console.log('[Public API] Response status:', response.status, response.statusText);
+    
     const text = await response.text();
+    console.log('[Public API] Response text (first 500 chars):', text.substring(0, 500));
+    
     const contentType = response.headers.get('content-type') || '';
     const isJson = contentType.includes('application/json');
 
     if (!isJson && text.trim()) {
+      console.error('[Public API] Non-JSON response:', text);
       return {
         success: false,
         error: `Server returned non-JSON response: ${response.status} ${response.statusText}`,
@@ -67,13 +80,17 @@ async function publicApiRequest<T>(
     try {
       data = text ? JSON.parse(text) : {};
     } catch (jsonError) {
+      console.error('[Public API] JSON parse error:', jsonError, 'Text:', text);
       return {
         success: false,
         error: 'Invalid JSON response from server',
       };
     }
 
+    console.log('[Public API] Parsed data:', { success: data.success, hasData: !!data.data, dataType: typeof data.data });
+
     if (!response.ok) {
+      console.error('[Public API] Request failed:', { status: response.status, data });
       return {
         success: false,
         error: data.error || `Request failed: ${response.status} ${response.statusText}`,
@@ -84,9 +101,15 @@ async function publicApiRequest<T>(
     // Extract the data from the response
     const responseData = data.success && data.data ? data.data : data;
     
+    console.log('[Public API] Final response data:', { 
+      isArray: Array.isArray(responseData), 
+      length: Array.isArray(responseData) ? responseData.length : 'N/A',
+      firstItem: Array.isArray(responseData) && responseData.length > 0 ? responseData[0] : null
+    });
+    
     return { success: true, data: responseData };
   } catch (error) {
-    console.error('Public API request failed:', error);
+    console.error('[Public API] Request failed:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Network error',
@@ -170,6 +193,46 @@ export const publicGearRentalsApi = {
   },
   getById: async (id: string) => {
     return publicApiRequest(`/api/gear-rentals/${id}`);
+  },
+};
+
+export const publicTransportationApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean; type?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    if (params?.type) queryParams.append('type', params.type);
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/transportation${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/transportation/${id}`);
+  },
+};
+
+export const publicSupportLocalsApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/support-locals${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/support-locals/${id}`);
+  },
+};
+
+export const publicPhotoChallengesApi = {
+  getAll: async (params?: { active?: boolean; featured?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    const query = queryParams.toString();
+    return publicApiRequest(`/api/photo-challenges${query ? `?${query}` : ''}`);
+  },
+  getById: async (id: string) => {
+    return publicApiRequest(`/api/photo-challenges/${id}`);
   },
 };
 

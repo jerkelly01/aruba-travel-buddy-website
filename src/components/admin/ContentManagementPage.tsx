@@ -526,6 +526,21 @@ function ContentModal({
             {/* Custom Fields */}
             {renderCustomFields && renderCustomFields(formData, setFormData)}
 
+            {/* Code Snippet */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Code Snippet</label>
+              <textarea
+                value={formData?.code_snippet || ''}
+                onChange={(e) => setFormData({ ...formData, code_snippet: e.target.value })}
+                placeholder="Paste widget code, script tags, or HTML here (e.g., Viator widget)"
+                rows={6}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Add widget code, script tags, or HTML that will be rendered on the public page
+              </p>
+            </div>
+
             {/* Tags */}
             {formData?.tags !== undefined && (
               <div>

@@ -12,7 +12,7 @@ export default function BlogsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Travel Blogs"

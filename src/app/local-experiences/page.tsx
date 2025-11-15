@@ -8,6 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
+import { normalizeLocalExperiences } from "@/lib/data-normalization";
 
 interface LocalExperience {
   id: string;
@@ -41,13 +42,13 @@ export default function LocalExperiencesPage() {
         let experiencesData: LocalExperience[] = [];
         const data = response.data as any;
         if (Array.isArray(data)) {
-          experiencesData = data;
+          experiencesData = normalizeLocalExperiences(data);
         } else if (data.items && Array.isArray(data.items)) {
-          experiencesData = data.items;
+          experiencesData = normalizeLocalExperiences(data.items);
         } else if (data.localExperiences && Array.isArray(data.localExperiences)) {
-          experiencesData = data.localExperiences;
+          experiencesData = normalizeLocalExperiences(data.localExperiences);
         } else if (data.data && Array.isArray(data.data)) {
-          experiencesData = data.data;
+          experiencesData = normalizeLocalExperiences(data.data);
         }
         
         console.log('[Local Experiences] Parsed experiences:', experiencesData.length);
@@ -76,7 +77,7 @@ export default function LocalExperiencesPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Local Experiences"

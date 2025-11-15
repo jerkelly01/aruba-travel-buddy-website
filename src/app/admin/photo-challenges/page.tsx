@@ -23,6 +23,7 @@ export default function PhotoChallengesPage() {
         start_date: item.start_date,
         end_date: item.end_date,
         display_order: item.display_order || 0,
+        code_snippet: item.code_snippet || '',
       })}
       getEmptyItem={() => ({
         title: '',
@@ -38,6 +39,7 @@ export default function PhotoChallengesPage() {
         start_date: '',
         end_date: '',
         display_order: 0,
+        code_snippet: '',
       })}
       renderCustomFields={(item, setItem) => (
         <>

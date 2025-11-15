@@ -21,7 +21,7 @@ commandOrigin = "config"
 command = "npm run build"
 
 [build.environment]
-NODE_VERSION = "18"
+NODE_VERSION = "20"
 
 [build.processing]
 skip_processing = false
@@ -50,6 +50,12 @@ X-Frame-Options = "DENY"
 X-XSS-Protection = "1; mode=block"
 X-Content-Type-Options = "nosniff"
 Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+for = "/favicon.ico"
+
+[headers.values]
+Cache-Control = "public, max-age=3600, must-revalidate"
 
 [[headers]]
 for = "/_next/static/*"

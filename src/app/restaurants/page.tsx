@@ -8,6 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicRestaurantsApi } from "@/lib/public-api";
+import { normalizeRestaurants } from "@/lib/data-normalization";
 
 interface Restaurant {
   id: string;
@@ -45,13 +46,13 @@ export default function RestaurantsPage() {
         let restaurantsData: Restaurant[] = [];
         const data = response.data as any;
         if (Array.isArray(data)) {
-          restaurantsData = data;
+          restaurantsData = normalizeRestaurants(data);
         } else if (data.items && Array.isArray(data.items)) {
-          restaurantsData = data.items;
+          restaurantsData = normalizeRestaurants(data.items);
         } else if (data.restaurants && Array.isArray(data.restaurants)) {
-          restaurantsData = data.restaurants;
+          restaurantsData = normalizeRestaurants(data.restaurants);
         } else if (data.data && Array.isArray(data.data)) {
-          restaurantsData = data.data;
+          restaurantsData = normalizeRestaurants(data.data);
         }
         
         console.log('[Restaurants] Parsed restaurants:', restaurantsData.length);
@@ -83,7 +84,7 @@ export default function RestaurantsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Restaurants & Dining"

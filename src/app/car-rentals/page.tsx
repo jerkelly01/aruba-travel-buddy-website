@@ -7,23 +7,27 @@ import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
 import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
-import { publicCarRentalsApi } from "@/lib/public-api";
+import { publicTransportationApi } from "@/lib/public-api";
+import { normalizeTransportation } from "@/lib/data-normalization";
 
-interface CarRental {
+interface Transportation {
   id: string;
-  title?: string;
-  name?: string;
+  name: string;
   description: string;
-  price?: string;
+  type: string;
   location?: string;
   images: string[];
   featured: boolean;
-  category?: string;
-  tags?: string[];
+  pricing_info?: {
+    daily_rate?: number;
+    hourly_rate?: number;
+    price?: string;
+  };
+  contact_info?: any;
 }
 
 export default function CarRentalsPage() {
-  const [rentals, setRentals] = React.useState<CarRental[]>([]);
+  const [rentals, setRentals] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
 
@@ -35,23 +39,21 @@ export default function CarRentalsPage() {
     try {
       setLoading(true);
       console.log('[Car Rentals] Fetching rentals...');
-      const response = await publicCarRentalsApi.getAll({ active: true });
+      const response = await publicTransportationApi.getAll({ active: true, type: 'car_rental' });
       
-      if (response.success && response.data) {
-        let rentalsData: CarRental[] = [];
-        const data = response.data as any;
-        if (Array.isArray(data)) {
-          rentalsData = data;
-        } else if (data.items && Array.isArray(data.items)) {
-          rentalsData = data.items;
-        } else if (data.carRentals && Array.isArray(data.carRentals)) {
-          rentalsData = data.carRentals;
-        } else if (data.data && Array.isArray(data.data)) {
-          rentalsData = data.data;
-        }
-        
-        console.log('[Car Rentals] Parsed rentals:', rentalsData.length);
-        setRentals(rentalsData);
+          if (response.success && response.data) {
+            let rentalsData: Transportation[] = [];
+            const data = response.data as any;
+            if (Array.isArray(data)) {
+              rentalsData = normalizeTransportation(data);
+            } else if (data.items && Array.isArray(data.items)) {
+              rentalsData = normalizeTransportation(data.items);
+            } else if (data.data && Array.isArray(data.data)) {
+              rentalsData = normalizeTransportation(data.data);
+            }
+            
+            console.log('[Car Rentals] Parsed rentals:', rentalsData.length);
+            setRentals(rentalsData);
       } else {
         console.error('[Car Rentals] Failed to load rentals:', response.error);
         setRentals([]);
@@ -67,8 +69,8 @@ export default function CarRentalsPage() {
   const filteredRentals = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return rentals.filter((rental) => {
-      const title = rental.title || rental.name || '';
-      return !q || [title, rental.description, rental.location, rental.category].some((v) => 
+      const title = rental.name || '';
+      return !q || [title, rental.description, rental.location].some((v) => 
         v?.toLowerCase().includes(q)
       );
     });
@@ -77,7 +79,7 @@ export default function CarRentalsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Car Rentals"
@@ -137,7 +139,10 @@ export default function CarRentalsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredRentals.map((rental, index) => {
-                const title = rental.title || rental.name || 'Car Rental';
+                const title = rental.name || 'Car Rental';
+                const price = rental.pricing_info?.price 
+                  || (rental.pricing_info?.daily_rate ? `From $${rental.pricing_info.daily_rate}/day` : '')
+                  || (rental.pricing_info?.hourly_rate ? `From $${rental.pricing_info.hourly_rate}/hour` : '');
                 return (
                   <motion.div
                     key={rental.id}
@@ -168,10 +173,10 @@ export default function CarRentalsPage() {
                             </span>
                           </div>
                         )}
-                        {rental.price && (
+                        {price && (
                           <div className="absolute top-4 right-4">
                             <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
-                              {rental.price}
+                              {price}
                             </span>
                           </div>
                         )}
@@ -188,12 +193,6 @@ export default function CarRentalsPage() {
                             <div className="flex items-center gap-2">
                               <Icon name="map-pin" className="w-4 h-4" />
                               <span>{rental.location}</span>
-                            </div>
-                          )}
-                          {rental.category && (
-                            <div className="flex items-center gap-2">
-                              <Icon name="sparkles" className="w-4 h-4" />
-                              <span>{rental.category}</span>
                             </div>
                           )}
                         </div>

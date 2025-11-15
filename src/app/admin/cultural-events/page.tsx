@@ -22,6 +22,7 @@ export default function CulturalEventsPage() {
         images: item.images || [],
         featured: item.is_featured || false,
         admin_managed: true,
+        code_snippet: item.code_snippet || '',
       })}
       getEmptyItem={() => ({
         title: '',
@@ -36,6 +37,7 @@ export default function CulturalEventsPage() {
         images: [],
         is_featured: false,
         admin_managed: true,
+        code_snippet: '',
       })}
       renderCustomFields={(item, setItem) => (
         <>

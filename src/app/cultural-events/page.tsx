@@ -8,6 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicCulturalEventsApi } from "@/lib/public-api";
+import { normalizeCulturalEvents } from "@/lib/data-normalization";
 
 interface CulturalEvent {
   id: string;
@@ -36,32 +37,56 @@ export default function CulturalEventsPage() {
     try {
       setLoading(true);
       console.log('[Cultural Events] Fetching events...');
-      const response = await publicCulturalEventsApi.getAll({ active: true });
+      console.log('[Cultural Events] API URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      // cultural_events doesn't have an active column, so don't filter by active
+      const response = await publicCulturalEventsApi.getAll();
       
-      console.log('[Cultural Events] Response:', {
+      console.log('[Cultural Events] Full Response:', JSON.stringify(response, null, 2));
+      console.log('[Cultural Events] Response Summary:', {
         success: response.success,
         hasData: !!response.data,
         dataType: Array.isArray(response.data) ? 'array' : typeof response.data,
         dataLength: Array.isArray(response.data) ? response.data.length : 'N/A',
         error: response.error,
-        fullResponse: response
+        dataPreview: Array.isArray(response.data) ? response.data.slice(0, 2) : response.data
       });
       
-      if (response.success && response.data) {
+      if (response.success) {
         // Handle array response
         let eventsData: CulturalEvent[] = [];
         const data = response.data as any;
+        
+        console.log('[Cultural Events] Processing data:', { 
+          dataType: typeof data, 
+          isArray: Array.isArray(data),
+          hasItems: !!(data?.items),
+          hasCulturalEvents: !!(data?.culturalEvents),
+          hasData: !!(data?.data),
+          dataKeys: data && typeof data === 'object' ? Object.keys(data) : []
+        });
+        
         if (Array.isArray(data)) {
-          eventsData = data;
-        } else if (data.items && Array.isArray(data.items)) {
-          eventsData = data.items;
-        } else if (data.culturalEvents && Array.isArray(data.culturalEvents)) {
-          eventsData = data.culturalEvents;
-        } else if (data.data && Array.isArray(data.data)) {
-          eventsData = data.data;
+          eventsData = normalizeCulturalEvents(data);
+        } else if (data && data.items && Array.isArray(data.items)) {
+          eventsData = normalizeCulturalEvents(data.items);
+        } else if (data && data.culturalEvents && Array.isArray(data.culturalEvents)) {
+          eventsData = normalizeCulturalEvents(data.culturalEvents);
+        } else if (data && data.data && Array.isArray(data.data)) {
+          eventsData = normalizeCulturalEvents(data.data);
+        } else if (data && typeof data === 'object') {
+          // Try to find any array property
+          const arrayKeys = Object.keys(data).filter(key => Array.isArray(data[key]));
+          if (arrayKeys.length > 0) {
+            console.log('[Cultural Events] Found array keys:', arrayKeys);
+            eventsData = normalizeCulturalEvents(data[arrayKeys[0]]);
+          } else {
+            // If data is an object but not an array, try to convert single item to array
+            console.log('[Cultural Events] Data is object, converting to array');
+            eventsData = normalizeCulturalEvents([data]);
+          }
         }
         
-        console.log('[Cultural Events] Parsed events:', eventsData.length, eventsData);
+        console.log('[Cultural Events] Final parsed events:', eventsData.length, eventsData);
         setEvents(eventsData);
       } else {
         console.error('[Cultural Events] Failed to load events:', response.error);
@@ -114,7 +139,7 @@ export default function CulturalEventsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Cultural Events & Festivals"

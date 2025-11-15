@@ -13,3 +13,5 @@ git push -u origin main
 echo "✅ Code pushed to GitHub!"
 echo "Now go to Netlify dashboard and connect your GitHub repository for automatic deployments."
 
+
+

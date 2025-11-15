@@ -66,3 +66,5 @@ You already have `public/logo.png`. The layout is configured to use it as an ico
 - **Create favicon from text**: https://favicon.io/
 - **Convert PNG to ICO**: https://convertio.co/png-ico/
 
+
+

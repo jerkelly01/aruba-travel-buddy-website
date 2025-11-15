@@ -223,3 +223,43 @@ body {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* Tours page header hard override */
+.tours-hero h2 {
+  margin-top: 0 !important;
+  line-height: 1.1 !important;
+  font-size: 0.875rem !important; /* 14px */
+}
+@media (min-width: 640px) {
+  .tours-hero h2 { font-size: 1rem !important; } /* 16px */
+}
+@media (min-width: 1024px) {
+  .tours-hero h2 { font-size: 1.125rem !important; } /* 18px */
+}
+.tours-hero p {
+  margin-top: 0 !important;
+  line-height: 1.2 !important;
+  font-size: 0.75rem !important; /* 12px */
+}
+
+/* Global spacing tightening for all non-home pages */
+.non-home section {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+.non-home h1, 
+.non-home h2, 
+.non-home h3 {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.5rem !important;
+  line-height: 1.2 !important;
+}
+.non-home p {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.5rem !important;
+}
+.non-home .py-20 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+.non-home .py-12 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+.non-home .py-8  { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+.non-home .mb-16 { margin-bottom: 0.75rem !important; }
+.non-home .mt-6  { margin-top: 0.5rem !important; }

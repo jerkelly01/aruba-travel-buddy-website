@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import RouteWrapper from "@/components/RouteWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-display" });
@@ -36,7 +37,9 @@ export default function RootLayout({
         <Providers>
           <AnalyticsTracker />
           <Navbar />
-          <main className="pt-20">{children}</main>
+          <main className="pt-24">
+            <RouteWrapper>{children}</RouteWrapper>
+          </main>
           <Footer />
         </Providers>
       </body>

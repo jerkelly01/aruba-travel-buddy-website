@@ -81,3 +81,5 @@ After deployment:
 2. **Admin Check**: Functions verify `is_admin = true` or `role = 'admin'` in the `users` table
 3. **Some endpoints not migrated**: Analytics tracking, content sync still use Express API (will fall back automatically)
 
+
+
