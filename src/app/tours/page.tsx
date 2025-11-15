@@ -2,12 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
 import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicToursApi } from "@/lib/public-api";
+import { normalizeTours } from "@/lib/data-normalization";
+import { CodeSnippet } from "@/components/CodeSnippet";
 
 interface Tour {
   id: string;
@@ -20,6 +23,7 @@ interface Tour {
   featured: boolean;
   category?: string;
   tags?: string[];
+  code_snippet?: string;
 }
 
 export default function ToursPage() {
@@ -41,13 +45,13 @@ export default function ToursPage() {
         let toursData: Tour[] = [];
         const data = response.data as any;
         if (Array.isArray(data)) {
-          toursData = data;
+          toursData = normalizeTours(data);
         } else if (data.items && Array.isArray(data.items)) {
-          toursData = data.items;
+          toursData = normalizeTours(data.items);
         } else if (data.tours && Array.isArray(data.tours)) {
-          toursData = data.tours;
+          toursData = normalizeTours(data.tours);
         } else if (data.data && Array.isArray(data.data)) {
-          toursData = data.data;
+          toursData = normalizeTours(data.data);
         }
         
         console.log('[Tours] Parsed tours:', toursData.length);
@@ -76,12 +80,17 @@ export default function ToursPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-0 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Tours & Excursions"
             subtitle="Discover the best guided tours and excursions Aruba has to offer"
             center
+            compact
+            className="tours-hero !mb-0"
+            titleClassName="!mt-0 !text-xs sm:!text-sm lg:!text-base !leading-none"
+            subtitleClassName="!mt-0 !text-[10px] sm:!text-xs !leading-tight"
+            dividerClassName="hidden"
           />
         </Container>
       </section>
@@ -98,6 +107,16 @@ export default function ToursPage() {
               className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--brand-aruba)] focus:border-[var(--brand-aruba)] text-base placeholder-gray-500 transition-all"
             />
           </div>
+        </Container>
+      </section>
+
+      {/* Viator Widget Section */}
+      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+        <Container>
+          <div 
+            data-vi-partner-id="P00276444" 
+            data-vi-widget-ref="W-2c239006-c0d6-4e2c-855d-e79d27bb7272"
+          ></div>
         </Container>
       </section>
 
@@ -134,7 +153,7 @@ export default function ToursPage() {
               )}
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {filteredTours.map((tour, index) => (
                 <motion.div
                   key={tour.id}
@@ -200,6 +219,12 @@ export default function ToursPage() {
                           </div>
                         )}
                       </div>
+                      {/* Render code snippet if available */}
+                      {tour.code_snippet && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <CodeSnippet code={tour.code_snippet} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -208,6 +233,12 @@ export default function ToursPage() {
           )}
         </Container>
       </section>
+
+      {/* Legacy Viator Widget Script (for backward compatibility) */}
+      <Script
+        src="https://www.viator.com/orion/partner/widget.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
