@@ -156,7 +156,7 @@ export default function BecomeAPartner() {
             subtitle="We welcome partners from all sectors of Aruba's tourism and hospitality industry"
             center 
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 mt-12">
             {partnerTypes.map((type, idx) => (
               <motion.div
                 key={idx}

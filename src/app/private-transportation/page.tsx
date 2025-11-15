@@ -137,7 +137,7 @@ export default function PrivateTransportationPage() {
               )}
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
               {filteredTransportation.map((item, index) => {
                 const title = item.name || 'Private Transportation';
                 const price = item.pricing_info?.price 
