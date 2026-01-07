@@ -75,10 +75,10 @@ const stats = [
 ];
 
 const galleryImages = [
-  '/hafenbild-oranjestad--aruba- copy.jpg',
-  '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
-  '/hafenbild-oranjestad--aruba- copy.jpg',
-  '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
+  '/san nicolas art murals 2.png',
+  '/Alto Vista Chapel 1.png',
+  '/baby beach 1.png',
+  '/fontein cave 2.png',
 ];
 
 export default function Features() {
