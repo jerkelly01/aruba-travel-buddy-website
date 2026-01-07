@@ -4,12 +4,16 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # Enable instant rollbacks and faster deployments
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
 
 # Next.js plugin for proper Next.js support on Netlify
 [[plugins]]
   package = "@netlify/plugin-nextjs"
   [plugins.inputs]
     # Explicitly enable the plugin
+    # Enable instant rollbacks (built-in with Netlify)
+    # Enable deploy previews for all PRs (automatic)
 
 [build.processing]
   skip_processing = false

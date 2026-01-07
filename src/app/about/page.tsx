@@ -37,13 +37,6 @@ const missionPoints = [
   },
 ];
 
-const stats = [
-  { number: '50K+', label: 'Happy Travelers', icon: 'user-group' },
-  { number: '500+', label: 'Local Partners', icon: 'building-office' },
-  { number: '1000+', label: 'Experiences', icon: 'sparkles' },
-  { number: '4.8', label: 'App Rating', icon: 'star' },
-];
-
 const technologyFeatures = [
   {
     title: 'Itinerary Generator',
@@ -72,12 +65,12 @@ const technologyFeatures = [
 ];
 
 const galleryImages = [
-  '/hafenbild-oranjestad--aruba- copy.jpg',
-  '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
-  '/hafenbild-oranjestad--aruba- copy.jpg',
-  '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
-  '/hafenbild-oranjestad--aruba- copy.jpg',
-  '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
+  '/beaches page.png',
+  '/cultural spots page .png',
+  '/natural wonders page.png',
+  '/restaurants page.png',
+  '/local shops page.png',
+  '/nightlife page.png',
 ];
 
 export default function About() {
@@ -117,30 +110,6 @@ export default function About() {
               Making your Aruba experience unforgettable with personalized recommendations and authentic local insights.
             </p>
           </motion.div>
-        </Container>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-white border-b border-gray-100">
-        <Container>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] mb-4 shadow-lg">
-                  <Icon name={stat.icon as IconName} className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2 font-display">{stat.number}</div>
-                <div className="text-sm text-gray-600 font-medium uppercase tracking-wide">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
         </Container>
       </section>
 
