@@ -1,118 +1,140 @@
 'use client';
 
-import * as React from 'react';
-import { use } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import * as React from 'react';
 import Container from '@/components/Container';
 import SectionHeader from '@/components/SectionHeader';
 import { motion } from 'framer-motion';
 import Icon from '@/components/Icon';
-import LocationCard from '@/components/LocationCard';
 import { publicMapLocationsApi } from '@/lib/public-api';
 
-// Category mapping from URL to API category (matching admin categories)
-const CATEGORY_MAP: Record<string, string[]> = {
-  beaches: ['beach'],
-  'cultural-spots': ['cultural_spot'],
-  'natural-wonders': ['natural_wonder'],
-  restaurants: ['restaurant'],
-  'local-shops': ['local_shop'],
-  nightlife: ['club_bar'],
-  hotels: ['hotel'],
-  activities: ['activity'],
+interface MapLocation {
+  id: string;
+  name: string;
+  description?: string;
+  category: string;
+  images?: string[];
+  location?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  featured?: boolean;
+  contact_info?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+}
+
+// Map category IDs to API category values
+const CATEGORY_MAP: Record<string, 'beach' | 'cultural_spot' | 'natural_wonder' | 'restaurant' | 'local_shop' | 'club_bar' | 'hotel' | 'activity'> = {
+  'beaches': 'beach',
+  'cultural-spots': 'cultural_spot',
+  'natural-wonders': 'natural_wonder',
+  'restaurants': 'restaurant',
+  'local-shops': 'local_shop',
+  'nightlife': 'club_bar',
+  'hotels': 'hotel',
+  'activities': 'activity',
 };
 
-const CATEGORY_INFO: Record<string, { name: string; emoji: string; description: string }> = {
-  beaches: {
-    name: 'Beaches',
+const CATEGORY_INFO: Record<string, { title: string; emoji: string; description: string }> = {
+  'beaches': {
+    title: 'Beaches',
     emoji: '🏖️',
-    description: 'Discover Aruba\'s beautiful beaches from world-famous Eagle Beach to secluded snorkeling spots.',
+    description: 'Discover Aruba\'s 16+ beautiful beaches from world-famous Eagle Beach to secluded snorkeling spots and surf beaches.',
   },
   'cultural-spots': {
-    name: 'Cultural Spots',
+    title: 'Cultural Spots',
     emoji: '🏛️',
-    description: 'Discover Aruba\'s cultural attractions including historic sites, museums, monuments, and architectural heritage.',
+    description: 'Discover Aruba\'s 18+ cultural attractions including historic sites, museums, monuments, and architectural heritage.',
   },
   'natural-wonders': {
-    name: 'Natural Wonders',
+    title: 'Natural Wonders',
     emoji: '🌴',
-    description: 'Explore Aruba\'s natural wonders including caves, rock formations, sand dunes, natural bridges, and scenic viewpoints.',
+    description: 'Explore Aruba\'s 17+ natural wonders including caves, rock formations, sand dunes, natural bridges, and scenic viewpoints.',
   },
-  restaurants: {
-    name: 'Restaurants',
+  'restaurants': {
+    title: 'Restaurants',
     emoji: '🍽️',
     description: 'Experience authentic Aruban cuisine and international dining options across the island.',
   },
   'local-shops': {
-    name: 'Local Shops',
+    title: 'Local Shops',
     emoji: '🛍️',
     description: 'Find unique souvenirs, local crafts, and authentic Aruban products from local vendors.',
   },
-  nightlife: {
-    name: 'Clubs & Bars',
+  'nightlife': {
+    title: 'Clubs & Bars',
     emoji: '🍹',
     description: 'Enjoy Aruba\'s vibrant nightlife with beach bars, clubs, and entertainment venues.',
   },
-  hotels: {
-    name: 'Hotels',
+  'hotels': {
+    title: 'Hotels',
     emoji: '🏨',
     description: 'Browse accommodation options from luxury resorts to cozy boutique hotels.',
   },
-  activities: {
-    name: 'Activities',
+  'activities': {
+    title: 'Activities',
     emoji: '🎯',
     description: 'Find exciting activities and adventures including water sports, tours, and experiences.',
   },
 };
 
-interface PageProps {
-  params: Promise<{ category: string }>;
-}
-
-export default function CategoryPage({ params }: PageProps) {
-  const { category } = use(params);
-  const [locations, setLocations] = React.useState<any[]>([]);
+export default function CategoryPage() {
+  const params = useParams();
+  const categoryId = params?.category as string;
+  const [locations, setLocations] = React.useState<MapLocation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState('');
 
-  const categoryInfo = CATEGORY_INFO[category] || {
-    name: category,
+  const categoryInfo = CATEGORY_INFO[categoryId] || {
+    title: 'Explore',
     emoji: '📍',
-    description: `Explore ${category} in Aruba`,
+    description: 'Discover amazing places in Aruba.',
   };
-
-  const categoryTypes = CATEGORY_MAP[category] || [];
+  const apiCategory = CATEGORY_MAP[categoryId];
 
   React.useEffect(() => {
-    loadLocations();
-  }, [category]);
+    if (apiCategory) {
+      loadLocations();
+    }
+  }, [apiCategory]);
 
   const loadLocations = async () => {
+    if (!apiCategory) return;
+    
     try {
       setLoading(true);
-      // Fetch locations for each category type and combine
-      const allLocations: any[] = [];
+      console.log(`[${categoryInfo.title}] Fetching locations...`);
+      const response = await publicMapLocationsApi.getAll({ 
+        category: apiCategory,
+        active: true 
+      });
       
-      for (const categoryType of categoryTypes) {
-        const response = await publicMapLocationsApi.getAll({ 
-          category: categoryType,
-          active: true 
-        });
-        
-        if (response.success && response.data) {
-          const data = Array.isArray(response.data) ? response.data : [];
-          allLocations.push(...data);
+      if (response.success && response.data) {
+        let locationsData: MapLocation[] = [];
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          locationsData = data;
+        } else if (data.items && Array.isArray(data.items)) {
+          locationsData = data.items;
+        } else if (data.locations && Array.isArray(data.locations)) {
+          locationsData = data.locations;
+        } else if (data.data && Array.isArray(data.data)) {
+          locationsData = data.data;
         }
+        
+        console.log(`[${categoryInfo.title}] Parsed locations:`, locationsData.length);
+        setLocations(locationsData);
+      } else {
+        console.error(`[${categoryInfo.title}] Failed to load locations:`, response.error);
+        setLocations([]);
       }
-      
-      // Remove duplicates by ID
-      const uniqueLocations = Array.from(
-        new Map(allLocations.map(loc => [loc.id, loc])).values()
-      );
-      
-      setLocations(uniqueLocations);
     } catch (error) {
-      console.error('[Category] Error loading locations:', error);
+      console.error(`[${categoryInfo.title}] Error loading locations:`, error);
       setLocations([]);
     } finally {
       setLoading(false);
@@ -121,28 +143,50 @@ export default function CategoryPage({ params }: PageProps) {
 
   const filteredLocations = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    return locations.filter((loc) => {
-      return !q || 
-        loc.name?.toLowerCase().includes(q) ||
-        loc.description?.toLowerCase().includes(q) ||
-        loc.address?.toLowerCase().includes(q) ||
-        loc.location?.toLowerCase().includes(q);
+    return locations.filter((location) => {
+      return !q || [location.name, location.description, location.location, location.address].some((v) => 
+        v?.toLowerCase().includes(q)
+      );
     });
   }, [locations, query]);
+
+  if (!apiCategory) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Container>
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4 font-display">Category Not Found</h1>
+            <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+            <Link href="/explore-aruba" className="text-[var(--brand-aruba)] hover:underline">
+              ← Back to Explore Aruba
+            </Link>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
-          <div className="text-center">
+          <div className="text-center mb-6">
             <div className="text-6xl mb-4">{categoryInfo.emoji}</div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 font-display">
-              {categoryInfo.name}
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {categoryInfo.description}
-            </p>
+            <SectionHeader
+              title={categoryInfo.title}
+              subtitle={categoryInfo.description}
+              center
+            />
+          </div>
+          <div className="text-center">
+            <Link 
+              href="/explore-aruba"
+              className="inline-flex items-center gap-2 text-[var(--brand-aruba)] hover:text-[var(--brand-aruba-dark)] transition-colors"
+            >
+              <Icon name="arrow-right" className="w-4 h-4 rotate-180" />
+              <span>Back to Explore Aruba</span>
+            </Link>
           </div>
         </Container>
       </section>
@@ -155,7 +199,7 @@ export default function CategoryPage({ params }: PageProps) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={`Search ${categoryInfo.name.toLowerCase()}...`}
+              placeholder={`Search ${categoryInfo.title.toLowerCase()}...`}
               className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--brand-aruba)] focus:border-[var(--brand-aruba)] text-base placeholder-gray-500 transition-all"
             />
           </div>
@@ -181,13 +225,9 @@ export default function CategoryPage({ params }: PageProps) {
               <div className="text-gray-400 mb-4">
                 <Icon name="map-pin" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">
-                {query ? 'No locations found' : `No ${categoryInfo.name.toLowerCase()} found`}
-              </h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No locations found</h3>
               <p className="text-gray-600 mb-6">
-                {query 
-                  ? 'Try adjusting your search criteria' 
-                  : `Check back soon for ${categoryInfo.name.toLowerCase()}!`}
+                {query ? 'Try adjusting your search criteria' : `Check back soon for ${categoryInfo.title.toLowerCase()}!`}
               </p>
               {query && (
                 <button
@@ -199,26 +239,85 @@ export default function CategoryPage({ params }: PageProps) {
               )}
             </motion.div>
           ) : (
-            <>
-              <div className="mb-6 text-center">
-                <p className="text-gray-600">
-                  {filteredLocations.length} {filteredLocations.length === 1 ? 'location' : 'locations'} found
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredLocations.map((location, index) => (
-                  <motion.div
-                    key={location.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <LocationCard location={location} />
-                  </motion.div>
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredLocations.map((location, index) => (
+                <motion.div
+                  key={location.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <div className="card overflow-hidden h-full group">
+                    <div className="relative h-56 overflow-hidden">
+                      {location.images && location.images.length > 0 ? (
+                        <Image 
+                          src={location.images[0]} 
+                          alt={location.name} 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
+                          <Icon name="map-pin" className="w-16 h-16 text-white opacity-50" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {location.featured && (
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
+                            Featured
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
+                        {location.name}
+                      </h3>
+                      {location.description && (
+                        <p className="text-gray-600 mb-4 line-clamp-2">
+                          {location.description}
+                        </p>
+                      )}
+                      <div className="space-y-2 text-sm text-gray-600">
+                        {location.location && (
+                          <div className="flex items-center gap-2">
+                            <Icon name="map-pin" className="w-4 h-4" />
+                            <span>{location.location}</span>
+                          </div>
+                        )}
+                        {location.address && (
+                          <div className="flex items-center gap-2">
+                            <Icon name="map-pin" className="w-4 h-4" />
+                            <span className="line-clamp-1">{location.address}</span>
+                          </div>
+                        )}
+                        {location.contact_info?.phone && (
+                          <div className="flex items-center gap-2">
+                            <Icon name="phone" className="w-4 h-4" />
+                            <span>{location.contact_info.phone}</span>
+                          </div>
+                        )}
+                        {location.contact_info?.website && (
+                          <div className="flex items-center gap-2">
+                            <Icon name="globe-alt" className="w-4 h-4" />
+                            <a 
+                              href={location.contact_info.website} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-[var(--brand-aruba)] hover:underline line-clamp-1"
+                            >
+                              Visit Website
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
         </Container>
       </section>

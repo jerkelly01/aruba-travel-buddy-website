@@ -31,6 +31,10 @@ async function publicApiRequest<T>(
         break;
       }
     }
+    // Map map-locations to admin-map-locations
+    if (endpoint.startsWith('/api/map-locations')) {
+      mappedEndpoint = endpoint.replace('/api/map-locations', '/admin-map-locations');
+    }
   }
   
   const headers: Record<string, string> = {
@@ -236,31 +240,23 @@ export const publicPhotoChallengesApi = {
   },
 };
 
-// Map Locations API (via content-sync edge function)
 export const publicMapLocationsApi = {
-  getAll: async (params?: { 
-    category?: string;
+  getAll: async (params?: {
+    category?: 'beach' | 'cultural_spot' | 'natural_wonder' | 'restaurant' | 'local_shop' | 'club_bar' | 'hotel' | 'activity';
     active?: boolean;
     featured?: boolean;
+    search?: string;
   }) => {
-    // Use content-sync edge function for map-locations
     const queryParams = new URLSearchParams();
     if (params?.category) queryParams.append('category', params.category);
     if (params?.active !== undefined) queryParams.append('active', params.active.toString());
     if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
-    
+    if (params?.search) queryParams.append('search', params.search);
     const query = queryParams.toString();
-    const endpoint = USE_SUPABASE_EDGE_FUNCTIONS
-      ? `/content-sync/map-locations${query ? `?${query}` : ''}`
-      : `/api/map-locations${query ? `?${query}` : ''}`;
-    
-    return publicApiRequest(endpoint);
+    return publicApiRequest(`/api/map-locations${query ? `?${query}` : ''}`);
   },
   getById: async (id: string) => {
-    const endpoint = USE_SUPABASE_EDGE_FUNCTIONS
-      ? `/content-sync/map-locations/${id}`
-      : `/api/map-locations/${id}`;
-    return publicApiRequest(endpoint);
+    return publicApiRequest(`/api/map-locations/${id}`);
   },
 };
 
