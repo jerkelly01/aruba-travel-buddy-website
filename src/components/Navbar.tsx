@@ -28,6 +28,7 @@ const Navbar = () => {
     { name: 'Cultural Events', href: '/cultural-events' },
     { name: 'Local Experiences', href: '/local-experiences' },
     { name: 'Restaurants', href: '/restaurants' },
+    { name: 'Support Locals', href: '/support-locals' },
   ];
 
   const travelTipsSubLinks = [
@@ -148,18 +149,18 @@ const Navbar = () => {
             </Link>
 
             <Link
-              href="/support-locals"
+              href="/explore-aruba"
               className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
                 isHomePage && !scrolled
                   ? 'text-white/90 hover:text-white'
-                  : pathname === '/support-locals'
+                  : pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')
                     ? 'text-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)]'
               }`}
             >
-              {pathname === '/support-locals' && (
+              {(pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')) && (
                 <motion.div
-                  layoutId="activeTabSupportLocals"
+                  layoutId="activeTabExploreAruba"
                   className={`absolute inset-0 rounded-xl ${
                     isHomePage && !scrolled 
                       ? 'bg-white/20' 
@@ -168,7 +169,7 @@ const Navbar = () => {
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
-              <span className="relative z-10">Support Locals</span>
+              <span className="relative z-10">Explore Aruba</span>
             </Link>
 
             <Link
@@ -498,15 +499,15 @@ const Navbar = () => {
                 About
               </Link>
               <Link
-                href="/support-locals"
+                href="/explore-aruba"
                 onClick={() => setIsOpen(false)}
                 className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/support-locals'
+                  pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')
                     ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
                 }`}
               >
-                Support Locals
+                Explore Aruba
               </Link>
               <Link
                 href="/features"
