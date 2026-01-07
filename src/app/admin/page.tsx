@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
-import { websiteAnalyticsApi, toursApi, culturalEventsApi, localExperiencesApi, transportationApi, supportLocalsApi, restaurantsApi, photoChallengesApi, mapLocationsApi, clientProfileApi } from '@/lib/admin-api';
+import { websiteAnalyticsApi, toursApi, culturalEventsApi, localExperiencesApi, transportationApi, supportLocalsApi, restaurantsApi, photoChallengesApi, mapLocationsApi, clientProfileApi, feedbackApi } from '@/lib/admin-api';
 
 interface DashboardStats {
   totalVisitors: number;
@@ -17,6 +17,8 @@ interface DashboardStats {
   totalRestaurants: number;
   totalLocations: number;
   totalClients: number;
+  totalFeedback: number;
+  newFeedback: number;
 }
 
 export default function AdminDashboard() {
@@ -44,13 +46,14 @@ export default function AdminDashboard() {
       const analyticsResponse = await websiteAnalyticsApi.getOverview('30d');
       
       // Fetch counts for each content type
-      const [toursRes, eventsRes, experiencesRes, restaurantsRes, locationsRes, clientsRes] = await Promise.all([
+      const [toursRes, eventsRes, experiencesRes, restaurantsRes, locationsRes, clientsRes, feedbackStatsRes] = await Promise.all([
         toursApi.getAll({ limit: 1 }),
         culturalEventsApi.getAll({ limit: 1 }),
         localExperiencesApi.getAll({ limit: 1 }),
         restaurantsApi.getAll({ limit: 1 }),
         mapLocationsApi.getAll({ limit: 1 }),
         clientProfileApi.getClients({ limit: 1 }),
+        feedbackApi.getStats(),
       ]);
 
       const analytics = analyticsResponse.success ? (analyticsResponse.data as any) : null;
@@ -67,6 +70,8 @@ export default function AdminDashboard() {
         return 0;
       };
 
+      const feedbackStats = feedbackStatsRes.success ? (feedbackStatsRes.data as any) : null;
+
       setStats({
         totalVisitors: analytics?.totalVisitors || 0,
         totalPageViews: analytics?.totalPageViews || 0,
@@ -78,6 +83,8 @@ export default function AdminDashboard() {
         totalRestaurants: getCount(restaurantsRes),
         totalLocations: getCount(locationsRes),
         totalClients: getCount(clientsRes),
+        totalFeedback: feedbackStats?.total || 0,
+        newFeedback: feedbackStats?.byStatus?.new || 0,
       });
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);
@@ -93,6 +100,8 @@ export default function AdminDashboard() {
         totalRestaurants: 0,
         totalLocations: 0,
         totalClients: 0,
+        totalFeedback: 0,
+        newFeedback: 0,
       });
     } finally {
       setLoading(false);
@@ -238,6 +247,16 @@ export default function AdminDashboard() {
             </p>
             <span className="text-[var(--brand-aruba)] font-semibold">Manage Map Locations →</span>
           </Link>
+          <Link
+            href="/admin/feedback"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-2">User Feedback</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              View and manage user feedback, bug reports, and feature requests
+            </p>
+            <span className="text-[var(--brand-aruba)] font-semibold">Manage Feedback →</span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -325,6 +344,13 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-gray-600 text-xs font-medium">Clients</div>
               <div className="text-2xl font-bold text-gray-900 mt-1">{stats.totalClients}</div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="text-gray-600 text-xs font-medium">Feedback</div>
+              <div className="text-2xl font-bold text-gray-900 mt-1">{stats.totalFeedback}</div>
+              {stats.newFeedback > 0 && (
+                <div className="text-xs text-blue-600 font-semibold mt-1">{stats.newFeedback} new</div>
+              )}
             </div>
           </div>
         )}

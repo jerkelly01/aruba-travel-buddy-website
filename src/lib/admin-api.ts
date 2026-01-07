@@ -52,6 +52,11 @@ function mapEndpointToSupabaseFunction(endpoint: string): string {
     return endpoint.replace('/admin/clients', '/admin-clients');
   }
 
+  // Feedback management
+  if (endpoint.startsWith('/admin/feedback')) {
+    return endpoint.replace('/admin/feedback', '/admin-feedback');
+  }
+
   // Default: return as-is (for endpoints not yet migrated)
   return endpoint;
 }
@@ -706,6 +711,42 @@ export const mapLocationsApi = {
   },
 };
 
+// Feedback Management API
+export const feedbackApi = {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    type?: 'general' | 'bug' | 'feature' | 'compliment' | 'taxi';
+    status?: 'new' | 'read' | 'in_progress' | 'resolved' | 'closed';
+    search?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.search) queryParams.append('search', params.search);
+    
+    const queryString = queryParams.toString();
+    return apiRequest(`/admin/feedback${queryString ? `?${queryString}` : ''}`);
+  },
+
+  getById: async (id: string) => {
+    return apiRequest(`/admin/feedback/${id}`);
+  },
+
+  update: async (id: string, updates: { status?: string; admin_notes?: string }) => {
+    return apiRequest(`/admin/feedback/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  getStats: async () => {
+    return apiRequest('/admin/feedback/stats');
+  },
+};
+
 export default {
   clientProfileApi,
   websiteAnalyticsApi,
@@ -718,5 +759,6 @@ export default {
   restaurantsApi,
   photoChallengesApi,
   mapLocationsApi,
+  feedbackApi,
 };
 
