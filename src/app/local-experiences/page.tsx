@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -102,6 +103,16 @@ export default function LocalExperiencesPage() {
         </Container>
       </section>
 
+      {/* Viator Widget Section */}
+      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+        <Container>
+          <div 
+            data-vi-partner-id="P00276444" 
+            data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
+          ></div>
+        </Container>
+      </section>
+
       {/* Results Section */}
       <section className="py-12 bg-white">
         <Container>
@@ -121,9 +132,9 @@ export default function LocalExperiencesPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="heart" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No experiences found</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Experiences Above</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Check back soon for available experiences!'}
+                {query ? 'Try adjusting your search criteria' : 'Explore available experiences through our partner widget'}
               </p>
               {query && (
                 <button
@@ -209,6 +220,12 @@ export default function LocalExperiencesPage() {
           )}
         </Container>
       </section>
+
+      {/* Viator Widget Script */}
+      <Script
+        src="https://www.viator.com/orion/partner/widget.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
