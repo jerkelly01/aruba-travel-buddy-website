@@ -236,3 +236,31 @@ export const publicPhotoChallengesApi = {
   },
 };
 
+// Map Locations API (via content-sync edge function)
+export const publicMapLocationsApi = {
+  getAll: async (params?: { 
+    category?: string;
+    active?: boolean;
+    featured?: boolean;
+  }) => {
+    // Use content-sync edge function for map-locations
+    const queryParams = new URLSearchParams();
+    if (params?.category) queryParams.append('category', params.category);
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.featured !== undefined) queryParams.append('featured', params.featured.toString());
+    
+    const query = queryParams.toString();
+    const endpoint = USE_SUPABASE_EDGE_FUNCTIONS
+      ? `/content-sync/map-locations${query ? `?${query}` : ''}`
+      : `/api/map-locations${query ? `?${query}` : ''}`;
+    
+    return publicApiRequest(endpoint);
+  },
+  getById: async (id: string) => {
+    const endpoint = USE_SUPABASE_EDGE_FUNCTIONS
+      ? `/content-sync/map-locations/${id}`
+      : `/api/map-locations/${id}`;
+    return publicApiRequest(endpoint);
+  },
+};
+

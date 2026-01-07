@@ -47,7 +47,7 @@ const EXPLORE_CATEGORIES: ExploreCategory[] = [
     emoji: '🍽️',
     coverImage: '/restaurants page.png',
     description: 'Experience authentic Aruban cuisine and international dining options across the island.',
-    href: '/restaurants',
+    href: '/explore-aruba/restaurants',
   },
   {
     id: 'local_shops',
