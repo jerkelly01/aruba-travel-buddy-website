@@ -110,7 +110,7 @@ export default function ToursPage() {
         <Container>
           <div 
             data-vi-partner-id="P00276444" 
-            data-vi-widget-ref="W-b22b5a1c-f1f0-4250-a286-b83572c5e664"
+            data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
           ></div>
         </Container>
       </section>
