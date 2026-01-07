@@ -124,30 +124,6 @@ const Navbar = () => {
             </Link>
 
             <Link
-              href="/about"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
-                  ? 'text-white/90 hover:text-white'
-                  : pathname === '/about'
-                    ? 'text-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
-            >
-              {pathname === '/about' && (
-                <motion.div
-                  layoutId="activeTabAbout"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
-                      : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">About</span>
-            </Link>
-
-            <Link
               href="/explore-aruba"
               className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
                 isHomePage && !scrolled
@@ -169,6 +145,30 @@ const Navbar = () => {
                 />
               )}
               <span className="relative z-10">Explore Aruba</span>
+            </Link>
+
+            <Link
+              href="/about"
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
+                isHomePage && !scrolled
+                  ? 'text-white/90 hover:text-white'
+                  : pathname === '/about'
+                    ? 'text-[var(--brand-aruba)]'
+                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
+              }`}
+            >
+              {pathname === '/about' && (
+                <motion.div
+                  layoutId="activeTabAbout"
+                  className={`absolute inset-0 rounded-xl ${
+                    isHomePage && !scrolled 
+                      ? 'bg-white/20' 
+                      : 'bg-[rgba(0,188,212,0.1)]'
+                  }`}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10">About</span>
             </Link>
 
             <Link
@@ -487,17 +487,6 @@ const Navbar = () => {
                 Home
               </Link>
               <Link
-                href="/about"
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/about'
-                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                }`}
-              >
-                About
-              </Link>
-              <Link
                 href="/explore-aruba"
                 onClick={() => setIsOpen(false)}
                 className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
@@ -507,6 +496,17 @@ const Navbar = () => {
                 }`}
               >
                 Explore Aruba
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setIsOpen(false)}
+                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
+                  pathname === '/about'
+                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
+                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
+                }`}
+              >
+                About
               </Link>
               <Link
                 href="/features"
