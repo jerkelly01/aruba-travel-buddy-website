@@ -56,7 +56,7 @@ const APP_LOCATIONS = [
   { id: 'yamanota_berg', name: 'Jamanota', type: 'eco', category: 'natural_wonder', coordinate: { latitude: 12.487730986272965, longitude: -69.94061708524627 }, description: 'Highest point in Aruba at 188 meters, offering challenging hiking and scenic vistas.', address: 'Jamanota, Aruba', photos: ['local:jamanota aruba.png', 'local:jamanota aruba 1.png', 'local:jamanota aruba 2.png'] },
 ];
 
-function convertImagePaths(photos) {
+function convertImagePaths(photos: string[] | undefined): string[] {
   if (!photos || !Array.isArray(photos)) return [];
   return photos.map(photo => {
     if (photo.startsWith('local:')) {
