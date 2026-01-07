@@ -134,7 +134,7 @@ export default function LocalExperiencesPage() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Experiences Above</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Explore available experiences through our partner widget'}
+                {query ? 'Try adjusting your search criteria' : 'Explore available Experiences through our partner widget'}
               </p>
               {query && (
                 <button
