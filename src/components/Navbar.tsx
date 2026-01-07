@@ -148,6 +148,30 @@ const Navbar = () => {
             </Link>
 
             <Link
+              href="/support-locals"
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
+                isHomePage && !scrolled
+                  ? 'text-white/90 hover:text-white'
+                  : pathname === '/support-locals'
+                    ? 'text-[var(--brand-aruba)]'
+                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
+              }`}
+            >
+              {pathname === '/support-locals' && (
+                <motion.div
+                  layoutId="activeTabSupportLocals"
+                  className={`absolute inset-0 rounded-xl ${
+                    isHomePage && !scrolled 
+                      ? 'bg-white/20' 
+                      : 'bg-[rgba(0,188,212,0.1)]'
+                  }`}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10">Support Locals</span>
+            </Link>
+
+            <Link
               href="/features"
               className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
                 isHomePage && !scrolled
@@ -245,30 +269,6 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
-
-            <Link
-              href="/support-locals"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
-                  ? 'text-white/90 hover:text-white'
-                  : pathname === '/support-locals'
-                    ? 'text-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
-            >
-              {pathname === '/support-locals' && (
-                <motion.div
-                  layoutId="activeTabSupportLocals"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
-                      : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">Support Locals</span>
-            </Link>
 
             {/* Transportation Dropdown */}
             <div className="relative" ref={transportationDropdownRef}>
@@ -496,6 +496,17 @@ const Navbar = () => {
                 }`}
               >
                 About
+              </Link>
+              <Link
+                href="/support-locals"
+                onClick={() => setIsOpen(false)}
+                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
+                  pathname === '/support-locals'
+                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
+                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
+                }`}
+              >
+                Support Locals
               </Link>
               <Link
                 href="/features"
