@@ -208,16 +208,6 @@ export default function AdminDashboard() {
             <span className="text-[var(--brand-aruba)] font-semibold">Manage Transportation →</span>
           </Link>
           <Link
-            href="/admin/support-locals"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
-          >
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Support Locals</h3>
-            <p className="text-gray-600 text-sm mb-4">
-              Manage local businesses and initiatives
-            </p>
-            <span className="text-[var(--brand-aruba)] font-semibold">Manage Locals →</span>
-          </Link>
-          <Link
             href="/admin/restaurants"
             className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
           >

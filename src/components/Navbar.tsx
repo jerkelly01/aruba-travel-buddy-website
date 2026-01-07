@@ -28,7 +28,6 @@ const Navbar = () => {
     { name: 'Cultural Events', href: '/cultural-events' },
     { name: 'Local Experiences', href: '/local-experiences' },
     { name: 'Restaurants', href: '/restaurants' },
-    { name: 'Support Locals', href: '/support-locals' },
   ];
 
   const travelTipsSubLinks = [
@@ -579,18 +578,6 @@ const Navbar = () => {
                   )}
                 </AnimatePresence>
               </div>
-
-              <Link
-                href="/support-locals"
-                    onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/support-locals'
-                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                }`}
-              >
-                Support Locals
-              </Link>
 
               {/* Mobile Transportation */}
               <div>
