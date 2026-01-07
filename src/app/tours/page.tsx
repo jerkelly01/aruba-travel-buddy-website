@@ -134,9 +134,9 @@ export default function ToursPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="map-pin" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No tours found</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Tours Above</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Check back soon for available tours!'}
+                {query ? 'Try adjusting your search criteria' : 'Explore available tours through our partner widget'}
               </p>
               {query && (
                 <button
