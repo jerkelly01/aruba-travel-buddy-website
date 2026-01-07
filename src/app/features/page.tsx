@@ -63,8 +63,8 @@ const additionalFeatures = [
   { title: 'Papiamento Learning', icon: 'language', color: 'from-[var(--brand-aruba)] to-[var(--brand-aruba-light)]' },
   { title: 'Smart Transportation', icon: 'map-pin', color: 'from-[var(--brand-tropical)] to-[var(--brand-aruba)]' },
   { title: 'Loyalty Rewards', icon: 'trophy', color: 'from-[var(--brand-amber)] to-[var(--brand-sun)]' },
-  { title: 'WhatsApp Assistant', icon: 'chat', color: 'from-[var(--brand-coral)] to-[var(--brand-peach)]' },
-  { title: 'Travel Insurance', icon: 'shield-check', color: 'from-[var(--brand-aruba)] to-[var(--brand-aruba-light)]' },
+  { title: 'Tours & Activities', icon: 'bolt', color: 'from-[var(--brand-coral)] to-[var(--brand-peach)]' },
+  { title: 'Explore Aruba', icon: 'globe-alt', color: 'from-[var(--brand-aruba)] to-[var(--brand-aruba-light)]' },
 ];
 
 const stats = [
