@@ -99,7 +99,7 @@ export default function ImportLocationsPage() {
         const locationData = {
           name: location.name,
           description: location.description || '',
-          category: location.category,
+          category: location.category as 'beach' | 'cultural_spot' | 'natural_wonder' | 'restaurant' | 'local_shop' | 'club_bar' | 'hotel' | 'activity',
           images: images,
           location: location.address || '',
           latitude: location.coordinate.latitude,
