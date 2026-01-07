@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -89,6 +90,17 @@ export default function CarRentalsPage() {
         </Container>
       </section>
 
+      {/* Viator Widget Section */}
+      <section className="py-12 bg-white">
+        <Container>
+          <div 
+            data-vi-partner-id="P00276444" 
+            data-vi-widget-ref="W-30795ed3-bd02-41b4-9f61-c1c69d3dbba1"
+            className="min-h-[400px]"
+          />
+        </Container>
+      </section>
+
       {/* Search Section */}
       <section className="py-8 bg-white border-y border-gray-100">
         <Container>
@@ -123,9 +135,9 @@ export default function CarRentalsPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="device-phone-mobile" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No car rentals found</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Car Rentals Above</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Check back soon for available car rentals!'}
+                {query ? 'Try adjusting your search criteria' : 'Explore available car rentals through our partner widget'}
               </p>
               {query && (
                 <button
@@ -205,6 +217,12 @@ export default function CarRentalsPage() {
           )}
         </Container>
       </section>
+
+      {/* Viator Widget Script */}
+      <Script
+        src="https://www.viator.com/orion/partner/widget.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
