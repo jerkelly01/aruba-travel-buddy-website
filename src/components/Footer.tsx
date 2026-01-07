@@ -71,7 +71,7 @@ const Footer = () => {
                 { name: 'Tours', href: '/tours' },
                 { name: 'Cultural Events', href: '/cultural-events' },
                 { name: 'Local Experiences', href: '/local-experiences' },
-                { name: 'Restaurants', href: '/restaurants' },
+                { name: 'Support Locals', href: '/support-locals' },
                 { name: 'Travel Tips', href: '/blogs' },
                 { name: 'Car Rentals', href: '/car-rentals' },
                 { name: 'Bus Tours', href: '/bus-tours' },
