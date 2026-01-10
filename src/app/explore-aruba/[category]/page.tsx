@@ -117,6 +117,10 @@ export default function CategoryPage() {
       if (response.success && response.data) {
         let locationsData: MapLocation[] = [];
         const data = response.data as any;
+        
+        console.log(`[${categoryInfo.title}] Raw response data:`, data);
+        console.log(`[${categoryInfo.title}] Data type:`, typeof data, 'Is array:', Array.isArray(data));
+        
         if (Array.isArray(data)) {
           locationsData = data;
         } else if (data.items && Array.isArray(data.items)) {
@@ -125,12 +129,16 @@ export default function CategoryPage() {
           locationsData = data.locations;
         } else if (data.data && Array.isArray(data.data)) {
           locationsData = data.data;
+        } else {
+          console.warn(`[${categoryInfo.title}] Unexpected data structure:`, data);
         }
         
         console.log(`[${categoryInfo.title}] Parsed locations:`, locationsData.length);
+        console.log(`[${categoryInfo.title}] Location names:`, locationsData.map(l => l.name));
         setLocations(locationsData);
       } else {
         console.error(`[${categoryInfo.title}] Failed to load locations:`, response.error);
+        console.error(`[${categoryInfo.title}] Full response:`, response);
         setLocations([]);
       }
     } catch (error) {
