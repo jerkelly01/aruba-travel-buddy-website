@@ -1,3 +1,0 @@
-module.exports=[73257,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(9506);a.n(d("[project]/aruba-travel-buddy-website/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},59884,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(9506);a.n(d("[project]/aruba-travel-buddy-website/node_modules/next/dist/client/components/builtin/global-error.js"))},79837,a=>{"use strict";a.i(73257);var b=a.i(59884);a.n(b)}];
-
-//# sourceMappingURL=58e81_next_dist_client_components_builtin_global-error_c368fff2.js.map

@@ -259,3 +259,4 @@ export const publicMapLocationsApi = {
     return publicApiRequest(`/api/map-locations/${id}`);
   },
 };
+
