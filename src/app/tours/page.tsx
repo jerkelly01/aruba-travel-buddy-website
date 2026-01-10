@@ -32,46 +32,86 @@ function useViatorWidgetReinit(widgetRef: string) {
 
   const initializeWidget = React.useCallback(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Initialize widget called',data:{hasWindow:typeof window !== 'undefined',hasRef:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Initialize widget called',data:{hasWindow:typeof window !== 'undefined',hasRef:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'B'})}).catch(()=>{});
     // #endregion
     if (typeof window === 'undefined' || !widgetContainerRef.current) return;
     
     const container = widgetContainerRef.current;
     if (!container) return;
 
-    // Check if script is loaded
-    const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    // Check if script tag exists
+    const scriptTag = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]') as HTMLScriptElement;
+    const scriptExists = !!scriptTag;
+    const scriptReady = scriptTag?.getAttribute('data-ready') === 'true';
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Script check',data:{scriptExists:!!scriptExists,containerVisible:container.offsetParent !== null,containerDisplay:window.getComputedStyle(container).display},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Script check',data:{scriptExists,scriptReady,hasViator:!!(window as any).viator,containerVisible:container.offsetParent !== null,containerDisplay:window.getComputedStyle(container).display},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
     // #endregion
-    if (!scriptExists) {
-      return;
-    }
-
-    // Wait for script to be ready and DOM to be updated
-    setTimeout(() => {
+    
+    // Poll for script to be ready (up to 10 seconds)
+    let attempts = 0;
+    const maxAttempts = 50; // 50 * 200ms = 10 seconds
+    const pollInterval = setInterval(() => {
+      attempts++;
       const hasViator = !!(window as any).viator;
       const hasInit = hasViator && typeof (window as any).viator.init === 'function';
+      
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Before viator.init call',data:{hasViator,hasInit,containerExists:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Polling for viator',data:{attempt:attempts,hasViator,hasInit},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
       // #endregion
-      if ((window as any).viator) {
+      
+      if (hasViator && hasInit) {
+        clearInterval(pollInterval);
+        const container = widgetContainerRef.current;
+        if (!container) return;
+        
+        const containerBefore = {
+          children: container.children.length,
+          innerHTML: container.innerHTML.length,
+          height: container.offsetHeight,
+          width: container.offsetWidth,
+          hasIframe: !!container.querySelector('iframe'),
+          computedDisplay: window.getComputedStyle(container).display,
+          computedVisibility: window.getComputedStyle(container).visibility
+        };
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Viator ready, calling init',data:{containerBefore},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+        // #endregion
+        
         try {
-          // Try to trigger initialization
-          if (typeof (window as any).viator.init === 'function') {
-            (window as any).viator.init();
+          (window as any).viator.init();
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'viator.init called',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+          // #endregion
+          
+          // Check container state after init
+          setTimeout(() => {
+            const containerAfter = container ? {
+              children: container.children.length,
+              innerHTML: container.innerHTML.length,
+              height: container.offsetHeight,
+              width: container.offsetWidth,
+              hasIframe: !!container.querySelector('iframe'),
+              computedDisplay: window.getComputedStyle(container).display,
+              computedVisibility: window.getComputedStyle(container).visibility
+            } : null;
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'viator.init called',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'After viator.init call',data:{containerAfter,hasContent:containerAfter && containerAfter.children > 0},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'F'})}).catch(()=>{});
             // #endregion
-          }
+          }, 1500);
         } catch (error) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'viator.init error',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'viator.init error',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
           // #endregion
           console.error('[Viator Widget] Error during init:', error);
         }
+      } else if (attempts >= maxAttempts) {
+        clearInterval(pollInterval);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Polling timeout - viator not available',data:{attempts},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+        // #endregion
+        console.error('[Viator Widget] Script not available after polling');
       }
-    }, 800);
+    }, 200);
   }, []);
 
   const reinitializeWidget = React.useCallback(() => {
@@ -132,6 +172,16 @@ function useViatorWidgetReinit(widgetRef: string) {
   // Initialize when widget container ref is set (after remount)
   React.useEffect(() => {
     if (widgetContainerRef.current) {
+      const container = widgetContainerRef.current;
+      const containerState = {
+        children: container.children.length,
+        height: container.offsetHeight,
+        hasIframe: !!container.querySelector('iframe'),
+        key: widgetKey
+      };
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:useEffect-widgetKey',message:'Widget key changed, container mounted',data:{containerState},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H'})}).catch(()=>{});
+      // #endregion
       // Container is mounted, initialize after a short delay
       const initTimer = setTimeout(() => {
         initializeWidget();
@@ -160,12 +210,22 @@ function useViatorWidgetReinit(widgetRef: string) {
     // Listen for visibility changes
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden;
+      const container = widgetContainerRef.current;
+      const containerState = container ? {
+        children: container.children.length,
+        height: container.offsetHeight,
+        hasIframe: !!container.querySelector('iframe'),
+        innerHTML: container.innerHTML.substring(0, 100)
+      } : null;
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Visibility change detected',data:{isVisible,wasVisible:isVisibleRef.current,willReinit:isVisible && !isVisibleRef.current,containerExists:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Visibility change detected',data:{isVisible,wasVisible:isVisibleRef.current,willReinit:isVisible && !isVisibleRef.current,containerExists:!!container,containerState},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'G'})}).catch(()=>{});
       // #endregion
       // Only reinitialize when tab becomes visible (not when it becomes hidden)
       if (isVisible && !isVisibleRef.current) {
         // Tab just became visible, reinitialize widget
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Calling reinitializeWidget',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         reinitializeWidget();
       }
       
@@ -415,10 +475,30 @@ export default function ToursPage() {
         </Container>
       </section>
 
-      {/* Legacy Viator Widget Script (for backward compatibility) */}
+      {/* Viator Widget Script */}
       <Script
         src="https://www.viator.com/orion/partner/widget.js"
         strategy="afterInteractive"
+        onLoad={() => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Viator script loaded',data:{hasViator:!!(window as any).viator,hasInit:!!((window as any).viator && typeof (window as any).viator.init === 'function')},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+          // #endregion
+          // Wait a bit for viator object to be available
+          setTimeout(() => {
+            if ((window as any).viator && typeof (window as any).viator.init === 'function') {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Calling viator.init from onLoad',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+              // #endregion
+              (window as any).viator.init();
+            }
+          }, 500);
+        }}
+        onError={(e) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onError',message:'Viator script load error',data:{error:String(e)},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+          // #endregion
+          console.error('[Viator Widget] Script load error:', e);
+        }}
       />
     </div>
   );
