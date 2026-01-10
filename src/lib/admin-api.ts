@@ -280,10 +280,14 @@ async function apiRequest<T>(
     if (!response.ok) {
       // Handle 401/403 errors specifically
       if (response.status === 401 || response.status === 403) {
+        // TEMPORARILY DISABLED: Don't clear token immediately to debug 403 issues
         // Clear invalid token
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
+        // localStorage.removeItem('authToken');
+        // localStorage.removeItem('refreshToken');
+        // localStorage.removeItem('user');
+        
+        console.error('[Admin API] 403/401 ERROR - Token NOT cleared for debugging');
+        console.error('[Admin API] Error details:', data);
         
         return {
           success: false,

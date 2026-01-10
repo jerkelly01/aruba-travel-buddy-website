@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -10,7 +11,164 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeLocalExperiences } from "@/lib/data-normalization";
-import { useViatorWidget } from "@/hooks/useViatorWidget";
+
+// Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
+function useViatorWidgetReinit(widgetRef: string) {
+  const widgetContainerRef = React.useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
+  const isVisibleRef = React.useRef(true);
+  const lastPathnameRef = React.useRef<string | null>(null);
+  const [showFallback, setShowFallback] = React.useState(false);
+
+  const forceRemount = React.useCallback(() => {
+    // Force React to remount the widget container by changing key
+    setWidgetKey(Date.now());
+  }, []);
+
+  const initializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    
+    const container = widgetContainerRef.current;
+    if (!container) return;
+
+    // Check if script is loaded
+    const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    if (!scriptExists) {
+      return;
+    }
+
+    // Wait for script to be ready and DOM to be updated
+    setTimeout(() => {
+      if ((window as any).viator) {
+        try {
+          // Try to trigger initialization
+          if (typeof (window as any).viator.init === 'function') {
+            (window as any).viator.init();
+          }
+        } catch (error) {
+          console.error('[Viator Widget] Error during init:', error);
+        }
+      }
+    }, 800);
+  }, []);
+
+  const reinitializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Clear any existing widget content first to ensure clean state
+    const currentContainer = widgetContainerRef.current;
+    if (currentContainer) {
+      currentContainer.innerHTML = '';
+      // Remove data attributes temporarily to force Viator to re-detect
+      currentContainer.removeAttribute('data-vi-partner-id');
+      currentContainer.removeAttribute('data-vi-widget-ref');
+    }
+    
+    // Force remount to get a fresh container
+    forceRemount();
+    
+    // Wait for React to remount, then restore attributes and initialize
+    setTimeout(() => {
+      const newContainer = widgetContainerRef.current;
+      if (newContainer) {
+        // Ensure attributes are set
+        newContainer.setAttribute('data-vi-partner-id', 'P00276444');
+        newContainer.setAttribute('data-vi-widget-ref', widgetRef);
+        
+        // Wait a bit more for DOM to settle, then initialize
+        setTimeout(() => {
+          initializeWidget();
+        }, 300);
+      } else {
+        // Container not ready, retry
+        setTimeout(() => {
+          const retryContainer = widgetContainerRef.current;
+          if (retryContainer) {
+            retryContainer.setAttribute('data-vi-partner-id', 'P00276444');
+            retryContainer.setAttribute('data-vi-widget-ref', widgetRef);
+            setTimeout(() => {
+              initializeWidget();
+            }, 300);
+          }
+        }, 500);
+      }
+    }, 600);
+  }, [forceRemount, initializeWidget, widgetRef]);
+
+  // Force remount and reinitialize when pathname changes (navigation)
+  React.useEffect(() => {
+    if (lastPathnameRef.current !== null && lastPathnameRef.current !== pathname) {
+      // Pathname changed, force reinitialize
+      reinitializeWidget();
+    }
+    lastPathnameRef.current = pathname;
+  }, [pathname, reinitializeWidget]);
+
+  // Initialize when widget container ref is set (after remount)
+  React.useEffect(() => {
+    if (widgetContainerRef.current) {
+      // Container is mounted, initialize after a short delay
+      const initTimer = setTimeout(() => {
+        initializeWidget();
+      }, 1000);
+      return () => clearTimeout(initTimer);
+    }
+  }, [widgetKey, initializeWidget]);
+
+  React.useEffect(() => {
+    // On mount, force remount and initialize
+    forceRemount();
+    
+    // Wait for script and initialize
+    const checkInterval = setInterval(() => {
+      initializeWidget();
+    }, 500);
+
+    // Timeout after 10 seconds - show fallback if widget didn't load
+    const timeout = setTimeout(() => {
+      clearInterval(checkInterval);
+      const container = widgetContainerRef.current;
+      const hasWidgetContent = container && (container.children.length > 0 || container.innerHTML.trim().length > 0);
+      if (!hasWidgetContent) {
+        setShowFallback(true);
+      }
+    }, 10000);
+
+    // Listen for visibility changes
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      
+      // Only reinitialize when tab becomes visible (not when it becomes hidden)
+      if (isVisible && !isVisibleRef.current) {
+        // Tab just became visible, reinitialize widget
+        reinitializeWidget();
+      }
+      
+      isVisibleRef.current = isVisible;
+    };
+
+    // Listen for window focus as backup
+    const handleFocus = () => {
+      if (!isVisibleRef.current) {
+        isVisibleRef.current = true;
+        reinitializeWidget();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(checkInterval);
+      clearTimeout(timeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [forceRemount, initializeWidget, reinitializeWidget]);
+
+  return { ref: widgetContainerRef, key: widgetKey, showFallback };
+}
 
 interface LocalExperience {
   id: string;
@@ -22,13 +180,14 @@ interface LocalExperience {
   images: string[];
   featured: boolean;
   category?: string;
+  tags?: string[];
 }
 
 export default function LocalExperiencesPage() {
   const [experiences, setExperiences] = React.useState<LocalExperience[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { containerRef, widgetRef, showFallback } = useViatorWidget("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
 
   React.useEffect(() => {
     loadExperiences();
@@ -37,13 +196,31 @@ export default function LocalExperiencesPage() {
   const loadExperiences = async () => {
     try {
       setLoading(true);
-      const response = await publicLocalExperiencesApi.getAll({ featured: true });
-      if (response.success && response.data && Array.isArray(response.data)) {
-        const normalized = normalizeLocalExperiences(response.data);
-        setExperiences(normalized);
+      console.log('[Local Experiences] Fetching experiences...');
+      const response = await publicLocalExperiencesApi.getAll({ active: true });
+      
+      if (response.success && response.data) {
+        let experiencesData: LocalExperience[] = [];
+        const data = response.data as any;
+        if (Array.isArray(data)) {
+          experiencesData = normalizeLocalExperiences(data);
+        } else if (data.items && Array.isArray(data.items)) {
+          experiencesData = normalizeLocalExperiences(data.items);
+        } else if (data.localExperiences && Array.isArray(data.localExperiences)) {
+          experiencesData = normalizeLocalExperiences(data.localExperiences);
+        } else if (data.data && Array.isArray(data.data)) {
+          experiencesData = normalizeLocalExperiences(data.data);
+        }
+        
+        console.log('[Local Experiences] Parsed experiences:', experiencesData.length);
+        setExperiences(experiencesData);
+      } else {
+        console.error('[Local Experiences] Failed to load experiences:', response.error);
+        setExperiences([]);
       }
     } catch (error) {
-      console.error("Error loading experiences:", error);
+      console.error('[Local Experiences] Error loading experiences:', error);
+      setExperiences([]);
     } finally {
       setLoading(false);
     }
@@ -60,19 +237,12 @@ export default function LocalExperiencesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Load Viator Script */}
-      <Script
-        src="https://www.viator.com/orion/partner/widget.js"
-        strategy="afterInteractive"
-        async
-      />
-
       {/* Hero Section */}
       <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <SectionHeader
             title="Local Experiences"
-            subtitle="Immerse yourself in authentic Aruban culture and activities"
+            subtitle="Immerse yourself in authentic Aruban culture with unique local experiences"
             center
           />
         </Container>
@@ -107,7 +277,7 @@ export default function LocalExperiencesPage() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Local Experiences Widget</h3>
               <p className="text-gray-600 mb-4">
-                Explore and book experiences directly through our partner platform
+                Discover and book local experiences through our partner platform
               </p>
               <a
                 href="https://www.viator.com/en-CA/Aruba/d8"
@@ -121,10 +291,11 @@ export default function LocalExperiencesPage() {
             </motion.div>
           ) : (
             <div
-              ref={containerRef}
+              key={viatorWidgetKey === 0 ? 'experiences-widget-initial' : `viator-widget-${viatorWidgetKey}`}
+              ref={viatorWidgetRef}
               data-vi-partner-id="P00276444"
-              data-vi-widget-ref={widgetRef}
-              className="min-h-[400px]"
+              data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
+              id="viator-widget-experiences"
             ></div>
           )}
         </Container>
@@ -153,104 +324,96 @@ export default function LocalExperiencesPage() {
               <p className="text-gray-600 mb-6">
                 {query ? 'Try adjusting your search criteria' : 'Explore available Experiences through our partner widget'}
               </p>
+              {query && (
+                <button
+                  onClick={() => setQuery('')}
+                  className="px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
+                >
+                  Clear search
+                </button>
+              )}
             </motion.div>
           ) : (
-            <>
-              <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-gray-900 font-display">
-                  Featured Experiences
-                </h2>
-                <p className="text-gray-600 mt-2">
-                  {filteredExperiences.length} {filteredExperiences.length === 1 ? 'experience' : 'experiences'} found
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredExperiences.map((exp, index) => (
-                  <motion.div
-                    key={exp.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="relative h-48 overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+              {filteredExperiences.map((exp, index) => (
+                <motion.div
+                  key={exp.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <div className="card overflow-hidden h-full group">
+                    <div className="relative h-56 overflow-hidden">
                       {exp.images && exp.images.length > 0 ? (
-                        <Image
-                          src={exp.images[0]}
-                          alt={exp.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        <Image 
+                          src={exp.images[0]} 
+                          alt={exp.title} 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-500" 
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-sun)] flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
                           <Icon name="heart" className="w-16 h-16 text-white opacity-50" />
                         </div>
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {exp.featured && (
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
+                            Featured
+                          </span>
+                        </div>
+                      )}
+                      {exp.price && (
+                        <div className="absolute top-4 right-4">
+                          <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
+                            {exp.price}
+                          </span>
+                        </div>
+                      )}
                     </div>
-
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 font-display line-clamp-2 group-hover:text-[var(--brand-aruba)] transition-colors">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
                         {exp.title}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                      <p className="text-gray-600 mb-4 line-clamp-2">
                         {exp.description}
                       </p>
-
-                      <div className="space-y-2 text-sm">
+                      <div className="space-y-2 text-sm text-gray-600">
                         {exp.location && (
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2">
                             <Icon name="map-pin" className="w-4 h-4" />
                             <span>{exp.location}</span>
                           </div>
                         )}
                         {exp.duration && (
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2">
                             <Icon name="calendar-days" className="w-4 h-4" />
                             <span>{exp.duration}</span>
                           </div>
                         )}
                         {exp.category && (
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2">
                             <Icon name="sparkles" className="w-4 h-4" />
                             <span>{exp.category}</span>
                           </div>
                         )}
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           )}
         </Container>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-b from-white to-gray-50">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4 font-display">
-              Ready for Authentic Experiences?
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Download the Aruba Travel Buddy app to discover even more local experiences
-            </p>
-            <Link
-              href="/download"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
-            >
-              <Icon name="device-phone-mobile" className="w-6 h-6" />
-              Download Free App
-            </Link>
-          </motion.div>
-        </Container>
-      </section>
+      {/* Viator Widget Script */}
+      <Script
+        src="https://www.viator.com/orion/partner/widget.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
