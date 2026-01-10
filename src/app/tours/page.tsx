@@ -20,6 +20,7 @@ function useViatorWidgetReinit(widgetRef: string) {
   const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
   const isVisibleRef = React.useRef(true);
   const lastPathnameRef = React.useRef<string | null>(null);
+  const mutationObserverRef = React.useRef<MutationObserver | null>(null);
 
   const forceRemount = React.useCallback(() => {
     // Force React to remount the widget container by changing key
@@ -541,13 +542,26 @@ export default function ToursPage() {
         strategy="afterInteractive"
         onLoad={() => {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Viator script loaded',data:{hasViator:!!(window as any).viator,hasInit:!!((window as any).viator && typeof (window as any).viator.init === 'function')},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Viator script loaded',data:{hasViator:!!(window as any).viator,hasInit:!!((window as any).viator && typeof (window as any).viator.init === 'function')},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
           // #endregion
           // Wait a bit for viator object to be available
           setTimeout(() => {
+            // Try to initialize widget regardless of window.viator availability
+            // Viator may use event-driven initialization
+            const container = document.querySelector('[data-vi-partner-id]');
+            if (container) {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Dispatching init events to container',data:{containerFound:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
+              // #endregion
+              container.dispatchEvent(new CustomEvent('viator:init', { bubbles: true }));
+              container.dispatchEvent(new CustomEvent('widget:init', { bubbles: true }));
+              document.dispatchEvent(new CustomEvent('viator:ready', { bubbles: true }));
+            }
+
+            // Also try the old viator.init approach if available
             if ((window as any).viator && typeof (window as any).viator.init === 'function') {
               // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Calling viator.init from onLoad',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+              fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Calling viator.init from onLoad',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
               // #endregion
               (window as any).viator.init();
             }
@@ -555,7 +569,7 @@ export default function ToursPage() {
         }}
         onError={(e) => {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onError',message:'Viator script load error',data:{error:String(e)},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onError',message:'Viator script load error',data:{error:String(e)},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
           // #endregion
           console.error('[Viator Widget] Script load error:', e);
         }}
