@@ -21,35 +21,35 @@ export default function EdCardPage() {
       title: 'Visit Website',
       description: 'Go to edcardaruba.aw',
       icon: 'globe-alt',
-      color: '#007AFF'
+      color: 'bg-blue-500'
     },
     {
       number: '2',
       title: 'Fill Form',
       description: 'Enter travel & passport details',
-      icon: 'cog',
-      color: '#34C759'
+      icon: 'document-text',
+      color: 'bg-green-500'
     },
     {
       number: '3',
       title: 'Pay $20 Fee',
       description: 'Sustainability fee per person',
       icon: 'credit-card',
-      color: '#FF9500'
+      color: 'bg-orange-500'
     },
     {
       number: '4',
       title: 'Get Confirmation',
       description: 'Save your ED Card QR code',
       icon: 'check-circle',
-      color: '#AF52DE'
+      color: 'bg-purple-500'
     },
   ];
 
   const checklist = [
-    { text: 'Valid passport', icon: 'shield-check' },
-    { text: 'Flight details', icon: 'globe-alt' },
-    { text: 'Accommodation address', icon: 'building-office' },
+    { text: 'Valid passport', icon: 'identification' },
+    { text: 'Flight details', icon: 'paper-airplane' },
+    { text: 'Accommodation address', icon: 'home' },
     { text: 'Credit/debit card for payment', icon: 'credit-card' },
     { text: 'Email address for confirmation', icon: 'envelope' },
   ];
@@ -76,11 +76,11 @@ export default function EdCardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative py-12 bg-gradient-to-b from-blue-50 to-white">
         <Container>
           <SectionHeader
             title="ED Card"
-            subtitle="Aruba's mandatory digital travel form and sustainability fee"
+            subtitle="Aruba's mandatory digital travel form for all visitors"
             center
           />
         </Container>
@@ -92,19 +92,19 @@ export default function EdCardPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 shadow-lg"
+            className="bg-white rounded-2xl shadow-lg p-6"
           >
             <div className="grid md:grid-cols-3 gap-6 text-center">
-              <div className="border-r border-gray-200 last:border-r-0">
-                <div className="text-3xl font-bold text-blue-600 mb-1">$20</div>
+              <div className="border-r border-gray-200 md:border-r-0 md:border-b md:pb-4 md:mb-4">
+                <div className="text-3xl font-bold text-blue-600">$20</div>
                 <div className="text-sm text-gray-600 font-medium">Per Person</div>
               </div>
-              <div className="border-r border-gray-200 last:border-r-0">
-                <div className="text-3xl font-bold text-blue-600 mb-1">7 Days</div>
+              <div className="border-r border-gray-200 md:border-r-0 md:border-b md:pb-4 md:mb-4">
+                <div className="text-3xl font-bold text-blue-600">7 Days</div>
                 <div className="text-sm text-gray-600 font-medium">Before Travel</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-blue-600 mb-1">All Ages</div>
+                <div className="text-3xl font-bold text-blue-600">All Ages</div>
                 <div className="text-sm text-gray-600 font-medium">Required</div>
               </div>
             </div>
@@ -115,202 +115,153 @@ export default function EdCardPage() {
       {/* Main CTA Button */}
       <section className="py-8 bg-gray-50">
         <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <motion.button
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleVisitOfficialWebsite}
+            className="w-full bg-green-500 hover:bg-green-600 text-white rounded-2xl py-6 px-8 font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
           >
-            <button
-              onClick={handleVisitOfficialWebsite}
-              className="w-full bg-green-500 hover:bg-green-600 text-white rounded-xl py-4 px-6 flex items-center justify-center gap-3 font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              <Icon name="globe-alt" className="w-6 h-6" />
-              Complete Your ED Card Now
-              <Icon name="arrow-right" className="w-5 h-5" />
-            </button>
-          </motion.div>
+            <Icon name="globe-alt" className="w-6 h-6" />
+            Complete Your ED Card Now
+            <Icon name="arrow-right" className="w-5 h-5" />
+          </motion.button>
         </Container>
       </section>
 
-      {/* What is ED Card */}
+      {/* Content Sections */}
       <section className="py-12 bg-white">
         <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 font-display text-center">What is the ED Card?</h2>
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-700 leading-relaxed">
-                The <span className="font-bold text-blue-600">Embarkation-Disembarkation Card</span> is Aruba's mandatory digital travel form. It replaces the old paper immigration form and includes a <span className="font-bold text-green-600">$20 Sustainability Fee</span> that funds environmental conservation on the island.
-              </p>
-            </div>
-          </motion.div>
-        </Container>
-      </section>
+          <div className="space-y-12">
+            {/* What is ED Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 font-display">What is the ED Card?</h2>
+              <div className="bg-blue-50 rounded-2xl p-8 border border-blue-200">
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  The <span className="font-bold text-blue-800">Embarkation-Disembarkation Card</span> is Aruba's mandatory digital travel form. It replaces the old paper immigration form and includes a <span className="font-bold text-blue-800">$20 Sustainability Fee</span> that funds environmental conservation on the island.
+                </p>
+              </div>
+            </motion.div>
 
-      {/* Step by Step Guide */}
-      <section className="py-12 bg-gray-50">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 font-display text-center">How It Works</h2>
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <div className="space-y-8">
-                {steps.map((step, index) => (
-                  <div key={index} className="flex items-start gap-6">
-                    <div
-                      className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                      style={{ backgroundColor: step.color }}
-                    >
-                      <Icon name={step.icon as any} className="w-6 h-6" />
+            {/* Step by Step Guide */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 font-display">How It Works</h2>
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <div className="space-y-8">
+                  {steps.map((step, index) => (
+                    <div key={index} className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-full ${step.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                        <Icon name={step.icon as any} className="w-6 h-6 text-white" />
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div className="w-0.5 h-16 bg-gray-200 ml-6 mt-14"></div>
+                      )}
+                      <div className="flex-1 pt-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
+                        <p className="text-gray-600">{step.description}</p>
+                      </div>
                     </div>
-                    {index < steps.length - 1 && (
-                      <div className="absolute left-6 top-12 w-0.5 h-8 bg-gray-200" style={{ marginLeft: '1.5rem' }} />
-                    )}
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-1">{step.title}</h3>
-                      <p className="text-gray-600">{step.description}</p>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* What You'll Need */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 font-display">What You'll Need</h2>
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                {checklist.map((item, index) => (
+                  <div key={index} className={`flex items-center gap-4 p-6 ${index !== checklist.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                      <Icon name={item.icon as any} className="w-5 h-5 text-blue-600" />
                     </div>
+                    <span className="text-gray-800 font-medium flex-1">{item.text}</span>
+                    <Icon name="check-circle" className="w-5 h-5 text-green-500" />
                   </div>
                 ))}
               </div>
-            </div>
-          </motion.div>
-        </Container>
-      </section>
+            </motion.div>
 
-      {/* What You'll Need */}
-      <section className="py-12 bg-white">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 font-display text-center">What You'll Need</h2>
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              {checklist.map((item, index) => (
-                <div key={index} className="flex items-center gap-4 p-6 border-b border-gray-100 last:border-b-0">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                    <Icon name={item.icon as any} className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <span className="text-lg text-gray-900 font-medium flex-1">{item.text}</span>
-                  <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                    <Icon name="check-circle" className="w-4 h-4 text-green-600" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </Container>
-      </section>
-
-      {/* Important Notice */}
-      <section className="py-12 bg-amber-50">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8 border border-amber-200">
+            {/* Important Notice */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-orange-50 border border-orange-200 rounded-2xl p-8"
+            >
               <div className="flex items-center gap-3 mb-4">
-                <Icon name="information-circle" className="w-6 h-6 text-amber-600" />
-                <h3 className="text-xl font-bold text-amber-800">Important</h3>
+                <Icon name="exclamation-triangle" className="w-6 h-6 text-orange-600" />
+                <h3 className="text-xl font-bold text-orange-800">Important</h3>
               </div>
-              <p className="text-lg text-amber-800 leading-relaxed">
-                Complete your ED Card <span className="font-bold">before arriving at the airport</span>.
+              <p className="text-gray-700 text-lg leading-relaxed">
+                Complete your ED Card <span className="font-bold text-orange-800">before arriving at the airport</span>.
                 Without it, you may face delays or be denied boarding.
               </p>
-            </div>
-          </motion.div>
-        </Container>
-      </section>
+            </motion.div>
 
-      {/* FAQ Section */}
-      <section className="py-12 bg-white">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 font-display text-center">Frequently Asked Questions</h2>
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                  <button
-                    onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                    className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-                  >
-                    <span className="text-lg font-semibold text-gray-900 pr-4">{faq.question}</span>
-                    <Icon
-                      name={expandedFaq === index ? "chevron-up" : "chevron-down"}
-                      className="w-5 h-5 text-blue-600 flex-shrink-0"
-                    />
-                  </button>
-                  {expandedFaq === index && (
-                    <div className="px-6 pb-4 border-t border-gray-100">
-                      <p className="text-gray-700 leading-relaxed pt-4">{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </Container>
-      </section>
+            {/* FAQ Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 font-display">Frequently Asked Questions</h2>
+              <div className="space-y-4">
+                {faqs.map((faq, index) => (
+                  <div key={index} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <button
+                      onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                      className="w-full text-left p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-lg font-semibold text-gray-900 pr-4">{faq.question}</span>
+                      <Icon
+                        name={expandedFaq === index ? "chevron-up" : "chevron-down"}
+                        className="w-5 h-5 text-blue-600 flex-shrink-0"
+                      />
+                    </button>
+                    {expandedFaq === index && (
+                      <div className="px-6 pb-6 border-t border-gray-100">
+                        <p className="text-gray-700 pt-4 leading-relaxed">{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
-      {/* Bottom CTA */}
-      <section className="py-12 bg-gradient-to-r from-blue-600 to-purple-600">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <h2 className="text-2xl font-bold text-white mb-4 font-display">Ready to Travel to Aruba?</h2>
-            <p className="text-blue-100 mb-8 text-lg">
-              Complete your ED Card today and ensure a smooth arrival experience
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {/* Bottom CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center py-8"
+            >
               <button
                 onClick={handleVisitOfficialWebsite}
-                className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+                className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-4 px-8 font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 mx-auto"
               >
-                <Icon name="globe-alt" className="w-5 h-5" />
                 Go to Official ED Card Website
-                <Icon name="arrow-right" className="w-4 h-4" />
+                <Icon name="arrow-right" className="w-5 h-5" />
               </button>
-              <Link
-                href="/download"
-                className="bg-blue-500 hover:bg-blue-400 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
-              >
-                <Icon name="device-phone-mobile" className="w-5 h-5" />
-                Download Free App
-              </Link>
-            </div>
-          </motion.div>
-        </Container>
-      </section>
 
-      {/* Footer Note */}
-      <section className="py-8 bg-gray-100">
-        <Container>
-          <div className="flex items-center justify-center gap-2 text-gray-600">
-            <Icon name="shield-check" className="w-4 h-4" />
-            <span className="text-sm">Official website: edcardaruba.aw</span>
+              <div className="flex items-center justify-center gap-2 mt-6 text-gray-500">
+                <Icon name="shield-check" className="w-4 h-4" />
+                <span className="text-sm">Official website: edcardaruba.aw</span>
+              </div>
+            </motion.div>
           </div>
         </Container>
       </section>
