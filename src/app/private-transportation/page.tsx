@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -14,9 +15,15 @@ import { normalizeTransportation } from "@/lib/data-normalization";
 // Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
 function useViatorWidgetReinit(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
-  const [widgetKey, setWidgetKey] = React.useState(0);
+  const pathname = usePathname();
+  const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
   const isVisibleRef = React.useRef(true);
-  const hasInitializedRef = React.useRef(false);
+  const lastPathnameRef = React.useRef<string | null>(null);
+
+  const forceRemount = React.useCallback(() => {
+    // Force React to remount the widget container by changing key
+    setWidgetKey(Date.now());
+  }, []);
 
   const initializeWidget = React.useCallback(() => {
     if (typeof window === 'undefined' || !widgetContainerRef.current) return;
@@ -30,41 +37,49 @@ function useViatorWidgetReinit(widgetRef: string) {
       return;
     }
 
-    // Wait for script to be ready
+    // Wait for script to be ready and DOM to be updated
     setTimeout(() => {
       if ((window as any).viator) {
         try {
           // Try to trigger initialization
           if (typeof (window as any).viator.init === 'function') {
             (window as any).viator.init();
-            hasInitializedRef.current = true;
           }
         } catch (error) {
           console.error('[Viator Widget] Error during init:', error);
         }
       }
-    }, 500);
+    }, 800);
   }, []);
 
   const reinitializeWidget = React.useCallback(() => {
     if (typeof window === 'undefined' || !widgetContainerRef.current) return;
     
-    // Force React to remount the widget container by changing key
-    setWidgetKey(prev => prev + 1);
-    hasInitializedRef.current = false;
+    // Force remount first
+    forceRemount();
     
     // Wait for remount, then initialize
     setTimeout(() => {
       initializeWidget();
-    }, 300);
-  }, [initializeWidget]);
+    }, 500);
+  }, [forceRemount, initializeWidget]);
+
+  // Force remount and reinitialize when pathname changes (navigation)
+  React.useEffect(() => {
+    if (lastPathnameRef.current !== null && lastPathnameRef.current !== pathname) {
+      // Pathname changed, force reinitialize
+      reinitializeWidget();
+    }
+    lastPathnameRef.current = pathname;
+  }, [pathname, reinitializeWidget]);
 
   React.useEffect(() => {
-    // On mount, wait for script and initialize
+    // On mount, force remount and initialize
+    forceRemount();
+    
+    // Wait for script and initialize
     const checkInterval = setInterval(() => {
-      if (!hasInitializedRef.current) {
-        initializeWidget();
-      }
+      initializeWidget();
     }, 500);
 
     // Timeout after 10 seconds
@@ -102,7 +117,7 @@ function useViatorWidgetReinit(widgetRef: string) {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [initializeWidget, reinitializeWidget]);
+  }, [forceRemount, initializeWidget, reinitializeWidget]);
 
   return { ref: widgetContainerRef, key: widgetKey };
 }
