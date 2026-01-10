@@ -21,6 +21,8 @@ function useViatorWidgetReinit(widgetRef: string) {
   const isVisibleRef = React.useRef(true);
   const lastPathnameRef = React.useRef<string | null>(null);
   const mutationObserverRef = React.useRef<MutationObserver | null>(null);
+  const [widgetLoaded, setWidgetLoaded] = React.useState(false);
+  const [showFallback, setShowFallback] = React.useState(false);
 
   const forceRemount = React.useCallback(() => {
     // Force React to remount the widget container by changing key
@@ -228,18 +230,23 @@ function useViatorWidgetReinit(widgetRef: string) {
   React.useEffect(() => {
     // On mount, force remount and initialize
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:useEffect',message:'Component mount effect',data:{pathname},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:useEffect',message:'Component mount effect',data:{pathname},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'E'})}).catch(()=>{});
     // #endregion
     forceRemount();
-    
+
     // Wait for script and initialize
     const checkInterval = setInterval(() => {
       initializeWidget();
     }, 500);
 
-    // Timeout after 10 seconds
+    // Timeout after 10 seconds - show fallback if widget didn't load
     const timeout = setTimeout(() => {
       clearInterval(checkInterval);
+      const container = widgetContainerRef.current;
+      const hasWidgetContent = container && (container.children.length > 0 || container.innerHTML.trim().length > 0);
+      if (!hasWidgetContent) {
+        setShowFallback(true);
+      }
     }, 10000);
 
     // Listen for visibility changes
@@ -412,13 +419,38 @@ export default function ToursPage() {
       {/* Viator Widget Section */}
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
-          <div 
-            key={`viator-widget-${viatorWidgetKey}`}
-            ref={viatorWidgetRef}
-            data-vi-partner-id="P00276444" 
-            data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
-            id="viator-widget-tours"
-          ></div>
+          {showFallback ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
+            >
+              <div className="text-gray-400 mb-4">
+                <Icon name="map-pin" className="w-16 h-16 mx-auto" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Tour Booking Widget</h3>
+              <p className="text-gray-600 mb-4">
+                Explore and book tours directly through our partner platform
+              </p>
+              <a
+                href="https://www.viator.com/en-CA/Aruba/d8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
+              >
+                <Icon name="external-link" className="w-4 h-4" />
+                Browse Tours on Viator
+              </a>
+            </motion.div>
+          ) : (
+            <div
+              key={`viator-widget-${viatorWidgetKey}`}
+              ref={viatorWidgetRef}
+              data-vi-partner-id="P00276444"
+              data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
+              id="viator-widget-tours"
+            ></div>
+          )}
         </Container>
       </section>
 
