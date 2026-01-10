@@ -158,7 +158,8 @@ export default function RestaurantsPage() {
                           src={rest.images[0]} 
                           alt={rest.name} 
                           fill 
-                          className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          unoptimized={true}
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
