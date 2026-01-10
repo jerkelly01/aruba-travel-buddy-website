@@ -116,7 +116,7 @@ function useViatorWidgetReinit(widgetRef: string) {
 
   const reinitializeWidget = React.useCallback(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:reinitializeWidget',message:'Reinitialize widget called',data:{hasWindow:typeof window !== 'undefined',hasRef:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:reinitializeWidget',message:'Reinitialize widget called',data:{hasWindow:typeof window !== 'undefined',hasRef:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'J'})}).catch(()=>{});
     // #endregion
     if (typeof window === 'undefined') return;
     
@@ -129,10 +129,19 @@ function useViatorWidgetReinit(widgetRef: string) {
       currentContainer.removeAttribute('data-vi-widget-ref');
     }
     
+    // Remove and re-add the script to force a fresh scan
+    const existingScript = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    if (existingScript) {
+      existingScript.remove();
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:reinitializeWidget',message:'Removed existing script',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'J'})}).catch(()=>{});
+      // #endregion
+    }
+    
     // Force remount to get a fresh container
     forceRemount();
     
-    // Wait for React to remount, then restore attributes and initialize
+    // Wait for React to remount, then restore attributes and reload script
     setTimeout(() => {
       const newContainer = widgetContainerRef.current;
       if (newContainer) {
@@ -140,10 +149,26 @@ function useViatorWidgetReinit(widgetRef: string) {
         newContainer.setAttribute('data-vi-partner-id', 'P00276444');
         newContainer.setAttribute('data-vi-widget-ref', widgetRef);
         
-        // Wait a bit more for DOM to settle, then initialize
-        setTimeout(() => {
-          initializeWidget();
-        }, 300);
+        // Re-add the script to trigger fresh scan
+        const script = document.createElement('script');
+        script.src = 'https://www.viator.com/orion/partner/widget.js';
+        script.async = true;
+        script.onload = () => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:reinitializeWidget',message:'Script reloaded in reinitialize',data:{hasViator:!!(window as any).viator},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'J'})}).catch(()=>{});
+          // #endregion
+          // Wait for script to initialize, then try manual init if available
+          setTimeout(() => {
+            if ((window as any).viator && typeof (window as any).viator.init === 'function') {
+              (window as any).viator.init();
+            }
+            initializeWidget();
+          }, 500);
+        };
+        document.body.appendChild(script);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:reinitializeWidget',message:'Re-adding script tag',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run4',hypothesisId:'J'})}).catch(()=>{});
+        // #endregion
       } else {
         // Container not ready, retry
         setTimeout(() => {
@@ -151,9 +176,18 @@ function useViatorWidgetReinit(widgetRef: string) {
           if (retryContainer) {
             retryContainer.setAttribute('data-vi-partner-id', 'P00276444');
             retryContainer.setAttribute('data-vi-widget-ref', widgetRef);
-            setTimeout(() => {
-              initializeWidget();
-            }, 300);
+            const script = document.createElement('script');
+            script.src = 'https://www.viator.com/orion/partner/widget.js';
+            script.async = true;
+            script.onload = () => {
+              setTimeout(() => {
+                if ((window as any).viator && typeof (window as any).viator.init === 'function') {
+                  (window as any).viator.init();
+                }
+                initializeWidget();
+              }, 500);
+            };
+            document.body.appendChild(script);
           }
         }, 500);
       }
