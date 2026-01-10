@@ -249,18 +249,44 @@ function useViatorWidgetReinit(widgetRef: string) {
         children: container.children.length,
         height: container.offsetHeight,
         hasIframe: !!container.querySelector('iframe'),
-        innerHTML: container.innerHTML.substring(0, 100)
+        innerHTML: container.innerHTML.substring(0, 100),
+        iframeSrc: container.querySelector('iframe')?.src || null
       } : null;
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Visibility change detected',data:{isVisible,wasVisible:isVisibleRef.current,willReinit:isVisible && !isVisibleRef.current,containerExists:!!container,containerState},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'G'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Visibility change detected',data:{isVisible,wasVisible:isVisibleRef.current,willReinit:isVisible && !isVisibleRef.current,containerExists:!!container,containerState},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'K'})}).catch(()=>{});
       // #endregion
       // Only reinitialize when tab becomes visible (not when it becomes hidden)
       if (isVisible && !isVisibleRef.current) {
-        // Tab just became visible, reinitialize widget
+        // Tab just became visible - check if widget content exists
+        const iframe = container?.querySelector('iframe');
+        const hasContent = container && (container.children.length > 0 || container.innerHTML.trim().length > 0);
+        
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Calling reinitializeWidget',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Tab visible - checking widget state',data:{hasContent,hasIframe:!!iframe,iframeVisible:iframe ? window.getComputedStyle(iframe).display !== 'none' : false},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'K'})}).catch(()=>{});
         // #endregion
-        reinitializeWidget();
+        
+        if (!hasContent || !iframe) {
+          // Widget content missing, force reinitialize
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Widget content missing, calling reinitializeWidget',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'K'})}).catch(()=>{});
+          // #endregion
+          reinitializeWidget();
+        } else {
+          // Widget exists but might be hidden - try to refresh iframe
+          if (iframe) {
+            const iframeSrc = iframe.src;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Widget exists, refreshing iframe',data:{iframeSrc},timestamp:Date.now(),sessionId:'debug-session',runId:'run5',hypothesisId:'K'})}).catch(()=>{});
+            // #endregion
+            // Force iframe reload by setting src to empty then back
+            iframe.src = '';
+            setTimeout(() => {
+              if (iframe && iframeSrc) {
+                iframe.src = iframeSrc;
+              }
+            }, 100);
+          }
+        }
       }
       
       isVisibleRef.current = isVisible;
