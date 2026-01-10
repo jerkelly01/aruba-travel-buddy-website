@@ -53,16 +53,47 @@ function useViatorWidgetReinit(widgetRef: string) {
   }, []);
 
   const reinitializeWidget = React.useCallback(() => {
-    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    if (typeof window === 'undefined') return;
     
-    // Force remount first
+    // Clear any existing widget content first to ensure clean state
+    const currentContainer = widgetContainerRef.current;
+    if (currentContainer) {
+      currentContainer.innerHTML = '';
+      // Remove data attributes temporarily to force Viator to re-detect
+      currentContainer.removeAttribute('data-vi-partner-id');
+      currentContainer.removeAttribute('data-vi-widget-ref');
+    }
+    
+    // Force remount to get a fresh container
     forceRemount();
     
-    // Wait for remount, then initialize
+    // Wait for React to remount, then restore attributes and initialize
     setTimeout(() => {
-      initializeWidget();
-    }, 500);
-  }, [forceRemount, initializeWidget]);
+      const newContainer = widgetContainerRef.current;
+      if (newContainer) {
+        // Ensure attributes are set
+        newContainer.setAttribute('data-vi-partner-id', 'P00276444');
+        newContainer.setAttribute('data-vi-widget-ref', widgetRef);
+        
+        // Wait a bit more for DOM to settle, then initialize
+        setTimeout(() => {
+          initializeWidget();
+        }, 300);
+      } else {
+        // Container not ready, retry
+        setTimeout(() => {
+          const retryContainer = widgetContainerRef.current;
+          if (retryContainer) {
+            retryContainer.setAttribute('data-vi-partner-id', 'P00276444');
+            retryContainer.setAttribute('data-vi-widget-ref', widgetRef);
+            setTimeout(() => {
+              initializeWidget();
+            }, 300);
+          }
+        }, 500);
+      }
+    }, 600);
+  }, [forceRemount, initializeWidget, widgetRef]);
 
   // Force remount and reinitialize when pathname changes (navigation)
   React.useEffect(() => {
@@ -72,6 +103,17 @@ function useViatorWidgetReinit(widgetRef: string) {
     }
     lastPathnameRef.current = pathname;
   }, [pathname, reinitializeWidget]);
+
+  // Initialize when widget container ref is set (after remount)
+  React.useEffect(() => {
+    if (widgetContainerRef.current) {
+      // Container is mounted, initialize after a short delay
+      const initTimer = setTimeout(() => {
+        initializeWidget();
+      }, 1000);
+      return () => clearTimeout(initTimer);
+    }
+  }, [widgetKey, initializeWidget]);
 
   React.useEffect(() => {
     // On mount, force remount and initialize

@@ -23,10 +23,17 @@ function useViatorWidgetReinit(widgetRef: string) {
 
   const forceRemount = React.useCallback(() => {
     // Force React to remount the widget container by changing key
-    setWidgetKey(Date.now());
-  }, []);
+    const newKey = Date.now();
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:forceRemount',message:'Force remount called',data:{newKey,oldKey:widgetKey},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    setWidgetKey(newKey);
+  }, [widgetKey]);
 
   const initializeWidget = React.useCallback(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Initialize widget called',data:{hasWindow:typeof window !== 'undefined',hasRef:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     if (typeof window === 'undefined' || !widgetContainerRef.current) return;
     
     const container = widgetContainerRef.current;
@@ -34,19 +41,33 @@ function useViatorWidgetReinit(widgetRef: string) {
 
     // Check if script is loaded
     const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Script check',data:{scriptExists:!!scriptExists,containerVisible:container.offsetParent !== null,containerDisplay:window.getComputedStyle(container).display},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     if (!scriptExists) {
       return;
     }
 
     // Wait for script to be ready and DOM to be updated
     setTimeout(() => {
+      const hasViator = !!(window as any).viator;
+      const hasInit = hasViator && typeof (window as any).viator.init === 'function';
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'Before viator.init call',data:{hasViator,hasInit,containerExists:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
       if ((window as any).viator) {
         try {
           // Try to trigger initialization
           if (typeof (window as any).viator.init === 'function') {
             (window as any).viator.init();
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'viator.init called',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
           }
         } catch (error) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:initializeWidget',message:'viator.init error',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+          // #endregion
           console.error('[Viator Widget] Error during init:', error);
         }
       }
@@ -54,16 +75,50 @@ function useViatorWidgetReinit(widgetRef: string) {
   }, []);
 
   const reinitializeWidget = React.useCallback(() => {
-    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:reinitializeWidget',message:'Reinitialize widget called',data:{hasWindow:typeof window !== 'undefined',hasRef:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    if (typeof window === 'undefined') return;
     
-    // Force remount first
+    // Clear any existing widget content first to ensure clean state
+    const currentContainer = widgetContainerRef.current;
+    if (currentContainer) {
+      currentContainer.innerHTML = '';
+      // Remove data attributes temporarily to force Viator to re-detect
+      currentContainer.removeAttribute('data-vi-partner-id');
+      currentContainer.removeAttribute('data-vi-widget-ref');
+    }
+    
+    // Force remount to get a fresh container
     forceRemount();
     
-    // Wait for remount, then initialize
+    // Wait for React to remount, then restore attributes and initialize
     setTimeout(() => {
-      initializeWidget();
-    }, 500);
-  }, [forceRemount, initializeWidget]);
+      const newContainer = widgetContainerRef.current;
+      if (newContainer) {
+        // Ensure attributes are set
+        newContainer.setAttribute('data-vi-partner-id', 'P00276444');
+        newContainer.setAttribute('data-vi-widget-ref', widgetRef);
+        
+        // Wait a bit more for DOM to settle, then initialize
+        setTimeout(() => {
+          initializeWidget();
+        }, 300);
+      } else {
+        // Container not ready, retry
+        setTimeout(() => {
+          const retryContainer = widgetContainerRef.current;
+          if (retryContainer) {
+            retryContainer.setAttribute('data-vi-partner-id', 'P00276444');
+            retryContainer.setAttribute('data-vi-widget-ref', widgetRef);
+            setTimeout(() => {
+              initializeWidget();
+            }, 300);
+          }
+        }, 500);
+      }
+    }, 600);
+  }, [forceRemount, initializeWidget, widgetRef]);
 
   // Force remount and reinitialize when pathname changes (navigation)
   React.useEffect(() => {
@@ -74,8 +129,22 @@ function useViatorWidgetReinit(widgetRef: string) {
     lastPathnameRef.current = pathname;
   }, [pathname, reinitializeWidget]);
 
+  // Initialize when widget container ref is set (after remount)
+  React.useEffect(() => {
+    if (widgetContainerRef.current) {
+      // Container is mounted, initialize after a short delay
+      const initTimer = setTimeout(() => {
+        initializeWidget();
+      }, 1000);
+      return () => clearTimeout(initTimer);
+    }
+  }, [widgetKey, initializeWidget]);
+
   React.useEffect(() => {
     // On mount, force remount and initialize
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:useEffect',message:'Component mount effect',data:{pathname},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     forceRemount();
     
     // Wait for script and initialize
@@ -91,7 +160,9 @@ function useViatorWidgetReinit(widgetRef: string) {
     // Listen for visibility changes
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden;
-      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:handleVisibilityChange',message:'Visibility change detected',data:{isVisible,wasVisible:isVisibleRef.current,willReinit:isVisible && !isVisibleRef.current,containerExists:!!widgetContainerRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       // Only reinitialize when tab becomes visible (not when it becomes hidden)
       if (isVisible && !isVisibleRef.current) {
         // Tab just became visible, reinitialize widget
@@ -221,7 +292,7 @@ export default function ToursPage() {
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <div 
-            key={viatorWidgetKey === 0 ? 'tours-widget-initial' : `viator-widget-${viatorWidgetKey}`}
+            key={`viator-widget-${viatorWidgetKey}`}
             ref={viatorWidgetRef}
             data-vi-partner-id="P00276444" 
             data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
