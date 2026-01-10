@@ -275,7 +275,7 @@ export default function CarRentalsPage() {
               className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
             >
               <div className="text-gray-400 mb-4">
-                <Icon name="car" className="w-16 h-16 mx-auto" />
+                <Icon name="device-phone-mobile" className="w-16 h-16 mx-auto" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Car Rental Widget</h3>
               <p className="text-gray-600 mb-4">
