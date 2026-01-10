@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -9,6 +10,102 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicTransportationApi } from "@/lib/public-api";
 import { normalizeTransportation } from "@/lib/data-normalization";
+
+// Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
+function useViatorWidgetReinit(widgetRef: string) {
+  const widgetContainerRef = React.useRef<HTMLDivElement>(null);
+  const [widgetKey, setWidgetKey] = React.useState(0);
+  const isVisibleRef = React.useRef(true);
+  const hasInitializedRef = React.useRef(false);
+
+  const initializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    
+    const container = widgetContainerRef.current;
+    if (!container) return;
+
+    // Check if script is loaded
+    const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    if (!scriptExists) {
+      return;
+    }
+
+    // Wait for script to be ready
+    setTimeout(() => {
+      if ((window as any).viator) {
+        try {
+          // Try to trigger initialization
+          if (typeof (window as any).viator.init === 'function') {
+            (window as any).viator.init();
+            hasInitializedRef.current = true;
+          }
+        } catch (error) {
+          console.error('[Viator Widget] Error during init:', error);
+        }
+      }
+    }, 500);
+  }, []);
+
+  const reinitializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    
+    // Force React to remount the widget container by changing key
+    setWidgetKey(prev => prev + 1);
+    hasInitializedRef.current = false;
+    
+    // Wait for remount, then initialize
+    setTimeout(() => {
+      initializeWidget();
+    }, 300);
+  }, [initializeWidget]);
+
+  React.useEffect(() => {
+    // On mount, wait for script and initialize
+    const checkInterval = setInterval(() => {
+      if (!hasInitializedRef.current) {
+        initializeWidget();
+      }
+    }, 500);
+
+    // Timeout after 10 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(checkInterval);
+    }, 10000);
+
+    // Listen for visibility changes
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      
+      // Only reinitialize when tab becomes visible (not when it becomes hidden)
+      if (isVisible && !isVisibleRef.current) {
+        // Tab just became visible, reinitialize widget
+        reinitializeWidget();
+      }
+      
+      isVisibleRef.current = isVisible;
+    };
+
+    // Listen for window focus as backup
+    const handleFocus = () => {
+      if (!isVisibleRef.current) {
+        isVisibleRef.current = true;
+        reinitializeWidget();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(checkInterval);
+      clearTimeout(timeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [initializeWidget, reinitializeWidget]);
+
+  return { ref: widgetContainerRef, key: widgetKey };
+}
 
 interface Transportation {
   id: string;
@@ -30,6 +127,7 @@ export default function PrivateTransportationPage() {
   const [transportation, setTransportation] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-4f182977-3126-4965-aeb4-7f38f620a29c");
 
   React.useEffect(() => {
     loadTransportation();
@@ -104,6 +202,19 @@ export default function PrivateTransportationPage() {
         </Container>
       </section>
 
+      {/* Viator Widget Section */}
+      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+        <Container>
+          <div 
+            key={viatorWidgetKey === 0 ? 'private-transportation-widget-initial' : `viator-widget-${viatorWidgetKey}`}
+            ref={viatorWidgetRef}
+            data-vi-partner-id="P00276444" 
+            data-vi-widget-ref="W-4f182977-3126-4965-aeb4-7f38f620a29c"
+            id="viator-widget-private-transportation"
+          ></div>
+        </Container>
+      </section>
+
       {/* Results Section */}
       <section className="py-12 bg-white">
         <Container>
@@ -123,9 +234,9 @@ export default function PrivateTransportationPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="map-pin" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No private transportation found</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Private Transportation Above</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Check back soon for available private transportation options!'}
+                {query ? 'Try adjusting your search criteria' : 'Explore available private transportation through our partner widget'}
               </p>
               {query && (
                 <button
@@ -205,6 +316,12 @@ export default function PrivateTransportationPage() {
           )}
         </Container>
       </section>
+
+      {/* Viator Widget Script */}
+      <Script
+        src="https://www.viator.com/orion/partner/widget.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
