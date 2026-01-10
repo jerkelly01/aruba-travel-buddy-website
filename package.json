@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:preview": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:preview": "netlify deploy",
+    "deploy:prod": "netlify deploy --prod",
+    "check:updates": "bash scripts/check-live-updates.sh"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
