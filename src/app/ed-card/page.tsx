@@ -228,8 +228,8 @@ export default function EdCardPage() {
                     >
                       <span className="text-lg font-semibold text-gray-900 pr-4">{faq.question}</span>
                       <Icon
-                        name={expandedFaq === index ? "chevron-up" : "chevron-down"}
-                        className="w-5 h-5 text-blue-600 flex-shrink-0"
+                        name="chevron-right"
+                        className={`w-5 h-5 text-blue-600 flex-shrink-0 transition-transform ${expandedFaq === index ? '-rotate-90' : 'rotate-90'}`}
                       />
                     </button>
                     {expandedFaq === index && (
