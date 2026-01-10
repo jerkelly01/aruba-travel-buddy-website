@@ -16,59 +16,33 @@ function useViatorWidgetReinit(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
   const [widgetKey, setWidgetKey] = React.useState(0);
   const isVisibleRef = React.useRef(true);
-  const scriptLoadedRef = React.useRef(false);
+  const hasInitializedRef = React.useRef(false);
 
-  const loadViatorScript = React.useCallback(() => {
-    if (typeof window === 'undefined' || scriptLoadedRef.current) return;
+  const checkAndInitialize = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return false;
     
-    // Check if script already exists
-    const existingScript = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
-    if (existingScript) {
-      scriptLoadedRef.current = true;
-      return;
+    // Check if script is loaded
+    const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    if (!scriptExists) {
+      return false;
     }
 
-    // Load the Viator script
-    const script = document.createElement('script');
-    script.src = 'https://www.viator.com/orion/partner/widget.js';
-    script.async = true;
-    script.onload = () => {
-      scriptLoadedRef.current = true;
-      // Initialize widget after script loads
-      setTimeout(() => {
-        initializeWidget();
-      }, 300);
-    };
-    script.onerror = () => {
-      console.error('[Viator Widget] Failed to load script');
-    };
-    document.body.appendChild(script);
-  }, []);
-
-  const initializeWidget = React.useCallback(() => {
-    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
-    
-    // Force React to remount the widget container by changing key
-    setWidgetKey(prev => prev + 1);
-    
-    // Wait for DOM update, then try to initialize
+    // Wait a bit for script to be ready
     setTimeout(() => {
       if ((window as any).viator) {
         try {
+          // Try to trigger initialization
           if (typeof (window as any).viator.init === 'function') {
             (window as any).viator.init();
-          } else if (typeof (window as any).viator.initialize === 'function') {
-            (window as any).viator.initialize();
           }
         } catch (error) {
           console.error('[Viator Widget] Error during init:', error);
         }
-      } else {
-        // Script not loaded yet, load it
-        loadViatorScript();
       }
     }, 100);
-  }, [loadViatorScript]);
+    
+    return true;
+  }, []);
 
   const reinitializeWidget = React.useCallback(() => {
     if (typeof window === 'undefined' || !widgetContainerRef.current) return;
@@ -76,30 +50,25 @@ function useViatorWidgetReinit(widgetRef: string) {
     // Force React to remount the widget container by changing key
     setWidgetKey(prev => prev + 1);
     
-    // Also try to trigger Viator's initialization if available
+    // Wait for remount, then try to initialize
     setTimeout(() => {
-      if ((window as any).viator) {
-        try {
-          if (typeof (window as any).viator.init === 'function') {
-            (window as any).viator.init();
-          } else if (typeof (window as any).viator.initialize === 'function') {
-            (window as any).viator.initialize();
-          }
-        } catch (error) {
-          console.error('[Viator Widget] Error during reinit:', error);
-        }
-      } else {
-        // Script not loaded, load it
-        loadViatorScript();
-      }
-    }, 500);
-  }, [loadViatorScript]);
+      checkAndInitialize();
+    }, 300);
+  }, [checkAndInitialize]);
 
   React.useEffect(() => {
-    // Initialize on mount (handles page navigation)
-    const mountTimer = setTimeout(() => {
-      initializeWidget();
-    }, 500);
+    // On mount, wait for script to load and check widget
+    const checkInterval = setInterval(() => {
+      if (checkAndInitialize()) {
+        hasInitializedRef.current = true;
+        clearInterval(checkInterval);
+      }
+    }, 200);
+
+    // Timeout after 5 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(checkInterval);
+    }, 5000);
 
     // Listen for visibility changes
     const handleVisibilityChange = () => {
@@ -126,11 +95,12 @@ function useViatorWidgetReinit(widgetRef: string) {
     window.addEventListener('focus', handleFocus);
 
     return () => {
-      clearTimeout(mountTimer);
+      clearInterval(checkInterval);
+      clearTimeout(timeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [initializeWidget, reinitializeWidget]);
+  }, [checkAndInitialize, reinitializeWidget]);
 
   return { ref: widgetContainerRef, key: widgetKey };
 }
@@ -232,10 +202,11 @@ export default function LocalExperiencesPage() {
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <div 
-            key={viatorWidgetKey}
+            key={`viator-widget-${viatorWidgetKey}`}
             ref={viatorWidgetRef}
             data-vi-partner-id="P00276444" 
             data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
+            id="viator-widget-container"
           ></div>
         </Container>
       </section>
