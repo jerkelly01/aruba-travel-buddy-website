@@ -19,6 +19,7 @@ function useViatorWidgetReinit(widgetRef: string) {
   const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
   const isVisibleRef = React.useRef(true);
   const lastPathnameRef = React.useRef<string | null>(null);
+  const [showFallback, setShowFallback] = React.useState(false);
 
   const forceRemount = React.useCallback(() => {
     // Force React to remount the widget container by changing key
@@ -124,9 +125,14 @@ function useViatorWidgetReinit(widgetRef: string) {
       initializeWidget();
     }, 500);
 
-    // Timeout after 10 seconds
+    // Timeout after 10 seconds - show fallback if widget didn't load
     const timeout = setTimeout(() => {
       clearInterval(checkInterval);
+      const container = widgetContainerRef.current;
+      const hasWidgetContent = container && (container.children.length > 0 || container.innerHTML.trim().length > 0);
+      if (!hasWidgetContent) {
+        setShowFallback(true);
+      }
     }, 10000);
 
     // Listen for visibility changes
@@ -262,13 +268,38 @@ export default function PrivateTransportationPage() {
       {/* Viator Widget Section */}
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
-          <div 
-            key={viatorWidgetKey === 0 ? 'private-transportation-widget-initial' : `viator-widget-${viatorWidgetKey}`}
-            ref={viatorWidgetRef}
-            data-vi-partner-id="P00276444" 
-            data-vi-widget-ref="W-4f182977-3126-4965-aeb4-7f38f620a29c"
-            id="viator-widget-private-transportation"
-          ></div>
+          {showFallback ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
+            >
+              <div className="text-gray-400 mb-4">
+                <Icon name="car" className="w-16 h-16 mx-auto" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Private Transportation Widget</h3>
+              <p className="text-gray-600 mb-4">
+                Book private transportation services through our partner platform
+              </p>
+              <a
+                href="https://www.viator.com/en-CA/Aruba/d8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
+              >
+                <Icon name="external-link" className="w-4 h-4" />
+                Browse Transportation on Viator
+              </a>
+            </motion.div>
+          ) : (
+            <div
+              key={viatorWidgetKey === 0 ? 'private-transportation-widget-initial' : `viator-widget-${viatorWidgetKey}`}
+              ref={viatorWidgetRef}
+              data-vi-partner-id="P00276444"
+              data-vi-widget-ref="W-4f182977-3126-4965-aeb4-7f38f620a29c"
+              id="viator-widget-private-transportation"
+            ></div>
+          )}
         </Container>
       </section>
 
