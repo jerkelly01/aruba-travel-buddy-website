@@ -11,6 +11,64 @@ import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeLocalExperiences } from "@/lib/data-normalization";
 
+// Custom hook to reinitialize Viator widget when tab becomes visible
+function useViatorWidgetReinit(widgetRef: string) {
+  const widgetContainerRef = React.useRef<HTMLDivElement>(null);
+  const [widgetKey, setWidgetKey] = React.useState(0);
+  const isVisibleRef = React.useRef(true);
+
+  const reinitializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    
+    // Force React to remount the widget container by changing key
+    setWidgetKey(prev => prev + 1);
+    
+    // Also try to trigger Viator's initialization if available
+    setTimeout(() => {
+      if ((window as any).viator && typeof (window as any).viator.init === 'function') {
+        try {
+          (window as any).viator.init();
+        } catch (error) {
+          console.error('[Viator Widget] Error during reinit:', error);
+        }
+      }
+    }, 500);
+  }, []);
+
+  React.useEffect(() => {
+    // Listen for visibility changes
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      
+      // Only reinitialize when tab becomes visible (not when it becomes hidden)
+      if (isVisible && !isVisibleRef.current) {
+        // Tab just became visible, reinitialize widget
+        reinitializeWidget();
+      }
+      
+      isVisibleRef.current = isVisible;
+    };
+
+    // Listen for window focus as backup
+    const handleFocus = () => {
+      if (!isVisibleRef.current) {
+        isVisibleRef.current = true;
+        reinitializeWidget();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [reinitializeWidget]);
+
+  return { ref: widgetContainerRef, key: widgetKey };
+}
+
 interface LocalExperience {
   id: string;
   title: string;
@@ -28,6 +86,7 @@ export default function LocalExperiencesPage() {
   const [experiences, setExperiences] = React.useState<LocalExperience[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
 
   React.useEffect(() => {
     loadExperiences();
@@ -107,6 +166,8 @@ export default function LocalExperiencesPage() {
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <div 
+            key={viatorWidgetKey}
+            ref={viatorWidgetRef}
             data-vi-partner-id="P00276444" 
             data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
           ></div>
