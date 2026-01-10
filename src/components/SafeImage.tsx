@@ -11,7 +11,7 @@ interface SafeImageProps {
   width?: number;
   height?: number;
   className?: string;
-  fallbackIcon?: string;
+  fallbackIcon?: 'sparkles' | 'map-pin' | 'star' | 'heart';
 }
 
 /**
@@ -25,7 +25,7 @@ export function SafeImage({
   width, 
   height, 
   className = '',
-  fallbackIcon = 'image'
+  fallbackIcon = 'sparkles'
 }: SafeImageProps) {
   const [hasError, setHasError] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export function SafeImage({
     if (fill) {
       return (
         <div className={`absolute inset-0 bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center ${className}`}>
-          <Icon name={fallbackIcon as any} className="w-16 h-16 text-white opacity-50" />
+          <Icon name={fallbackIcon} className="w-16 h-16 text-white opacity-50" />
         </div>
       );
     }
