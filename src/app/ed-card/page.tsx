@@ -203,7 +203,7 @@ export default function EdCardPage() {
               className="bg-orange-50 border border-orange-200 rounded-2xl p-8"
             >
               <div className="flex items-center gap-3 mb-4">
-                <Icon name="exclamation-circle" className="w-6 h-6 text-orange-600" />
+                <Icon name="information-circle" className="w-6 h-6 text-orange-600" />
                 <h3 className="text-xl font-bold text-orange-800">Important</h3>
               </div>
               <p className="text-gray-700 text-lg leading-relaxed">
