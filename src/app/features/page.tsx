@@ -88,7 +88,7 @@ export default function Features() {
       <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png"
+            src="/beaches page.png"
             alt="Aruba Travel Buddy Features"
             fill
             className="object-cover"
