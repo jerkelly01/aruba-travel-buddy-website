@@ -287,7 +287,7 @@ export default function BusToursPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
               >
-                <Icon name="external-link" className="w-4 h-4" />
+                <Icon name="arrow-right" className="w-4 h-4" />
                 Browse Bus Tours on Viator
               </a>
             </motion.div>
