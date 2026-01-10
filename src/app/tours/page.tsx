@@ -15,81 +15,63 @@ import { CodeSnippet } from "@/components/CodeSnippet";
 // Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
 function useViatorWidgetReinit(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
-  const [widgetKey, setWidgetKey] = React.useState(() => Date.now()); // Use timestamp for unique key on mount
+  const [widgetKey, setWidgetKey] = React.useState(0);
   const isVisibleRef = React.useRef(true);
-  const mountCountRef = React.useRef(0);
+  const hasInitializedRef = React.useRef(false);
 
-  const forceReinitialize = React.useCallback(() => {
-    if (typeof window === 'undefined') return;
+  const initializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
     
-    // Force React to remount the widget container by changing key
-    setWidgetKey(Date.now());
-    
-    // Wait for DOM update, then try to initialize
+    const container = widgetContainerRef.current;
+    if (!container) return;
+
+    // Check if script is loaded
+    const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    if (!scriptExists) {
+      return;
+    }
+
+    // Wait for script to be ready
     setTimeout(() => {
-      const container = widgetContainerRef.current;
-      if (!container) return;
-
-      // Check if script is loaded
-      const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
-      if (!scriptExists) {
-        // Script not loaded yet, wait for it
-        return;
-      }
-
-      // Wait a bit more for script to be ready
-      setTimeout(() => {
-        if ((window as any).viator) {
-          try {
-            // Try to trigger initialization
-            if (typeof (window as any).viator.init === 'function') {
-              (window as any).viator.init();
-            }
-          } catch (error) {
-            console.error('[Viator Widget] Error during init:', error);
+      if ((window as any).viator) {
+        try {
+          // Try to trigger initialization
+          if (typeof (window as any).viator.init === 'function') {
+            (window as any).viator.init();
+            hasInitializedRef.current = true;
           }
+        } catch (error) {
+          console.error('[Viator Widget] Error during init:', error);
         }
-      }, 200);
-    }, 100);
+      }
+    }, 500);
   }, []);
 
-  React.useEffect(() => {
-    mountCountRef.current += 1;
-    const currentMount = mountCountRef.current;
-
-    // On mount (including navigation), force reinitialize
-    const mountTimer = setTimeout(() => {
-      if (currentMount === mountCountRef.current) {
-        forceReinitialize();
-      }
+  const reinitializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    
+    // Force React to remount the widget container by changing key
+    setWidgetKey(prev => prev + 1);
+    hasInitializedRef.current = false;
+    
+    // Wait for remount, then initialize
+    setTimeout(() => {
+      initializeWidget();
     }, 300);
+  }, [initializeWidget]);
 
-    // Also poll for script availability
+  React.useEffect(() => {
+    // On mount, wait for script and initialize
     const checkInterval = setInterval(() => {
-      if (currentMount !== mountCountRef.current) {
-        clearInterval(checkInterval);
-        return;
-      }
-
-      const scriptExists = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
-      if (scriptExists && widgetContainerRef.current) {
-        // Script is loaded, ensure widget is initialized
-        setTimeout(() => {
-          if ((window as any).viator && typeof (window as any).viator.init === 'function') {
-            try {
-              (window as any).viator.init();
-            } catch (error) {
-              // Silent fail, will retry
-            }
-          }
-        }, 100);
+      if (!hasInitializedRef.current) {
+        initializeWidget();
       }
     }, 500);
 
-    // Timeout after 5 seconds
+    // Timeout after 10 seconds
     const timeout = setTimeout(() => {
       clearInterval(checkInterval);
-    }, 5000);
+    }, 10000);
 
     // Listen for visibility changes
     const handleVisibilityChange = () => {
@@ -98,7 +80,7 @@ function useViatorWidgetReinit(widgetRef: string) {
       // Only reinitialize when tab becomes visible (not when it becomes hidden)
       if (isVisible && !isVisibleRef.current) {
         // Tab just became visible, reinitialize widget
-        forceReinitialize();
+        reinitializeWidget();
       }
       
       isVisibleRef.current = isVisible;
@@ -108,7 +90,7 @@ function useViatorWidgetReinit(widgetRef: string) {
     const handleFocus = () => {
       if (!isVisibleRef.current) {
         isVisibleRef.current = true;
-        forceReinitialize();
+        reinitializeWidget();
       }
     };
 
@@ -116,13 +98,12 @@ function useViatorWidgetReinit(widgetRef: string) {
     window.addEventListener('focus', handleFocus);
 
     return () => {
-      clearTimeout(mountTimer);
       clearInterval(checkInterval);
       clearTimeout(timeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [forceReinitialize]);
+  }, [initializeWidget, reinitializeWidget]);
 
   return { ref: widgetContainerRef, key: widgetKey };
 }
@@ -225,11 +206,11 @@ export default function ToursPage() {
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
           <div 
-            key={`viator-widget-${viatorWidgetKey}`}
+            key={viatorWidgetKey === 0 ? 'tours-widget-initial' : `viator-widget-${viatorWidgetKey}`}
             ref={viatorWidgetRef}
             data-vi-partner-id="P00276444" 
             data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
-            id="viator-widget-container"
+            id="viator-widget-tours"
           ></div>
         </Container>
       </section>
