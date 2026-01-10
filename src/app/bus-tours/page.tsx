@@ -20,6 +20,7 @@ function useViatorWidgetReinit(widgetRef: string) {
   const isVisibleRef = React.useRef(true);
   const lastPathnameRef = React.useRef<string | null>(null);
   const [showFallback, setShowFallback] = React.useState(false);
+  const [showFallback, setShowFallback] = React.useState(false);
 
   const forceRemount = React.useCallback(() => {
     // Force React to remount the widget container by changing key
