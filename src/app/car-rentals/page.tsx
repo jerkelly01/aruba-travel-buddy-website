@@ -167,7 +167,7 @@ function useViatorWidgetReinit(widgetRef: string) {
     };
   }, [forceRemount, initializeWidget, reinitializeWidget]);
 
-  return { ref: widgetContainerRef, key: widgetKey };
+  return { ref: widgetContainerRef, key: widgetKey, showFallback };
 }
 
 interface Transportation {
@@ -190,7 +190,7 @@ export default function CarRentalsPage() {
   const [rentals, setRentals] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-30795ed3-bd02-41b4-9f61-c1c69d3dbba1");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-30795ed3-bd02-41b4-9f61-c1c69d3dbba1");
 
   React.useEffect(() => {
     loadRentals();

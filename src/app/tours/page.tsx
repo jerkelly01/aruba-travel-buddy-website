@@ -319,7 +319,7 @@ function useViatorWidgetReinit(widgetRef: string) {
     };
   }, [forceRemount, initializeWidget, reinitializeWidget]);
 
-  return { ref: widgetContainerRef, key: widgetKey };
+  return { ref: widgetContainerRef, key: widgetKey, showFallback };
 }
 
 interface Tour {
@@ -340,7 +340,7 @@ export default function ToursPage() {
   const [tours, setTours] = React.useState<Tour[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-44ff9515-9337-48ed-ad52-88b94d11c81d");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-44ff9515-9337-48ed-ad52-88b94d11c81d");
 
   React.useEffect(() => {
     loadTours();

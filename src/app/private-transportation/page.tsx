@@ -167,7 +167,7 @@ function useViatorWidgetReinit(widgetRef: string) {
     };
   }, [forceRemount, initializeWidget, reinitializeWidget]);
 
-  return { ref: widgetContainerRef, key: widgetKey };
+  return { ref: widgetContainerRef, key: widgetKey, showFallback };
 }
 
 interface Transportation {
@@ -190,7 +190,7 @@ export default function PrivateTransportationPage() {
   const [transportation, setTransportation] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-4f182977-3126-4965-aeb4-7f38f620a29c");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-4f182977-3126-4965-aeb4-7f38f620a29c");
 
   React.useEffect(() => {
     loadTransportation();

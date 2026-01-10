@@ -167,7 +167,7 @@ function useViatorWidgetReinit(widgetRef: string) {
     };
   }, [forceRemount, initializeWidget, reinitializeWidget]);
 
-  return { ref: widgetContainerRef, key: widgetKey };
+  return { ref: widgetContainerRef, key: widgetKey, showFallback };
 }
 
 interface LocalExperience {
@@ -187,7 +187,7 @@ export default function LocalExperiencesPage() {
   const [experiences, setExperiences] = React.useState<LocalExperience[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
 
   React.useEffect(() => {
     loadExperiences();

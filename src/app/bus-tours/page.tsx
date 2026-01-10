@@ -167,7 +167,7 @@ function useViatorWidgetReinit(widgetRef: string) {
     };
   }, [forceRemount, initializeWidget, reinitializeWidget]);
 
-  return { ref: widgetContainerRef, key: widgetKey };
+  return { ref: widgetContainerRef, key: widgetKey, showFallback };
 }
 
 interface Transportation {
@@ -190,7 +190,7 @@ export default function BusToursPage() {
   const [tours, setTours] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey } = useViatorWidgetReinit("W-b22b5a1c-f1f0-4250-a286-b83572c5e664");
+  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-b22b5a1c-f1f0-4250-a286-b83572c5e664");
 
   React.useEffect(() => {
     loadTours();
