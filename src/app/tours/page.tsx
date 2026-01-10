@@ -12,11 +12,64 @@ import { publicToursApi } from "@/lib/public-api";
 import { normalizeTours } from "@/lib/data-normalization";
 import { CodeSnippet } from "@/components/CodeSnippet";
 
-// Custom hook to reinitialize Viator widget when tab becomes visible
+// Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
 function useViatorWidgetReinit(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
   const [widgetKey, setWidgetKey] = React.useState(0);
   const isVisibleRef = React.useRef(true);
+  const scriptLoadedRef = React.useRef(false);
+
+  const loadViatorScript = React.useCallback(() => {
+    if (typeof window === 'undefined' || scriptLoadedRef.current) return;
+    
+    // Check if script already exists
+    const existingScript = document.querySelector('script[src*="viator.com/orion/partner/widget.js"]');
+    if (existingScript) {
+      scriptLoadedRef.current = true;
+      return;
+    }
+
+    // Load the Viator script
+    const script = document.createElement('script');
+    script.src = 'https://www.viator.com/orion/partner/widget.js';
+    script.async = true;
+    script.onload = () => {
+      scriptLoadedRef.current = true;
+      // Initialize widget after script loads
+      setTimeout(() => {
+        initializeWidget();
+      }, 300);
+    };
+    script.onerror = () => {
+      console.error('[Viator Widget] Failed to load script');
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  const initializeWidget = React.useCallback(() => {
+    if (typeof window === 'undefined' || !widgetContainerRef.current) return;
+    
+    // Force React to remount the widget container by changing key
+    setWidgetKey(prev => prev + 1);
+    
+    // Wait for DOM update, then try to initialize
+    setTimeout(() => {
+      if ((window as any).viator) {
+        try {
+          if (typeof (window as any).viator.init === 'function') {
+            (window as any).viator.init();
+          } else if (typeof (window as any).viator.initialize === 'function') {
+            (window as any).viator.initialize();
+          }
+        } catch (error) {
+          console.error('[Viator Widget] Error during init:', error);
+        }
+      } else {
+        // Script not loaded yet, load it
+        loadViatorScript();
+      }
+    }, 100);
+  }, [loadViatorScript]);
 
   const reinitializeWidget = React.useCallback(() => {
     if (typeof window === 'undefined' || !widgetContainerRef.current) return;
@@ -26,17 +79,29 @@ function useViatorWidgetReinit(widgetRef: string) {
     
     // Also try to trigger Viator's initialization if available
     setTimeout(() => {
-      if ((window as any).viator && typeof (window as any).viator.init === 'function') {
+      if ((window as any).viator) {
         try {
-          (window as any).viator.init();
+          if (typeof (window as any).viator.init === 'function') {
+            (window as any).viator.init();
+          } else if (typeof (window as any).viator.initialize === 'function') {
+            (window as any).viator.initialize();
+          }
         } catch (error) {
           console.error('[Viator Widget] Error during reinit:', error);
         }
+      } else {
+        // Script not loaded, load it
+        loadViatorScript();
       }
     }, 500);
-  }, []);
+  }, [loadViatorScript]);
 
   React.useEffect(() => {
+    // Initialize on mount (handles page navigation)
+    const mountTimer = setTimeout(() => {
+      initializeWidget();
+    }, 500);
+
     // Listen for visibility changes
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden;
@@ -62,10 +127,11 @@ function useViatorWidgetReinit(widgetRef: string) {
     window.addEventListener('focus', handleFocus);
 
     return () => {
+      clearTimeout(mountTimer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [reinitializeWidget]);
+  }, [initializeWidget, reinitializeWidget]);
 
   return { ref: widgetContainerRef, key: widgetKey };
 }
