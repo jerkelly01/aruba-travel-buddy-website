@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Icon } from './Icon';
+import Icon from './Icon';
 
 interface SafeImageProps {
   src: string | string[] | null | undefined;
