@@ -502,62 +502,93 @@ export default function Home() {
       </section>
 
       {/* Explore Aruba Section */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-gradient-to-b from-white via-gray-50 to-white">
         <Container>
-          <SectionHeader
-            title="Explore Aruba"
-            subtitle="Discover the best of Aruba through curated categories"
-            center
-          />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 font-display">
+              Explore Aruba
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Discover the best of Aruba through curated categories of beaches, culture, and natural wonders
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
                 name: 'Beaches',
                 emoji: '🏖️',
                 href: '/explore-aruba/beaches',
-                description: '16+ beautiful beaches',
+                description: 'Discover Aruba\'s 16+ beautiful beaches from world-famous Eagle Beach to secluded snorkeling spots',
+                gradient: 'from-blue-400 via-cyan-300 to-blue-200',
+                count: '16+',
               },
               {
                 name: 'Cultural Spots',
                 emoji: '🏛️',
                 href: '/explore-aruba/cultural-spots',
-                description: '18+ attractions',
+                description: 'Explore 18+ cultural attractions including historic sites, museums, and architectural heritage',
+                gradient: 'from-amber-400 via-orange-300 to-amber-200',
+                count: '18+',
               },
               {
                 name: 'Natural Wonders',
                 emoji: '🌴',
                 href: '/explore-aruba/natural-wonders',
-                description: '17+ natural sites',
-              },
-              {
-                name: 'Restaurants',
-                emoji: '🍽️',
-                href: '/restaurants',
-                description: 'Local & international',
+                description: 'Experience 17+ natural wonders including caves, rock formations, and scenic viewpoints',
+                gradient: 'from-green-400 via-emerald-300 to-green-200',
+                count: '17+',
               },
             ].map((category, index) => (
               <motion.div
                 key={category.name}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.15, duration: 0.5 }}
               >
                 <Link
                   href={category.href}
-                  className="group block p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 hover:border-[var(--brand-aruba)] hover:shadow-xl transition-all duration-300"
+                  className="group block relative overflow-hidden rounded-3xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                 >
-                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
-                    {category.emoji}
+                  {/* Gradient Background */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                  
+                  {/* Content */}
+                  <div className="relative p-8">
+                    {/* Emoji */}
+                    <div className="text-6xl mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                      {category.emoji}
+                    </div>
+                    
+                    {/* Count Badge */}
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 group-hover:bg-[var(--brand-aruba)] group-hover:text-white transition-colors duration-300 mb-4">
+                      <span className="text-sm font-bold">{category.count}</span>
+                    </div>
+                    
+                    {/* Title */}
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[var(--brand-aruba)] transition-colors duration-300">
+                      {category.name}
+                    </h3>
+                    
+                    {/* Description */}
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      {category.description}
+                    </p>
+                    
+                    {/* CTA */}
+                    <div className="flex items-center text-[var(--brand-aruba)] font-semibold group-hover:gap-3 transition-all duration-300">
+                      <span>Explore</span>
+                      <Icon name="arrow-right" className="w-5 h-5 ml-2 transform group-hover:translate-x-2 transition-transform duration-300" />
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-[var(--brand-aruba)] transition-colors">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">{category.description}</p>
-                  <div className="mt-4 flex items-center text-[var(--brand-aruba)] opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="text-sm font-medium">Explore</span>
-                    <Icon name="arrow-right" className="w-4 h-4 ml-1" />
-                  </div>
+                  
+                  {/* Decorative Corner */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </Link>
               </motion.div>
             ))}
@@ -566,8 +597,8 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="mt-8 text-center"
+            transition={{ delay: 0.5 }}
+            className="mt-12 text-center"
           >
             <Button
               href="/explore-aruba"
@@ -575,6 +606,7 @@ export default function Home() {
               size="lg"
               icon="arrow-right"
               iconPosition="right"
+              className="border-2 border-[var(--brand-aruba)] text-[var(--brand-aruba)] hover:bg-[var(--brand-aruba)] hover:text-white"
             >
               View All Categories
             </Button>
