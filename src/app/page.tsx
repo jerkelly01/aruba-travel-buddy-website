@@ -524,7 +524,7 @@ export default function Home() {
                 emoji: '🏖️',
                 href: '/explore-aruba/beaches',
                 description: 'Discover Aruba\'s 16+ beautiful beaches from world-famous Eagle Beach to secluded snorkeling spots',
-                gradient: 'from-blue-400 via-cyan-300 to-blue-200',
+                image: '/beaches page.png',
                 count: '16+',
               },
               {
@@ -532,7 +532,7 @@ export default function Home() {
                 emoji: '🏛️',
                 href: '/explore-aruba/cultural-spots',
                 description: 'Explore 18+ cultural attractions including historic sites, museums, and architectural heritage',
-                gradient: 'from-amber-400 via-orange-300 to-amber-200',
+                image: '/cultural spots page .png',
                 count: '18+',
               },
               {
@@ -540,7 +540,7 @@ export default function Home() {
                 emoji: '🌴',
                 href: '/explore-aruba/natural-wonders',
                 description: 'Experience 17+ natural wonders including caves, rock formations, and scenic viewpoints',
-                gradient: 'from-green-400 via-emerald-300 to-green-200',
+                image: '/natural wonders page.png',
                 count: '17+',
               },
             ].map((category, index) => (
@@ -553,42 +553,51 @@ export default function Home() {
               >
                 <Link
                   href={category.href}
-                  className="group block relative overflow-hidden rounded-3xl bg-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+                  className="group block relative h-96 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                 >
-                  {/* Gradient Background */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                  {/* Background Image */}
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    unoptimized
+                  />
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30 group-hover:from-black/80 group-hover:via-black/50 transition-all duration-500" />
                   
                   {/* Content */}
-                  <div className="relative p-8">
-                    {/* Emoji */}
-                    <div className="text-6xl mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                  <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
+                    {/* Emoji Badge */}
+                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-4xl mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                       {category.emoji}
                     </div>
                     
                     {/* Count Badge */}
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 group-hover:bg-[var(--brand-aruba)] group-hover:text-white transition-colors duration-300 mb-4">
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white mb-4 w-fit group-hover:bg-[var(--brand-aruba)] transition-colors duration-300">
                       <span className="text-sm font-bold">{category.count}</span>
                     </div>
                     
                     {/* Title */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[var(--brand-aruba)] transition-colors duration-300">
+                    <h3 className="text-3xl font-bold text-white mb-3 font-display group-hover:text-[var(--brand-sun)] transition-colors duration-300">
                       {category.name}
                     </h3>
                     
                     {/* Description */}
-                    <p className="text-gray-600 mb-6 leading-relaxed">
+                    <p className="text-white/90 mb-6 leading-relaxed text-base">
                       {category.description}
                     </p>
                     
                     {/* CTA */}
-                    <div className="flex items-center text-[var(--brand-aruba)] font-semibold group-hover:gap-3 transition-all duration-300">
-                      <span>Explore</span>
-                      <Icon name="arrow-right" className="w-5 h-5 ml-2 transform group-hover:translate-x-2 transition-transform duration-300" />
+                    <div className="flex items-center gap-2 text-white font-semibold group-hover:gap-3 transition-all duration-300">
+                      <span className="text-sm uppercase tracking-wide">Explore</span>
+                      <Icon name="arrow-right" className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" />
                     </div>
                   </div>
                   
-                  {/* Decorative Corner */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Shine Effect on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </Link>
               </motion.div>
             ))}
