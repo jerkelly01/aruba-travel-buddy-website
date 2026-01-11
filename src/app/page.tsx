@@ -501,6 +501,87 @@ export default function Home() {
         </Container>
       </section>
 
+      {/* Explore Aruba Section */}
+      <section className="py-20 bg-white">
+        <Container>
+          <SectionHeader
+            title="Explore Aruba"
+            subtitle="Discover the best of Aruba through curated categories"
+            center
+          />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+            {[
+              {
+                name: 'Beaches',
+                emoji: '🏖️',
+                href: '/explore-aruba/beaches',
+                description: '16+ beautiful beaches',
+              },
+              {
+                name: 'Cultural Spots',
+                emoji: '🏛️',
+                href: '/explore-aruba/cultural-spots',
+                description: '18+ attractions',
+              },
+              {
+                name: 'Natural Wonders',
+                emoji: '🌴',
+                href: '/explore-aruba/natural-wonders',
+                description: '17+ natural sites',
+              },
+              {
+                name: 'Restaurants',
+                emoji: '🍽️',
+                href: '/restaurants',
+                description: 'Local & international',
+              },
+            ].map((category, index) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link
+                  href={category.href}
+                  className="group block p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 hover:border-[var(--brand-aruba)] hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                    {category.emoji}
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-[var(--brand-aruba)] transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-gray-600">{category.description}</p>
+                  <div className="mt-4 flex items-center text-[var(--brand-aruba)] opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-sm font-medium">Explore</span>
+                    <Icon name="arrow-right" className="w-4 h-4 ml-1" />
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="mt-8 text-center"
+          >
+            <Button
+              href="/explore-aruba"
+              variant="outline"
+              size="lg"
+              icon="arrow-right"
+              iconPosition="right"
+            >
+              View All Categories
+            </Button>
+          </motion.div>
+        </Container>
+      </section>
+
       {/* Testimonials */}
       <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
         <Container>
