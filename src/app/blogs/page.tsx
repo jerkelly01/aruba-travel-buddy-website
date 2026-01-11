@@ -47,6 +47,17 @@ export default function BlogsPage() {
                   </p>
                   <p className="text-sm text-gray-500">5 min read</p>
                 </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">
+                    <Link href="/blogs/complete-guide-aruba-ed-card" className="text-[var(--brand-aruba)] hover:text-[var(--brand-aruba-dark)]">
+                      Complete Guide to Aruba's ED Card Requirements
+                    </Link>
+                  </h3>
+                  <p className="text-gray-600 mb-2">
+                    Everything you need to know about the ED Card, entry requirements, and how to complete the process smoothly before your trip.
+                  </p>
+                  <p className="text-sm text-gray-500">3 min read</p>
+                </div>
               </div>
             </motion.div>
           </div>
