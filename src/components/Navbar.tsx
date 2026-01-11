@@ -584,17 +584,6 @@ const Navbar = () => {
                 About
               </Link>
               <Link
-                href="/explore-aruba"
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')
-                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                }`}
-              >
-                Explore Aruba
-              </Link>
-              <Link
                 href="/features"
                 onClick={() => setIsOpen(false)}
                 className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
@@ -605,6 +594,110 @@ const Navbar = () => {
               >
                 Features
               </Link>
+              {/* Explore Aruba with Submenu */}
+              <div>
+                <button
+                  onClick={() => setIsAttractionsMobileOpen(!isAttractionsMobileOpen)}
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center justify-between ${
+                    pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
+                      ? 'bg-[var(--brand-aruba)]/10 text-[var(--brand-aruba)] font-semibold'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>Explore Aruba</span>
+                  <motion.svg
+                    animate={{ rotate: isAttractionsMobileOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </motion.svg>
+                </button>
+                
+                <AnimatePresence>
+                  {isAttractionsMobileOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pl-4 py-2 space-y-1">
+                        <Link
+                          href="/explore-aruba"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setIsAttractionsMobileOpen(false);
+                          }}
+                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">🗺️</span>
+                            <span>All Categories</span>
+                          </div>
+                        </Link>
+                        <Link
+                          href="/map"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setIsAttractionsMobileOpen(false);
+                          }}
+                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">📍</span>
+                            <span>Interactive Map</span>
+                          </div>
+                        </Link>
+                        <div className="h-px bg-gray-100 my-2"></div>
+                        <Link
+                          href="/explore-aruba/beaches"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setIsAttractionsMobileOpen(false);
+                          }}
+                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">🏖️</span>
+                            <span>Beaches</span>
+                          </div>
+                        </Link>
+                        <Link
+                          href="/explore-aruba/cultural-spots"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setIsAttractionsMobileOpen(false);
+                          }}
+                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">🏛️</span>
+                            <span>Cultural Spots</span>
+                          </div>
+                        </Link>
+                        <Link
+                          href="/explore-aruba/natural-wonders"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setIsAttractionsMobileOpen(false);
+                          }}
+                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">🌿</span>
+                            <span>Natural Wonders</span>
+                          </div>
+                        </Link>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               {/* Mobile Attractions */}
               <div>
