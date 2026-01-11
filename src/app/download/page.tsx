@@ -61,7 +61,7 @@ const benefits: {
   {
     id: 'performance',
     title: 'Fast & Reliable',
-    description: 'Lightning-fast performance with offline capabilities for uninterrupted access.',
+    description: 'Lightning-fast performance with reliable access to all features and content.',
     icon: 'bolt',
     color: 'from-[var(--brand-amber)] to-[var(--brand-sun)]',
   },
