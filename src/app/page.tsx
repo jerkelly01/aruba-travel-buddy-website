@@ -139,9 +139,9 @@ export default function Home() {
       color: "from-[var(--brand-amber)] to-[var(--brand-sun)]",
     },
     {
-      icon: "wifi",
-      title: "Works Offline",
-      description: "Complete guides and information—no WiFi needed.",
+      icon: "camera",
+      title: "Photo Challenges",
+      description: "Complete fun challenges and share your Aruba adventures.",
       color: "from-[var(--brand-tropical)] to-[var(--brand-aruba)]",
     },
     {
