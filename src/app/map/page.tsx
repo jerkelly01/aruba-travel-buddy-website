@@ -233,6 +233,28 @@ export default function MapPage() {
     return locations.filter((loc) => loc.category === selectedCategory);
   }, [locations, selectedCategory]);
 
+  // Get carousel locations (featured or random 5)
+  const carouselLocations = useMemo(() => {
+    const featured = locations.filter((loc) => loc.featured);
+    if (featured.length >= 5) {
+      return featured.slice(0, 5);
+    }
+    // If not enough featured, get random locations
+    const shuffled = [...locations].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 5);
+  }, [locations]);
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (carouselLocations.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentCarouselIndex((prev) => (prev + 1) % carouselLocations.length);
+    }, 4000); // Rotate every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [carouselLocations.length]);
+
   const handleMarkerClick = (location: MapLocation) => {
     setSelectedLocation(location);
     if (location.latitude && location.longitude) {
