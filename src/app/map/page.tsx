@@ -153,7 +153,13 @@ export default function MapPage() {
   useEffect(() => {
     setMounted(true);
     if (typeof window !== 'undefined') {
-      import('leaflet/dist/leaflet.css').catch(() => {});
+      // Load Leaflet CSS dynamically
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+      link.crossOrigin = '';
+      document.head.appendChild(link);
       
       // Fix for default marker icons in Next.js
       import('leaflet').then((L) => {
