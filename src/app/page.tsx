@@ -371,7 +371,7 @@ export default function Home() {
               {
                 title: "10 Essential Cultural Tips for Visiting Aruba",
                 excerpt: "Discover the local customs, traditions, and cultural etiquette that will help you connect authentically with Aruban culture during your visit.",
-                image: "/fort zoutman aruba.png",
+                image: "/fort-zoutman-aruba.png",
                 category: "Cultural Tips",
                 readTime: "5 min read",
               },
@@ -385,7 +385,7 @@ export default function Home() {
               {
                 title: "Best Hidden Gems: Local Experiences You Can't Miss",
                 excerpt: "Explore off-the-beaten-path destinations and authentic local experiences that will make your Aruba trip truly unforgettable.",
-                image: "/alto vista chapel aruba.png",
+                image: "/alto-vista-chapel-aruba.png",
                 category: "Blogs",
                 readTime: "7 min read",
               },
