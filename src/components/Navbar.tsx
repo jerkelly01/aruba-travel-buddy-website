@@ -147,6 +147,30 @@ const Navbar = () => {
               <span className="relative z-10">About</span>
             </Link>
 
+            <Link
+              href="/features"
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
+                isHomePage && !scrolled
+                  ? 'text-white/90 hover:text-white'
+                  : pathname === '/features'
+                    ? 'text-[var(--brand-aruba)]'
+                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
+              }`}
+            >
+              {pathname === '/features' && (
+                <motion.div
+                  layoutId="activeTabFeatures"
+                  className={`absolute inset-0 rounded-xl ${
+                    isHomePage && !scrolled 
+                      ? 'bg-white/20' 
+                      : 'bg-[rgba(0,188,212,0.1)]'
+                  }`}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10">Features</span>
+            </Link>
+
             {/* Explore Aruba Dropdown */}
             <div className="relative" ref={attractionsDropdownRef}>
               <button
@@ -256,30 +280,6 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
-
-            <Link
-              href="/features"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
-                  ? 'text-white/90 hover:text-white'
-                  : pathname === '/features'
-                    ? 'text-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
-            >
-              {pathname === '/features' && (
-                <motion.div
-                  layoutId="activeTabFeatures"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
-                      : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">Features</span>
-            </Link>
 
             {/* Attractions Dropdown */}
             <div className="relative" ref={attractionsDropdownRef}>
