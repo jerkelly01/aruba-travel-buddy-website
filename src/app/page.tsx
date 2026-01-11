@@ -402,6 +402,8 @@ export default function Home() {
                     ? "/blogs/10-essential-cultural-tips" 
                     : blog.title === "Complete Guide to Aruba's ED Card Requirements"
                     ? "/blogs/complete-guide-aruba-ed-card"
+                    : blog.title === "Best Hidden Gems: Local Experiences You Can't Miss"
+                    ? "/blogs/best-hidden-gems-local-experiences"
                     : "/blogs"
                 } className="block h-full">
                   <div className="card overflow-hidden h-full group">

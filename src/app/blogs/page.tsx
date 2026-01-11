@@ -58,6 +58,17 @@ export default function BlogsPage() {
                   </p>
                   <p className="text-sm text-gray-500">3 min read</p>
                 </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">
+                    <Link href="/blogs/best-hidden-gems-local-experiences" className="text-[var(--brand-aruba)] hover:text-[var(--brand-aruba-dark)]">
+                      Best Hidden Gems: Local Experiences You Can't Miss in Aruba
+                    </Link>
+                  </h3>
+                  <p className="text-gray-600 mb-2">
+                    Explore off-the-beaten-path destinations and authentic local experiences that will make your Aruba trip truly unforgettable.
+                  </p>
+                  <p className="text-sm text-gray-500">7 min read</p>
+                </div>
               </div>
             </motion.div>
           </div>
