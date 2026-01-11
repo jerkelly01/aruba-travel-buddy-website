@@ -51,10 +51,10 @@ const technologyFeatures = [
     features: ['Point & Discover', '3D Landmarks', 'Offline AR'],
   },
   {
-    title: 'Offline System',
-    description: 'Complete functionality without internet connection.',
+    title: 'Photo Challenges',
+    description: 'Engage with Aruba through fun, interactive photo challenges and earn rewards.',
     image: '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
-    features: ['Downloadable Content', 'Local Sync'],
+    features: ['AI Validation', 'Reward Points', 'Social Sharing'],
   },
   {
     title: 'Community Platform',
