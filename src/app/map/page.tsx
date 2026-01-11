@@ -89,16 +89,20 @@ function createCustomIcon(category: string) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const L = require('leaflet');
     const color = CATEGORY_COLORS[category] || '#00BCD4';
-    const icon = CATEGORY_ICONS[category] || '📍';
+    
+    // Create a simple colored pin without emoji to avoid btoa encoding issues
+    const svgIcon = `
+      <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24C32 7.163 24.837 0 16 0z" fill="${color}" stroke="white" stroke-width="2"/>
+        <circle cx="16" cy="16" r="6" fill="white"/>
+      </svg>
+    `;
+    
+    // Use btoa with proper encoding for SVG
+    const encodedSvg = btoa(unescape(encodeURIComponent(svgIcon)));
     
     return L.icon({
-      iconUrl: `data:image/svg+xml;base64,${btoa(`
-        <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
-          <circle cx="16" cy="16" r="8" fill="white"/>
-          <text x="16" y="20" font-size="14" text-anchor="middle" fill="${color}">${icon}</text>
-        </svg>
-      `)}`,
+      iconUrl: `data:image/svg+xml;base64,${encodedSvg}`,
       iconSize: [32, 40],
       iconAnchor: [16, 40],
       popupAnchor: [0, -40],
