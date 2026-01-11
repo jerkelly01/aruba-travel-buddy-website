@@ -146,6 +146,7 @@ export default function MapPage() {
   const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([12.5211, -69.9683]); // Aruba center
   const [mapZoom, setMapZoom] = useState(11);
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
 
   // Aruba bounds - restricts map to only show Aruba
   const arubaBounds: [[number, number], [number, number]] = [
