@@ -49,25 +49,25 @@ interface MapLocation {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  beach: '#00BCD4',
-  cultural_spot: '#FF6B8A',
-  natural_wonder: '#48A23F',
-  restaurant: '#FF8C42',
-  local_shop: '#FFC233',
-  club_bar: '#9C27B0',
-  hotel: '#2196F3',
-  activity: '#E91E63',
+  beach: '#00BFFF',
+  cultural_spot: '#8B5CF6',
+  natural_wonder: '#059669',
+  restaurant: '#FF6B35',
+  local_shop: '#F59E0B',
+  club_bar: '#EF4444',
+  hotel: '#EF4444',
+  activity: '#3B82F6',
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
   beach: '🏖️',
   cultural_spot: '🏛️',
-  natural_wonder: '🌴',
+  natural_wonder: '🌿',
   restaurant: '🍽️',
   local_shop: '🛍️',
   club_bar: '🍹',
   hotel: '🏨',
-  activity: '🎯',
+  activity: '📸',
 };
 
 const CATEGORY_NAMES: Record<string, string> = {
@@ -81,20 +81,50 @@ const CATEGORY_NAMES: Record<string, string> = {
   activity: 'Activities',
 };
 
-// Custom marker icon component - only works on client side
+// Custom marker icon component - matches the app's EnhancedMapMarker design
 function createCustomIcon(category: string) {
   if (typeof window === 'undefined') return null;
   
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const L = require('leaflet');
-    const color = CATEGORY_COLORS[category] || '#00BCD4';
+    const color = CATEGORY_COLORS[category] || '#6B7280';
+    const emoji = CATEGORY_ICONS[category] || '📍';
+    const size = 44; // Medium size from app
     
-    // Create a simple colored pin without emoji to avoid btoa encoding issues
+    // Create a circular marker with emoji, matching the app design
     const svgIcon = `
-      <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24C32 7.163 24.837 0 16 0z" fill="${color}" stroke="white" stroke-width="2"/>
-        <circle cx="16" cy="16" r="6" fill="white"/>
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+        <!-- Drop shadow -->
+        <defs>
+          <filter id="shadow-${category}" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.3"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        <!-- Main circle with border -->
+        <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 2}" 
+                fill="${color}" 
+                stroke="white" 
+                stroke-width="3" 
+                filter="url(#shadow-${category})"/>
+        
+        <!-- Emoji text -->
+        <text x="${size/2}" y="${size/2 + 2}" 
+              font-size="${Math.round(size * 0.55)}" 
+              text-anchor="middle" 
+              dominant-baseline="middle"
+              style="pointer-events: none;">
+          ${emoji}
+        </text>
       </svg>
     `;
     
@@ -103,9 +133,10 @@ function createCustomIcon(category: string) {
     
     return L.icon({
       iconUrl: `data:image/svg+xml;base64,${encodedSvg}`,
-      iconSize: [32, 40],
-      iconAnchor: [16, 40],
-      popupAnchor: [0, -40],
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2],
+      popupAnchor: [0, -(size/2)],
+      className: 'custom-marker-icon'
     });
   } catch (error) {
     console.error('Error creating custom icon:', error);
