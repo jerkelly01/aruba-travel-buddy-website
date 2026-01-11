@@ -137,6 +137,7 @@ function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: numb
 export default function MapPage() {
   const [locations, setLocations] = useState<MapLocation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([12.5211, -69.9683]); // Aruba center
@@ -147,6 +148,24 @@ export default function MapPage() {
     [12.4, -70.1], // Southwest
     [12.65, -69.85], // Northeast
   ];
+
+  // Initialize Leaflet CSS and fix icons only on client side
+  useEffect(() => {
+    setMounted(true);
+    if (typeof window !== 'undefined') {
+      import('leaflet/dist/leaflet.css').catch(() => {});
+      
+      // Fix for default marker icons in Next.js
+      import('leaflet').then((L) => {
+        delete (L.default.Icon.Default.prototype as any)._getIconUrl;
+        L.default.Icon.Default.mergeOptions({
+          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+        });
+      }).catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     loadLocations();
