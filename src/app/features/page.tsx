@@ -22,15 +22,15 @@ const mainFeatures = [
     image: '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
     icon: 'academic-cap',
     color: 'from-[var(--brand-amber)] to-[var(--brand-sun)]',
-    features: ['Point & Discover', '3D Landmarks', 'Offline AR'],
+    features: ['Point & Discover', '3D Landmarks', 'Real-Time AR'],
   },
   {
-    title: 'Complete Offline Experience',
-    description: 'Full functionality without internet connection.',
+    title: 'Interactive Maps',
+    description: 'Explore Aruba with detailed interactive maps and location pins.',
     image: '/hafenbild-oranjestad--aruba- copy.jpg',
-    icon: 'wifi',
+    icon: 'map-pin',
     color: 'from-[var(--brand-tropical)] to-[var(--brand-aruba)]',
-    features: ['Downloadable Guides', 'Local Sync'],
+    features: ['Location Pins', 'Category Filters', 'Detailed Info'],
   },
   {
     title: 'Authentic Local Experiences',
@@ -69,7 +69,7 @@ const additionalFeatures = [
 
 const stats = [
   { number: '12+', label: 'Core Features', icon: 'sparkles' },
-  { number: '100%', label: 'Offline Capable', icon: 'wifi' },
+  { number: '100%', label: 'Free to Use', icon: 'heart' },
   { number: '24/7', label: 'AI Assistant', icon: 'chat' },
   { number: '50K+', label: 'Happy Users', icon: 'user-group' },
 ];
@@ -115,7 +115,7 @@ export default function Features() {
               </span>
             </h1>
             <p className="text-xl sm:text-2xl text-white/90 leading-relaxed max-w-2xl mx-auto">
-              Itinerary Generator, AR view, offline capabilities, and authentic cultural immersion — all in one app.
+              Itinerary Generator, AR view, interactive maps, and authentic cultural immersion — all in one app.
             </p>
           </motion.div>
         </Container>
