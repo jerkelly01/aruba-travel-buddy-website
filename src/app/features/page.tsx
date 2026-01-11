@@ -157,44 +157,49 @@ export default function Features() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {mainFeatures.map((feature, index) => (
-              <motion.div
+              <Link
                 key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                href="/map"
+                className="block"
               >
-                <div className="relative h-80 overflow-hidden">
-                  <Image
-                    src={feature.image}
-                    alt={feature.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-85 group-hover:opacity-75 transition-opacity duration-300`} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                  <div className="absolute top-6 left-6 z-10">
-                    <div className={`w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                      <Icon name={feature.icon as IconName} className="w-7 h-7 text-white" />
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="group relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                >
+                  <div className="relative h-80 overflow-hidden">
+                    <Image
+                      src={feature.image}
+                      alt={feature.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-85 group-hover:opacity-75 transition-opacity duration-300`} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute top-6 left-6 z-10">
+                      <div className={`w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon name={feature.icon as IconName} className="w-7 h-7 text-white" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-6 left-6 right-6 z-10">
+                      <h3 className="text-2xl font-bold text-white mb-2 font-display drop-shadow-lg">{feature.title}</h3>
+                      <p className="text-white/90 text-sm mb-4 leading-relaxed drop-shadow-md">{feature.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {feature.features.map((feat, i) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium"
+                          >
+                            {feat}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute bottom-6 left-6 right-6 z-10">
-                    <h3 className="text-2xl font-bold text-white mb-2 font-display drop-shadow-lg">{feature.title}</h3>
-                    <p className="text-white/90 text-sm mb-4 leading-relaxed drop-shadow-md">{feature.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {feature.features.map((feat, i) => (
-                        <span
-                          key={i}
-                          className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-medium"
-                        >
-                          {feat}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             ))}
           </div>
         </Container>
