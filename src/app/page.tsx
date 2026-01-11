@@ -397,7 +397,13 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link href={blog.title === "10 Essential Cultural Tips for Visiting Aruba" ? "/blogs/10-essential-cultural-tips" : "/blogs"} className="block h-full">
+                <Link href={
+                  blog.title === "10 Essential Cultural Tips for Visiting Aruba" 
+                    ? "/blogs/10-essential-cultural-tips" 
+                    : blog.title === "Complete Guide to Aruba's ED Card Requirements"
+                    ? "/blogs/complete-guide-aruba-ed-card"
+                    : "/blogs"
+                } className="block h-full">
                   <div className="card overflow-hidden h-full group">
                     <div className="relative h-48 overflow-hidden">
                       <Image 
