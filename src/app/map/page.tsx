@@ -147,10 +147,10 @@ export default function MapPage() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([12.5211, -69.9683]); // Aruba center
   const [mapZoom, setMapZoom] = useState(11);
 
-  // Aruba bounds
+  // Aruba bounds - restricts map to only show Aruba
   const arubaBounds: [[number, number], [number, number]] = [
-    [12.4, -70.1], // Southwest
-    [12.65, -69.85], // Northeast
+    [12.38, -70.12], // Southwest - slightly expanded for padding
+    [12.67, -69.83], // Northeast - slightly expanded for padding
   ];
 
   // Initialize Leaflet CSS and fix icons only on client side
@@ -322,9 +322,12 @@ export default function MapPage() {
                   <MapContainer
                     center={mapCenter}
                     zoom={mapZoom}
+                    minZoom={10}
+                    maxZoom={16}
                     style={{ height: '100%', width: '100%' }}
                     bounds={arubaBounds}
                     maxBounds={arubaBounds}
+                    maxBoundsViscosity={1.0}
                     scrollWheelZoom={true}
                     className="z-0"
                   >
