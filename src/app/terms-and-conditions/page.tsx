@@ -16,7 +16,7 @@ const sections = [
   {
     title: "Description of Service",
     content: [
-      "Aruba Travel Buddy is a mobile application that provides Itinerary Generator trip planning, AR view, offline maps, and local experiences for travelers visiting Aruba.",
+      "Aruba Travel Buddy is a mobile application that provides Itinerary Generator trip planning, AR view, and local experiences for travelers visiting Aruba.",
       "The App includes features such as itinerary planning, local recommendations, cultural information, and community features.",
       "Some features may require an active internet connection, while others are designed to work offline.",
     ]

@@ -11,7 +11,7 @@ The Aruba Travel Buddy website has been completely updated with comprehensive in
 **Updated Features List:**
 - **AI-Powered Trip Planner**: Advanced AI with machine learning personalization
 - **AR Navigation & Discovery**: Revolutionary Augmented Reality technology
-- **Offline Maps & Navigation**: Complete offline functionality
+- **Maps & Navigation**: Interactive map functionality
 - **Authentic Local Experiences**: Community-driven local host experiences
 - **Cultural Events & Festivals**: Comprehensive event calendar
 - **Smart Restaurant Guide**: AI-powered recommendations with real-time availability
@@ -37,7 +37,7 @@ The Aruba Travel Buddy website has been completely updated with comprehensive in
 ### 3. **Homepage** (`src/app/page.tsx`)
 
 **Hero Section Updates:**
-- Updated description to highlight AI-powered planning, AR navigation, offline maps, and cultural immersion
+- Updated description to highlight AI-powered planning, AR navigation, interactive maps, and cultural immersion
 - Enhanced trust band with app-specific features:
   - AI-Powered & Smart
   - AR Navigation
@@ -47,7 +47,7 @@ The Aruba Travel Buddy website has been completely updated with comprehensive in
 **Testimonials Updates:**
 - Realistic testimonials highlighting specific app features
 - AI trip planner and weather adaptation
-- Offline maps and WhatsApp chatbot
+- Interactive maps and WhatsApp chatbot
 - Papiamento learning and cultural experiences
 
 **CTA Section:**
@@ -93,7 +93,7 @@ The Aruba Travel Buddy website has been completely updated with comprehensive in
 - Social sharing features
 
 ### **Offline Capabilities**
-- High-resolution offline maps
+- High-resolution interactive maps
 - Turn-by-turn navigation
 - Downloadable content library
 - Offline search functionality

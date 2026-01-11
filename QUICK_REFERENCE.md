@@ -60,7 +60,7 @@ Password: admin123
 **Features included:**
 1. Smart Itinerary Planning
 2. Local Recommendations
-3. Offline Maps
+3. Interactive Maps
 4. Weather Updates
 5. Local Events Calendar
 6. Multi-language Support

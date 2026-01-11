@@ -54,12 +54,12 @@ export const defaultAppContent: AppContent = {
       ],
     },
     {
-      id: "offline-maps",
-      title: "Offline Maps & Navigation",
-      description: "Navigate Aruba without WiFi — complete offline maps with turn-by-turn directions and saved points of interest.",
+      id: "navigation",
+      title: "Navigation & Maps",
+      description: "Navigate Aruba with interactive maps, turn-by-turn directions and saved points of interest.",
       icon: "map-pin",
       highlights: [
-        "Downloadable offline maps",
+        "Interactive maps",
         "Turn-by-turn navigation",
         "Saved points of interest",
         "Traffic and route optimization",

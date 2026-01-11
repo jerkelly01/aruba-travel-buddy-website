@@ -30,7 +30,7 @@ const mainFeatures = [
     image: '/hafenbild-oranjestad--aruba- copy.jpg',
     icon: 'wifi',
     color: 'from-[var(--brand-tropical)] to-[var(--brand-aruba)]',
-    features: ['Offline Maps', 'Downloadable Guides', 'Local Sync'],
+    features: ['Downloadable Guides', 'Local Sync'],
   },
   {
     title: 'Authentic Local Experiences',

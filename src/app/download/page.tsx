@@ -38,7 +38,7 @@ const downloadOptions: {
   {
     id: 'android',
     title: 'Aruba Travel Buddy',
-    description: 'Your ultimate Caribbean companion with offline maps, local insights, and personalized recommendations.',
+    description: 'Your ultimate Caribbean companion with local insights and personalized recommendations.',
     icon: 'cpu-chip',
     href: 'https://play.google.com/store/apps/details?id=com.arubatravelbuddy.app',
     badge: '★★★★★ 4.7 • Free • In-App Purchases',

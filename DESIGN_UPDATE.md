@@ -126,7 +126,7 @@ The website has been completely redesigned to appeal to tourists and travelers. 
 - "Everything for Your Perfect Aruba Adventure" (instead of "Everything you need")
 - "Why Travelers Love Us" (instead of "Features")
 - "Hidden Gems Guide" (instead of "Local Recommendations")
-- "Offline Explorer" (instead of "Offline Maps")
+- "Map Explorer" (instead of "Offline Maps")
 - "Travel Companion" (instead of "Multi-language Support")
 
 ### Emoji Integration

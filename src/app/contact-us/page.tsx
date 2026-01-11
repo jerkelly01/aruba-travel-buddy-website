@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     question: 'Is the app available offline?',
-    answer: 'Yes! Aruba Travel Buddy works completely offline with pre-loaded maps, guides, and information about Aruba.',
+    answer: 'Yes! Aruba Travel Buddy works with pre-loaded guides and information about Aruba.',
   },
   {
     question: 'Do you offer customer support in multiple languages?',

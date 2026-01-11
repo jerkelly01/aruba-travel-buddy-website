@@ -12,7 +12,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-displa
 
 export const metadata: Metadata = {
   title: "Aruba Travel Buddy - Your Personal Travel Guide",
-  description: "Discover the best of Aruba with personalized recommendations, offline maps, and smart itinerary planning - all in one app.",
+  description: "Discover the best of Aruba with personalized recommendations and smart itinerary planning - all in one app.",
   keywords: ["Aruba", "travel", "guide", "itinerary", "vacation", "tourism"],
   icons: {
     icon: [

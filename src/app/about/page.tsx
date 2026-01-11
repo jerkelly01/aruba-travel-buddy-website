@@ -54,7 +54,7 @@ const technologyFeatures = [
     title: 'Offline System',
     description: 'Complete functionality without internet connection.',
     image: '/ChatGPT Image Oct 16, 2025 at 09_43_31 PM copy.png',
-    features: ['Offline Maps', 'Downloadable Content', 'Local Sync'],
+    features: ['Downloadable Content', 'Local Sync'],
   },
   {
     title: 'Community Platform',

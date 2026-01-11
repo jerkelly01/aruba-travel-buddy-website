@@ -141,7 +141,7 @@ export default function Home() {
     {
       icon: "wifi",
       title: "Works Offline",
-      description: "Complete offline maps and guides—no WiFi needed.",
+      description: "Complete guides and information—no WiFi needed.",
       color: "from-[var(--brand-tropical)] to-[var(--brand-aruba)]",
     },
     {
@@ -216,7 +216,7 @@ export default function Home() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-xl sm:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl"
             >
-              Your comprehensive travel companion featuring Itinerary Generator trip planning, AR view, offline maps, local experiences, and authentic cultural immersion in One Happy Island.
+              Your comprehensive travel companion featuring Itinerary Generator trip planning, AR view, local experiences, and authentic cultural immersion in One Happy Island.
             </motion.p>
             
             <motion.div
@@ -517,7 +517,7 @@ export default function Home() {
                 location: "New York, USA",
               },
               {
-                quote: "The offline maps were a lifesaver! We could navigate everywhere without WiFi. The WhatsApp chatbot helped us book last-minute experiences. Incredible app!",
+                quote: "The app was a lifesaver! We could navigate everywhere and find great spots. The WhatsApp chatbot helped us book last-minute experiences. Incredible app!",
                 author: "James T.",
                 location: "London, UK",
               },
