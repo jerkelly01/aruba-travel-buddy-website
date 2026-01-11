@@ -139,7 +139,7 @@ export default function Home() {
       color: "from-[var(--brand-amber)] to-[var(--brand-sun)]",
     },
     {
-      icon: "camera",
+      icon: "trophy",
       title: "Photo Challenges",
       description: "Complete fun challenges and share your Aruba adventures.",
       color: "from-[var(--brand-tropical)] to-[var(--brand-aruba)]",
