@@ -31,9 +31,9 @@ async function publicApiRequest<T>(
         break;
       }
     }
-    // Map map-locations to admin-map-locations
+    // Map map-locations to content-sync (public endpoint, no auth required)
     if (endpoint.startsWith('/api/map-locations')) {
-      mappedEndpoint = endpoint.replace('/api/map-locations', '/admin-map-locations');
+      mappedEndpoint = endpoint.replace('/api/map-locations', '/content-sync/map-locations');
     }
   }
   
@@ -259,4 +259,3 @@ export const publicMapLocationsApi = {
     return publicApiRequest(`/api/map-locations/${id}`);
   },
 };
-
