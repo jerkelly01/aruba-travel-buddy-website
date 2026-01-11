@@ -24,16 +24,20 @@ async function publicApiRequest<T>(
   // e.g., /api/tours -> /admin-content/tours
   let mappedEndpoint = endpoint;
   if (USE_SUPABASE_EDGE_FUNCTIONS) {
-    const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'car-rentals', 'gear-rentals', 'transportation', 'support-locals', 'photo-challenges'];
-    for (const type of contentTypes) {
-      if (endpoint.startsWith(`/api/${type}`)) {
-        mappedEndpoint = endpoint.replace(`/api/${type}`, `/admin-content/${type}`);
-        break;
-      }
-    }
+    // IMPORTANT: Check map-locations FIRST before other content types
     // Map map-locations to content-sync (public endpoint, no auth required)
     if (endpoint.startsWith('/api/map-locations')) {
       mappedEndpoint = endpoint.replace('/api/map-locations', '/content-sync/map-locations');
+      console.log('[Public API] Mapped map-locations endpoint:', { original: endpoint, mapped: mappedEndpoint });
+    } else {
+      // Map other content types to admin-content
+      const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'car-rentals', 'gear-rentals', 'transportation', 'support-locals', 'photo-challenges'];
+      for (const type of contentTypes) {
+        if (endpoint.startsWith(`/api/${type}`)) {
+          mappedEndpoint = endpoint.replace(`/api/${type}`, `/admin-content/${type}`);
+          break;
+        }
+      }
     }
   }
   
