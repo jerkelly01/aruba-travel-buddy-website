@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import type { LatLngExpression } from 'leaflet';
 import Container from '@/components/Container';
 import SectionHeader from '@/components/SectionHeader';
 import AppIcon from '@/components/Icon';
@@ -104,29 +105,27 @@ function createCustomIcon(category: string) {
 
 // Component to handle map view updates
 function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const [UseMapHook, setUseMapHook] = useState<(() => any) | null>(null);
+  const [MapUpdaterComponent, setMapUpdaterComponent] = useState<React.ComponentType<{ center: [number, number]; zoom: number }> | null>(null);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('react-leaflet').then((mod) => {
-        setUseMapHook(() => mod.useMap);
+        const { useMap } = mod;
+        const Component = ({ center, zoom }: { center: [number, number]; zoom: number }) => {
+          const map = useMap();
+          useEffect(() => {
+            map.setView(center, zoom);
+          }, [map, center, zoom]);
+          return null;
+        };
+        setMapUpdaterComponent(() => Component);
       });
     }
   }, []);
   
-  if (!UseMapHook) return null;
+  if (!MapUpdaterComponent) return null;
   
-  function InnerMapUpdater() {
-    const map = UseMapHook();
-    useEffect(() => {
-      if (map) {
-        map.setView(center, zoom);
-      }
-    }, [map, center, zoom]);
-    return null;
-  }
-  
-  return <InnerMapUpdater />;
+  return <MapUpdaterComponent center={center} zoom={zoom} />;
 }
 
 export default function MapPage() {
@@ -375,9 +374,10 @@ export default function MapPage() {
                       </div>
                       <button
                         onClick={() => setSelectedLocation(null)}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="text-gray-400 hover:text-gray-600 transition-colors text-2xl font-bold leading-none"
+                        aria-label="Close"
                       >
-                        <AppIcon name="x-mark" className="w-6 h-6" />
+                        ×
                       </button>
                     </div>
 
