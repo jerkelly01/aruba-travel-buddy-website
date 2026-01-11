@@ -11,24 +11,24 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 // Dynamically import map components to avoid SSR issues
-const MapContainer = dynamic(() => import('react-leaflet').then((mod) => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then((mod) => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false });
-const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false });
+const MapContainer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--brand-aruba)]"></div></div> }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import('react-leaflet').then((mod) => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(
+  () => import('react-leaflet').then((mod) => mod.Popup),
+  { ssr: false }
+);
 
-// Import Leaflet CSS
-if (typeof window !== 'undefined') {
-  require('leaflet/dist/leaflet.css');
-  
-  // Fix for default marker icons in Next.js
-  const L = require('leaflet');
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  });
-}
+// Import Leaflet CSS only on client side - use useEffect to avoid SSR issues
 
 interface MapLocation {
   id: string;
@@ -81,26 +81,32 @@ const CATEGORY_NAMES: Record<string, string> = {
   activity: 'Activities',
 };
 
-// Custom marker icon component
+// Custom marker icon component - only works on client side
 function createCustomIcon(category: string) {
   if (typeof window === 'undefined') return null;
   
-  const L = require('leaflet');
-  const color = CATEGORY_COLORS[category] || '#00BCD4';
-  const icon = CATEGORY_ICONS[category] || '📍';
-  
-  return L.icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
-        <circle cx="16" cy="16" r="8" fill="white"/>
-        <text x="16" y="20" font-size="14" text-anchor="middle" fill="${color}">${icon}</text>
-      </svg>
-    `)}`,
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-    popupAnchor: [0, -40],
-  });
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const L = require('leaflet');
+    const color = CATEGORY_COLORS[category] || '#00BCD4';
+    const icon = CATEGORY_ICONS[category] || '📍';
+    
+    return L.icon({
+      iconUrl: `data:image/svg+xml;base64,${btoa(`
+        <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
+          <circle cx="16" cy="16" r="8" fill="white"/>
+          <text x="16" y="20" font-size="14" text-anchor="middle" fill="${color}">${icon}</text>
+        </svg>
+      `)}`,
+      iconSize: [32, 40],
+      iconAnchor: [16, 40],
+      popupAnchor: [0, -40],
+    });
+  } catch (error) {
+    console.error('Error creating custom icon:', error);
+    return null;
+  }
 }
 
 // Component to handle map view updates
@@ -276,7 +282,7 @@ export default function MapPage() {
             {/* Map Container */}
             <div className="lg:col-span-3">
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden" style={{ height: '80vh', minHeight: '600px' }}>
-                {loading ? (
+                {!mounted || loading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--brand-aruba)] mx-auto mb-4"></div>
