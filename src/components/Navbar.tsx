@@ -155,10 +155,10 @@ const Navbar = () => {
                 onMouseLeave={() => setIsAttractionsOpen(false)}
                 className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
                   isHomePage && !scrolled
-                    ? pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
+                    ? (pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map')
                       ? 'text-white'
                       : 'text-white/90 hover:text-white'
-                    : pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
+                    : (pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map')
                       ? 'text-[var(--brand-aruba)]'
                       : 'text-gray-600 hover:text-[var(--brand-aruba)]'
                 }`}
