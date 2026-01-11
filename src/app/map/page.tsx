@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import Container from '@/components/Container';
 import SectionHeader from '@/components/SectionHeader';
-import Icon as AppIcon from '@/components/Icon';
+import AppIcon from '@/components/Icon';
 import { publicMapLocationsApi } from '@/lib/public-api';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
