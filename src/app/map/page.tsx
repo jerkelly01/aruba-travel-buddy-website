@@ -246,76 +246,154 @@ export default function MapPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50">
       {/* Hero Section */}
-      <section className="relative py-12 bg-gradient-to-b from-gray-50 to-white">
-        <Container>
-          <div className="text-center mb-6">
-            <div className="text-6xl mb-4">🗺️</div>
-            <SectionHeader
-              title="Explore Aruba on the Map"
-              subtitle="Discover all the amazing places across the island with interactive maps and location pins"
-              center
-            />
-          </div>
+      <section className="relative py-16 bg-gradient-to-br from-[var(--brand-aruba)]/10 via-white to-[var(--brand-amber)]/10 overflow-hidden">
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300BCD4' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
+        <Container className="relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center max-w-3xl mx-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="text-7xl mb-6"
+            >
+              🗺️
+            </motion.div>
+            <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-4 font-display">
+              Explore Aruba on the Map
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Discover {locations.length} amazing places across the island with interactive maps and location pins
+            </p>
+            {selectedLocation && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={() => {
+                  setSelectedLocation(null);
+                  setMapCenter([12.5211, -69.9683]);
+                  setMapZoom(11);
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[var(--brand-aruba)] rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-2 border-[var(--brand-aruba)]"
+              >
+                <AppIcon name="map-pin" className="w-5 h-5" />
+                <span>View All Locations</span>
+              </motion.button>
+            )}
+          </motion.div>
         </Container>
       </section>
 
       {/* Map Section */}
-      <section className="relative py-8 bg-gray-50">
+      <section className="relative py-12">
         <Container className="max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Category Filter Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 font-display">Filter by Category</h3>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="lg:col-span-1"
+            >
+              <div className="bg-white rounded-3xl shadow-xl p-6 sticky top-6 border-2 border-gray-100">
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] flex items-center justify-center">
+                    <AppIcon name="map-pin" className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 font-display">Categories</h3>
+                    <p className="text-xs text-gray-500">{locations.length} locations</p>
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => handleCategoryFilter(null)}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
+                    className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 ${
                       !selectedCategory
-                        ? 'bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-white shadow-lg'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                        ? 'bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-white shadow-lg scale-105'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xl">📍</span>
-                      <span className="font-semibold">All Locations</span>
-                      <span className="ml-auto text-sm opacity-75">({locations.length})</span>
+                      <span className="text-2xl">🌴</span>
+                      <div className="flex-1">
+                        <span className="font-semibold block">All Locations</span>
+                        <span className="text-xs opacity-75">View everything</span>
+                      </div>
+                      <span className="text-sm font-bold opacity-90 bg-white/20 px-2 py-1 rounded-lg">{locations.length}</span>
                     </div>
-                  </button>
+                  </motion.button>
                   {categories.map((category) => {
                     const count = locations.filter((loc) => loc.category === category).length;
                     return (
-                      <button
+                      <motion.button
                         key={category}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => handleCategoryFilter(category)}
-                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
+                        className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 ${
                           selectedCategory === category
-                            ? 'bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-white shadow-lg'
-                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                            ? 'bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-white shadow-lg scale-105'
+                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">{CATEGORY_ICONS[category] || '📍'}</span>
-                          <span className="font-semibold">{CATEGORY_NAMES[category] || category}</span>
-                          <span className="ml-auto text-sm opacity-75">({count})</span>
+                          <span className="text-2xl">{CATEGORY_ICONS[category] || '📍'}</span>
+                          <div className="flex-1">
+                            <span className="font-semibold block">{CATEGORY_NAMES[category] || category}</span>
+                            <span className="text-xs opacity-75">{count} {count === 1 ? 'place' : 'places'}</span>
+                          </div>
+                          {selectedCategory === category && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="w-2 h-2 bg-white rounded-full"
+                            />
+                          )}
                         </div>
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Map Container */}
-            <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden" style={{ height: '80vh', minHeight: '600px' }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-3"
+            >
+              <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-100" style={{ height: '80vh', minHeight: '600px' }}>
+                {/* Map Info Badge */}
+                <div className="absolute top-6 left-6 z-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg px-4 py-3 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <div>
+                      <div className="text-xs text-gray-500">Showing</div>
+                      <div className="text-sm font-bold text-gray-900">
+                        {filteredLocations.length} {filteredLocations.length === 1 ? 'Location' : 'Locations'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {!mounted || loading ? (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-white">
                     <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--brand-aruba)] mx-auto mb-4"></div>
-                      <p className="text-gray-600">Loading map locations...</p>
+                      <div className="relative w-16 h-16 mx-auto mb-4">
+                        <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+                        <div className="absolute inset-0 rounded-full border-4 border-[var(--brand-aruba)] border-t-transparent animate-spin"></div>
+                      </div>
+                      <p className="text-gray-600 font-medium">Loading map locations...</p>
+                      <p className="text-sm text-gray-400 mt-2">Preparing your Aruba adventure</p>
                     </div>
                   </div>
                 ) : (
@@ -365,7 +443,7 @@ export default function MapPage() {
                   </MapContainer>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
         </Container>
       </section>
