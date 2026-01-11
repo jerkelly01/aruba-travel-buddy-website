@@ -28,7 +28,6 @@ const Navbar = () => {
     { name: 'Cultural Events', href: '/cultural-events' },
     { name: 'Local Experiences', href: '/local-experiences' },
     { name: 'Restaurants', href: '/restaurants' },
-    { name: 'Map', href: '/map' },
   ];
 
   const travelTipsSubLinks = [
