@@ -148,29 +148,115 @@ const Navbar = () => {
               <span className="relative z-10">About</span>
             </Link>
 
-            <Link
-              href="/explore-aruba"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
-                  ? 'text-white/90 hover:text-white'
-                  : pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')
-                    ? 'text-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
-            >
-              {(pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')) && (
-                <motion.div
-                  layoutId="activeTabExploreAruba"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
-                      : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">Explore Aruba</span>
-            </Link>
+            {/* Explore Aruba Dropdown */}
+            <div className="relative" ref={attractionsDropdownRef}>
+              <button
+                onMouseEnter={() => setIsAttractionsOpen(true)}
+                onMouseLeave={() => setIsAttractionsOpen(false)}
+                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
+                  isHomePage && !scrolled
+                    ? pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
+                      ? 'text-white'
+                      : 'text-white/90 hover:text-white'
+                    : pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
+                      ? 'text-[var(--brand-aruba)]'
+                      : 'text-gray-600 hover:text-[var(--brand-aruba)]'
+                }`}
+              >
+                {(pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map') && (
+                  <motion.div
+                    layoutId="activeTabExploreAruba"
+                    className={`absolute inset-0 rounded-xl ${
+                      isHomePage && !scrolled 
+                        ? 'bg-white/20' 
+                        : 'bg-[rgba(0,188,212,0.1)]'
+                    }`}
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1">
+                  Explore Aruba
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${isAttractionsOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </button>
+              <AnimatePresence>
+                {isAttractionsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    onMouseEnter={() => setIsAttractionsOpen(true)}
+                    onMouseLeave={() => setIsAttractionsOpen(false)}
+                    transition={{ duration: 0.2 }}
+                    className="absolute left-0 top-full mt-2 w-64 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+                  >
+                    <div className="p-2">
+                      <Link
+                        href="/explore-aruba"
+                        onClick={() => setIsAttractionsOpen(false)}
+                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">🗺️</span>
+                          <span>All Categories</span>
+                        </div>
+                      </Link>
+                      <Link
+                        href="/map"
+                        onClick={() => setIsAttractionsOpen(false)}
+                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">📍</span>
+                          <span>Interactive Map</span>
+                        </div>
+                      </Link>
+                      <div className="h-px bg-gray-200 my-2" />
+                      <Link
+                        href="/explore-aruba/beaches"
+                        onClick={() => setIsAttractionsOpen(false)}
+                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">🏖️</span>
+                          <span>Beaches</span>
+                        </div>
+                      </Link>
+                      <Link
+                        href="/explore-aruba/cultural-spots"
+                        onClick={() => setIsAttractionsOpen(false)}
+                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">🏛️</span>
+                          <span>Cultural Spots</span>
+                        </div>
+                      </Link>
+                      <Link
+                        href="/explore-aruba/natural-wonders"
+                        onClick={() => setIsAttractionsOpen(false)}
+                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">🌿</span>
+                          <span>Natural Wonders</span>
+                        </div>
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <Link
               href="/features"
