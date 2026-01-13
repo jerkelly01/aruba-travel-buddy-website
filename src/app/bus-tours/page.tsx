@@ -222,12 +222,6 @@ export default function BusToursPage() {
           )}
         </Container>
       </section>
-
-      {/* Viator Widget Script */}
-      <Script
-        src="https://www.viator.com/orion/partner/widget.js"
-        strategy="afterInteractive"
-      />
     </div>
   );
 }
