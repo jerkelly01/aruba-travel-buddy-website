@@ -40,6 +40,12 @@ export function useViatorWidget(widgetRef: string) {
       }
     });
 
+    // Delete the Viator flag so the script thinks it's a fresh page
+    if ((window as any).__VIATOR_WIDGET_SCR !== undefined) {
+      console.log('[Viator Widget] Clearing __VIATOR_WIDGET_SCR flag');
+      delete (window as any).__VIATOR_WIDGET_SCR;
+    }
+
     // Wait a moment to ensure DOM is ready and old script is cleaned up
     const loadTimeout = setTimeout(() => {
       console.log('[Viator Widget] Loading fresh Viator script');
@@ -50,72 +56,20 @@ export function useViatorWidget(widgetRef: string) {
       script.async = true;
       
       script.onload = () => {
-        console.log('[Viator Widget] Script loaded successfully');
+        console.log('[Viator Widget] Script loaded and should auto-initialize');
         
-        // Check what was created on window
-        const viatorKeys = Object.keys(window).filter(k => k.toLowerCase().includes('viator'));
-        console.log('[Viator Widget] Viator-related window keys:', viatorKeys);
-        
-        // Check if __VIATOR_WIDGET_SCR exists and what it contains
-        const viatorWidgetScr = (window as any).__VIATOR_WIDGET_SCR;
-        if (viatorWidgetScr) {
-          console.log('[Viator Widget] __VIATOR_WIDGET_SCR type:', typeof viatorWidgetScr);
-          console.log('[Viator Widget] __VIATOR_WIDGET_SCR methods:', Object.keys(viatorWidgetScr));
-          
-          // Try to call any init/load/render methods if they exist
-          if (typeof viatorWidgetScr.init === 'function') {
-            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.init()');
-            viatorWidgetScr.init();
-          } else if (typeof viatorWidgetScr.load === 'function') {
-            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.load()');
-            viatorWidgetScr.load();
-          } else if (typeof viatorWidgetScr.render === 'function') {
-            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.render()');
-            viatorWidgetScr.render();
-          } else if (typeof viatorWidgetScr.scan === 'function') {
-            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.scan()');
-            viatorWidgetScr.scan();
-          }
-        }
-        
-        // Give Viator time to scan the DOM and initialize
+        // Give Viator time to scan the DOM and initialize widgets
         setTimeout(() => {
           if (widgetContainerRef.current) {
             const iframe = widgetContainerRef.current.querySelector('iframe');
             if (iframe) {
               console.log('[Viator Widget] ✓ Widget initialized successfully');
             } else {
-              console.warn('[Viator Widget] ⚠ No iframe found after script load');
-              console.log('[Viator Widget] Container:', widgetContainerRef.current.outerHTML);
-              
-              // Try one more time with __VIATOR_WIDGET_SCR if it exists
-              if (viatorWidgetScr) {
-                console.log('[Viator Widget] Attempting manual trigger via __VIATOR_WIDGET_SCR');
-                // Try different possible methods
-                ['init', 'load', 'render', 'scan', 'process', 'execute'].forEach(method => {
-                  if (typeof viatorWidgetScr[method] === 'function') {
-                    console.log(`[Viator Widget] Trying __VIATOR_WIDGET_SCR.${method}()`);
-                    try {
-                      viatorWidgetScr[method]();
-                    } catch (e) {
-                      console.error(`[Viator Widget] Error calling ${method}:`, e);
-                    }
-                  }
-                });
-                
-                // Check again after attempting manual trigger
-                setTimeout(() => {
-                  const iframe2 = widgetContainerRef.current?.querySelector('iframe');
-                  if (iframe2) {
-                    console.log('[Viator Widget] ✓ Widget initialized after manual trigger!');
-                  } else {
-                    console.error('[Viator Widget] ✗ Still no iframe after manual trigger attempts');
-                  }
-                }, 1000);
-              }
+              console.warn('[Viator Widget] ⚠ Widget did not initialize');
+              console.log('[Viator Widget] Container HTML:', widgetContainerRef.current.outerHTML);
             }
           }
-        }, 2000);
+        }, 1500);
       };
       
       script.onerror = (error) => {
