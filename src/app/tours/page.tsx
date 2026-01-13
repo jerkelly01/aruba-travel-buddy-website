@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
-import { usePathname } from "next/navigation";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -12,9 +11,10 @@ import Icon from "@/components/Icon";
 import { publicToursApi } from "@/lib/public-api";
 import { normalizeTours } from "@/lib/data-normalization";
 import { CodeSnippet } from "@/components/CodeSnippet";
+import { useViatorWidget } from "@/hooks/useViatorWidget";
 
 // Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
-function useViatorWidgetReinit(widgetRef: string) {
+function useViatorWidgetReinit_OLD(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
@@ -340,7 +340,7 @@ export default function ToursPage() {
   const [tours, setTours] = React.useState<Tour[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-44ff9515-9337-48ed-ad52-88b94d11c81d");
+  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-44ff9515-9337-48ed-ad52-88b94d11c81d");
 
   React.useEffect(() => {
     loadTours();
@@ -419,38 +419,13 @@ export default function ToursPage() {
       {/* Viator Widget Section */}
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
-          {showFallback ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
-            >
-              <div className="text-gray-400 mb-4">
-                <Icon name="map-pin" className="w-16 h-16 mx-auto" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Tour Booking Widget</h3>
-              <p className="text-gray-600 mb-4">
-                Explore and book tours directly through our partner platform
-              </p>
-              <a
-                href="https://www.viator.com/en-CA/Aruba/d8"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
-              >
-                <Icon name="arrow-right" className="w-4 h-4" />
-                Browse Tours on Viator
-              </a>
-            </motion.div>
-          ) : (
-            <div
-              key={`viator-widget-${viatorWidgetKey}`}
-              ref={viatorWidgetRef}
-              data-vi-partner-id="P00276444"
-              data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
-              id="viator-widget-tours"
-            ></div>
-          )}
+          <div
+            key={`viator-widget-${viatorWidgetKey}`}
+            ref={viatorWidgetRef}
+            data-vi-partner-id="P00276444"
+            data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
+            id="viator-widget-tours"
+          ></div>
         </Container>
       </section>
 
@@ -573,39 +548,6 @@ export default function ToursPage() {
       <Script
         src="https://www.viator.com/orion/partner/widget.js"
         strategy="afterInteractive"
-        onLoad={() => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Viator script loaded',data:{hasViator:!!(window as any).viator,hasInit:!!((window as any).viator && typeof (window as any).viator.init === 'function')},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
-          // #endregion
-          // Wait a bit for viator object to be available
-          setTimeout(() => {
-            // Try to initialize widget regardless of window.viator availability
-            // Viator may use event-driven initialization
-            const container = document.querySelector('[data-vi-partner-id]');
-            if (container) {
-              // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Dispatching init events to container',data:{containerFound:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
-              // #endregion
-              container.dispatchEvent(new CustomEvent('viator:init', { bubbles: true }));
-              container.dispatchEvent(new CustomEvent('widget:init', { bubbles: true }));
-              document.dispatchEvent(new CustomEvent('viator:ready', { bubbles: true }));
-            }
-
-            // Also try the old viator.init approach if available
-            if ((window as any).viator && typeof (window as any).viator.init === 'function') {
-              // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onLoad',message:'Calling viator.init from onLoad',data:{success:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
-              // #endregion
-              (window as any).viator.init();
-            }
-          }, 500);
-        }}
-        onError={(e) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3d77dc41-cab3-4871-9dea-bcb920c8d331',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'tours/page.tsx:Script-onError',message:'Viator script load error',data:{error:String(e)},timestamp:Date.now(),sessionId:'debug-session',runId:'run6',hypothesisId:'I'})}).catch(()=>{});
-          // #endregion
-          console.error('[Viator Widget] Script load error:', e);
-        }}
       />
     </div>
   );

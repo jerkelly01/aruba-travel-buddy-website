@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
-import { usePathname } from "next/navigation";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -11,9 +10,10 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeLocalExperiences } from "@/lib/data-normalization";
+import { useViatorWidget } from "@/hooks/useViatorWidget";
 
 // Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
-function useViatorWidgetReinit(widgetRef: string) {
+function useViatorWidgetReinit_OLD(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
@@ -187,7 +187,7 @@ export default function LocalExperiencesPage() {
   const [experiences, setExperiences] = React.useState<LocalExperience[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
+  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
 
   React.useEffect(() => {
     loadExperiences();
@@ -266,38 +266,13 @@ export default function LocalExperiencesPage() {
       {/* Viator Widget Section */}
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
-          {showFallback ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
-            >
-              <div className="text-gray-400 mb-4">
-                <Icon name="map-pin" className="w-16 h-16 mx-auto" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Local Experiences Widget</h3>
-              <p className="text-gray-600 mb-4">
-                Discover and book local experiences through our partner platform
-              </p>
-              <a
-                href="https://www.viator.com/en-CA/Aruba/d8"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
-              >
-                <Icon name="arrow-right" className="w-4 h-4" />
-                Browse Experiences on Viator
-              </a>
-            </motion.div>
-          ) : (
-            <div
-              key={viatorWidgetKey === 0 ? 'experiences-widget-initial' : `viator-widget-${viatorWidgetKey}`}
-              ref={viatorWidgetRef}
-              data-vi-partner-id="P00276444"
-              data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
-              id="viator-widget-experiences"
-            ></div>
-          )}
+          <div
+            key={`viator-widget-${viatorWidgetKey}`}
+            ref={viatorWidgetRef}
+            data-vi-partner-id="P00276444"
+            data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
+            id="viator-widget-experiences"
+          ></div>
         </Container>
       </section>
 

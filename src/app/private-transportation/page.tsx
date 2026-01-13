@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
-import { usePathname } from "next/navigation";
+
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -12,8 +12,10 @@ import Icon from "@/components/Icon";
 import { publicTransportationApi } from "@/lib/public-api";
 import { normalizeTransportation } from "@/lib/data-normalization";
 
+import { useViatorWidget } from "@/hooks/useViatorWidget";
+
 // Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
-function useViatorWidgetReinit(widgetRef: string) {
+function useViatorWidgetReinit_OLD(widgetRef: string) {
   const widgetContainerRef = React.useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const [widgetKey, setWidgetKey] = React.useState(() => Date.now());
@@ -190,7 +192,7 @@ export default function PrivateTransportationPage() {
   const [transportation, setTransportation] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { ref: viatorWidgetRef, key: viatorWidgetKey, showFallback } = useViatorWidgetReinit("W-4f182977-3126-4965-aeb4-7f38f620a29c");
+  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-4f182977-3126-4965-aeb4-7f38f620a29c");
 
   React.useEffect(() => {
     loadTransportation();
@@ -268,38 +270,13 @@ export default function PrivateTransportationPage() {
       {/* Viator Widget Section */}
       <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
         <Container>
-          {showFallback ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
-            >
-              <div className="text-gray-400 mb-4">
-                <Icon name="device-phone-mobile" className="w-16 h-16 mx-auto" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Private Transportation Widget</h3>
-              <p className="text-gray-600 mb-4">
-                Book private transportation services through our partner platform
-              </p>
-              <a
-                href="https://www.viator.com/en-CA/Aruba/d8"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--brand-aruba)] text-white rounded-xl hover:bg-[var(--brand-aruba-dark)] transition-colors font-semibold"
-              >
-                <Icon name="arrow-right" className="w-4 h-4" />
-                Browse Transportation on Viator
-              </a>
-            </motion.div>
-          ) : (
-            <div
-              key={viatorWidgetKey === 0 ? 'private-transportation-widget-initial' : `viator-widget-${viatorWidgetKey}`}
-              ref={viatorWidgetRef}
-              data-vi-partner-id="P00276444"
-              data-vi-widget-ref="W-4f182977-3126-4965-aeb4-7f38f620a29c"
-              id="viator-widget-private-transportation"
-            ></div>
-          )}
+          <div
+            key={`viator-widget-${viatorWidgetKey}`}
+            ref={viatorWidgetRef}
+            data-vi-partner-id="P00276444"
+            data-vi-widget-ref="W-4f182977-3126-4965-aeb4-7f38f620a29c"
+            id="viator-widget-private-transportation"
+          ></div>
         </Container>
       </section>
 
