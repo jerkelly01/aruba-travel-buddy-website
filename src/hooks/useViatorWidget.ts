@@ -56,7 +56,29 @@ export function useViatorWidget(widgetRef: string) {
         const viatorKeys = Object.keys(window).filter(k => k.toLowerCase().includes('viator'));
         console.log('[Viator Widget] Viator-related window keys:', viatorKeys);
         
-        // Give Viator time to scan the DOM
+        // Check if __VIATOR_WIDGET_SCR exists and what it contains
+        const viatorWidgetScr = (window as any).__VIATOR_WIDGET_SCR;
+        if (viatorWidgetScr) {
+          console.log('[Viator Widget] __VIATOR_WIDGET_SCR type:', typeof viatorWidgetScr);
+          console.log('[Viator Widget] __VIATOR_WIDGET_SCR methods:', Object.keys(viatorWidgetScr));
+          
+          // Try to call any init/load/render methods if they exist
+          if (typeof viatorWidgetScr.init === 'function') {
+            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.init()');
+            viatorWidgetScr.init();
+          } else if (typeof viatorWidgetScr.load === 'function') {
+            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.load()');
+            viatorWidgetScr.load();
+          } else if (typeof viatorWidgetScr.render === 'function') {
+            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.render()');
+            viatorWidgetScr.render();
+          } else if (typeof viatorWidgetScr.scan === 'function') {
+            console.log('[Viator Widget] Calling __VIATOR_WIDGET_SCR.scan()');
+            viatorWidgetScr.scan();
+          }
+        }
+        
+        // Give Viator time to scan the DOM and initialize
         setTimeout(() => {
           if (widgetContainerRef.current) {
             const iframe = widgetContainerRef.current.querySelector('iframe');
@@ -65,6 +87,32 @@ export function useViatorWidget(widgetRef: string) {
             } else {
               console.warn('[Viator Widget] ⚠ No iframe found after script load');
               console.log('[Viator Widget] Container:', widgetContainerRef.current.outerHTML);
+              
+              // Try one more time with __VIATOR_WIDGET_SCR if it exists
+              if (viatorWidgetScr) {
+                console.log('[Viator Widget] Attempting manual trigger via __VIATOR_WIDGET_SCR');
+                // Try different possible methods
+                ['init', 'load', 'render', 'scan', 'process', 'execute'].forEach(method => {
+                  if (typeof viatorWidgetScr[method] === 'function') {
+                    console.log(`[Viator Widget] Trying __VIATOR_WIDGET_SCR.${method}()`);
+                    try {
+                      viatorWidgetScr[method]();
+                    } catch (e) {
+                      console.error(`[Viator Widget] Error calling ${method}:`, e);
+                    }
+                  }
+                });
+                
+                // Check again after attempting manual trigger
+                setTimeout(() => {
+                  const iframe2 = widgetContainerRef.current?.querySelector('iframe');
+                  if (iframe2) {
+                    console.log('[Viator Widget] ✓ Widget initialized after manual trigger!');
+                  } else {
+                    console.error('[Viator Widget] ✗ Still no iframe after manual trigger attempts');
+                  }
+                }, 1000);
+              }
             }
           }
         }, 2000);
