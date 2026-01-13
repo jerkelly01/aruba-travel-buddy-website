@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import RouteWrapper from "@/components/RouteWrapper";
+import { ViatorScript } from "@/components/ViatorScript";
 
 const inter = Inter({ subsets: ["latin"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-display" });
@@ -44,20 +44,7 @@ export default function RootLayout({
           <Footer />
         </Providers>
         {/* Load Viator widget script globally once */}
-        <Script
-          src="https://www.viator.com/orion/partner/widget.js"
-          strategy="afterInteractive"
-          onLoad={() => {
-            console.log('[Viator] Script loaded successfully');
-            if (typeof window !== 'undefined') {
-              (window as any).viatorScriptLoaded = true;
-              window.dispatchEvent(new CustomEvent('viatorScriptLoaded'));
-            }
-          }}
-          onError={(e) => {
-            console.error('[Viator] Script failed to load:', e);
-          }}
-        />
+        <ViatorScript />
       </body>
     </html>
   );
