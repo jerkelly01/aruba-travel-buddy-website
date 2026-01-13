@@ -12,7 +12,16 @@ export function useViatorWidget(widgetRef: string) {
   const initializeWidget = useCallback(() => {
     if (typeof window === 'undefined') return false;
     
+    // Check if script has loaded
+    const scriptLoaded = (window as any).viatorScriptLoaded;
     const viator = (window as any).viator;
+    
+    console.log('[Viator Widget] Checking:', { 
+      scriptLoaded, 
+      hasViator: !!viator, 
+      hasInit: viator && typeof viator.init === 'function'
+    });
+    
     if (!viator || typeof viator.init !== 'function') {
       return false;
     }
@@ -47,11 +56,12 @@ export function useViatorWidget(widgetRef: string) {
     console.log('[Viator Widget] Starting initialization for widgetKey:', widgetKey);
 
     let pollInterval: NodeJS.Timeout | null = null;
+    let initDelay: NodeJS.Timeout | null = null;
 
-    // Wait a bit for the DOM to settle after remount
-    const initDelay = setTimeout(() => {
+    // Function to start polling
+    const startPolling = () => {
       let pollCount = 0;
-      const maxPolls = 50; // 10 seconds max
+      const maxPolls = 100; // 20 seconds max
       
       pollInterval = setInterval(() => {
         pollCount++;
@@ -61,13 +71,42 @@ export function useViatorWidget(widgetRef: string) {
           console.log('[Viator Widget] Polling complete, widget initialized');
         } else if (pollCount >= maxPolls) {
           if (pollInterval) clearInterval(pollInterval);
-          console.error('[Viator Widget] Script not available after 10 seconds');
+          console.error('[Viator Widget] Script not available after 20 seconds');
+          console.error('[Viator Widget] Check if script is blocked or failed to load');
         }
       }, 200);
-    }, 100); // Small delay to ensure DOM is ready
+    };
+
+    // Check if script is already loaded
+    if ((window as any).viatorScriptLoaded) {
+      console.log('[Viator Widget] Script already loaded, starting polling immediately');
+      startPolling();
+    } else {
+      console.log('[Viator Widget] Waiting for script to load...');
+      
+      // Listen for script load event
+      const handleScriptLoad = () => {
+        console.log('[Viator Widget] Received script load event');
+        startPolling();
+      };
+      
+      window.addEventListener('viatorScriptLoaded', handleScriptLoad);
+      
+      // Also start polling after a delay as backup
+      initDelay = setTimeout(() => {
+        console.log('[Viator Widget] Starting backup polling');
+        startPolling();
+      }, 1000);
+
+      return () => {
+        window.removeEventListener('viatorScriptLoaded', handleScriptLoad);
+        if (initDelay) clearTimeout(initDelay);
+        if (pollInterval) clearInterval(pollInterval);
+      };
+    }
 
     return () => {
-      clearTimeout(initDelay);
+      if (initDelay) clearTimeout(initDelay);
       if (pollInterval) clearInterval(pollInterval);
     };
   }, [widgetKey, initializeWidget]);
