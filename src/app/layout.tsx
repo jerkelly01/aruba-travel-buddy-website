@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -42,6 +43,11 @@ export default function RootLayout({
           </main>
           <Footer />
         </Providers>
+        {/* Load Viator widget script globally once */}
+        <Script
+          src="https://www.viator.com/orion/partner/widget.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
