@@ -6,107 +6,85 @@ import { usePathname } from 'next/navigation';
 /**
  * Hook for managing Viator widgets across client-side navigation.
  * 
- * Viator widgets work by:
- * 1. The script scans the DOM for elements with data-vi-* attributes
- * 2. It injects iframes into those elements to display the widget
- * 3. This happens automatically when the script loads or when new elements are added
+ * Problem: Viator's script only scans the DOM once when it loads. On Next.js
+ * client-side navigation, new widget containers aren't detected.
  * 
- * The challenge with Next.js client-side navigation is that the script has
- * already run, so it doesn't automatically detect new widget elements.
- * 
- * Solution: Force remount the widget container on navigation by changing its key.
- * This causes React to destroy and recreate the DOM element, potentially
- * triggering Viator's mutation observers to detect and initialize it.
+ * Solution: Completely reload the Viator script on every navigation to force
+ * it to re-scan the DOM and initialize widgets.
  */
 export function useViatorWidget(widgetRef: string) {
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const [widgetKey, setWidgetKey] = useState(() => `viator-${Date.now()}`);
-  const iframeCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const scriptElementRef = useRef<HTMLScriptElement | null>(null);
 
-  // Force widget remount on navigation
+  // Reload Viator script on navigation
   useEffect(() => {
-    console.log(`[Viator Widget] Pathname changed to: ${pathname}, remounting widget`);
-    setWidgetKey(`viator-${Date.now()}`);
-  }, [pathname]);
+    if (typeof window === 'undefined') return;
 
-  // Monitor widget initialization
-  useEffect(() => {
-    if (typeof window === 'undefined' || !widgetContainerRef.current) {
-      return;
+    console.log(`[Viator Widget] Pathname changed to: ${pathname}, reloading script`);
+    
+    // Remove old script if it exists
+    if (scriptElementRef.current && scriptElementRef.current.parentNode) {
+      console.log('[Viator Widget] Removing old script');
+      scriptElementRef.current.parentNode.removeChild(scriptElementRef.current);
+      scriptElementRef.current = null;
     }
 
-    console.log(`[Viator Widget] Container mounted with key: ${widgetKey}`);
-    console.log(`[Viator Widget] Script loaded: ${(window as any).viatorScriptLoaded}`);
-    console.log(`[Viator Widget] Widget ref: ${widgetRef}`);
-    console.log(`[Viator Widget] Container attributes:`, {
-      'data-vi-partner-id': widgetContainerRef.current.getAttribute('data-vi-partner-id'),
-      'data-vi-widget-ref': widgetContainerRef.current.getAttribute('data-vi-widget-ref'),
+    // Also remove any scripts with the Viator URL that might exist
+    const existingScripts = document.querySelectorAll('script[src*="viator.com"]');
+    existingScripts.forEach(script => {
+      if (script.parentNode) {
+        console.log('[Viator Widget] Removing existing Viator script');
+        script.parentNode.removeChild(script);
+      }
     });
 
-    // Viator widgets inject iframes when they initialize
-    // Let's monitor for iframe creation to confirm initialization
-    const checkForIframe = () => {
-      if (widgetContainerRef.current) {
-        const iframe = widgetContainerRef.current.querySelector('iframe');
-        const hasContent = widgetContainerRef.current.innerHTML.trim().length > 0;
-        
-        if (iframe) {
-          console.log('[Viator Widget] ✓ Widget iframe detected, initialization successful');
-          if (iframeCheckIntervalRef.current) {
-            clearInterval(iframeCheckIntervalRef.current);
-            iframeCheckIntervalRef.current = null;
-          }
-          return true;
-        } else if (hasContent) {
-          console.log('[Viator Widget] ⚠ Content detected but no iframe:', widgetContainerRef.current.innerHTML.substring(0, 100));
-        }
-      }
-      return false;
-    };
-
-    // Give the Viator script time to detect and initialize the widget
-    const timeoutId = setTimeout(() => {
-      console.log('[Viator Widget] Checking for widget initialization...');
+    // Wait a moment to ensure DOM is ready and old script is cleaned up
+    const loadTimeout = setTimeout(() => {
+      console.log('[Viator Widget] Loading fresh Viator script');
       
-      if (!checkForIframe()) {
-        // Start periodic checking
-        let checks = 0;
-        iframeCheckIntervalRef.current = setInterval(() => {
-          checks++;
-          
-          if (checkForIframe()) {
-            // Success - iframe found
-            return;
-          }
-          
-          if (checks >= 20) { // 4 seconds total (20 * 200ms)
-            if (iframeCheckIntervalRef.current) {
-              clearInterval(iframeCheckIntervalRef.current);
-              iframeCheckIntervalRef.current = null;
+      // Create and inject new script
+      const script = document.createElement('script');
+      script.src = 'https://www.viator.com/orion/partner/widget.js';
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('[Viator Widget] Script loaded successfully');
+        
+        // Check what was created on window
+        const viatorKeys = Object.keys(window).filter(k => k.toLowerCase().includes('viator'));
+        console.log('[Viator Widget] Viator-related window keys:', viatorKeys);
+        
+        // Give Viator time to scan the DOM
+        setTimeout(() => {
+          if (widgetContainerRef.current) {
+            const iframe = widgetContainerRef.current.querySelector('iframe');
+            if (iframe) {
+              console.log('[Viator Widget] ✓ Widget initialized successfully');
+            } else {
+              console.warn('[Viator Widget] ⚠ No iframe found after script load');
+              console.log('[Viator Widget] Container:', widgetContainerRef.current.outerHTML);
             }
-            
-            console.warn('[Viator Widget] ✗ Widget did not initialize after 4 seconds');
-            console.log('[Viator Widget] Debugging info:', {
-              scriptLoaded: (window as any).viatorScriptLoaded,
-              hasContainer: !!widgetContainerRef.current,
-              containerHTML: widgetContainerRef.current?.innerHTML || 'N/A',
-              windowViator: typeof (window as any).viator,
-              windowKeys: Object.keys(window).filter(k => k.toLowerCase().includes('viator'))
-            });
           }
-        }, 200);
-      }
-    }, 500);
+        }, 2000);
+      };
+      
+      script.onerror = (error) => {
+        console.error('[Viator Widget] Script load error:', error);
+      };
+      
+      document.body.appendChild(script);
+      scriptElementRef.current = script;
+    }, 100);
+
+    // Update widget key to force remount
+    setWidgetKey(`viator-${Date.now()}`);
 
     return () => {
-      clearTimeout(timeoutId);
-      if (iframeCheckIntervalRef.current) {
-        clearInterval(iframeCheckIntervalRef.current);
-        iframeCheckIntervalRef.current = null;
-      }
+      clearTimeout(loadTimeout);
     };
-  }, [widgetKey, widgetRef]);
+  }, [pathname]);
 
   return {
     widgetContainerRef,

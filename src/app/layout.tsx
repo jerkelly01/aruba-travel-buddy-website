@@ -6,7 +6,6 @@ import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import RouteWrapper from "@/components/RouteWrapper";
-import { ViatorScript } from "@/components/ViatorScript";
 
 const inter = Inter({ subsets: ["latin"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-display" });
@@ -43,8 +42,6 @@ export default function RootLayout({
           </main>
           <Footer />
         </Providers>
-        {/* Load Viator widget script globally once */}
-        <ViatorScript />
       </body>
     </html>
   );
