@@ -31,6 +31,11 @@ import {
   CloudArrowDownIcon,
   CurrencyDollarIcon,
   BoltIcon,
+  DocumentTextIcon,
+  CreditCardIcon,
+  IdentificationIcon,
+  PaperAirplaneIcon,
+  HomeIcon,
 } from '@heroicons/react/24/outline';
 
 export const Icons = {
@@ -73,6 +78,13 @@ export const Icons = {
   'question-mark-circle': QuestionMarkCircleIcon,
   'envelope': EnvelopeIcon,
   'phone': PhoneIcon,
+
+  // Additional icons
+  'document-text': DocumentTextIcon,
+  'credit-card': CreditCardIcon,
+  'identification': IdentificationIcon,
+  'paper-airplane': PaperAirplaneIcon,
+  'home': HomeIcon,
 };
 
 export type IconName = keyof typeof Icons;
