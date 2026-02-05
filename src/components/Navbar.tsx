@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { prefetchRouteData } from '@/hooks/usePrefetch';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -340,6 +341,7 @@ const Navbar = () => {
                           <Link
                             key={subLink.name}
                             href={subLink.href}
+                            onMouseEnter={() => prefetchRouteData(subLink.href)}
                             className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
                               isActive
                                 ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
@@ -411,12 +413,13 @@ const Navbar = () => {
                     <div className="py-2">
                       {transportationSubLinks.map((subLink) => {
                         const isActive = pathname === subLink.href;
-              return (
-                <Link
+                        return (
+                          <Link
                             key={subLink.name}
                             href={subLink.href}
+                            onMouseEnter={() => prefetchRouteData(subLink.href)}
                             className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                    isActive
+                              isActive
                                 ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                                 : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
                             }`}

@@ -179,10 +179,11 @@ export default function MapPage() {
   const [mapZoom, setMapZoom] = useState(11);
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
 
-  // Aruba bounds - restricts map to only show Aruba
+  // Aruba bounds - STRICT restriction to only show Aruba
+  // Using exact Aruba boundaries to prevent panning outside
   const arubaBounds: [[number, number], [number, number]] = [
-    [12.38, -70.12], // Southwest - slightly expanded for padding
-    [12.67, -69.83], // Northeast - slightly expanded for padding
+    [12.41, -70.06], // Southwest - exact Aruba boundary
+    [12.63, -69.87], // Northeast - exact Aruba boundary
   ];
 
   // Initialize Leaflet CSS and fix icons only on client side

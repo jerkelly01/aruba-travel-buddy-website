@@ -4,89 +4,98 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 /**
- * Hook for managing Viator widgets across client-side navigation.
+ * Optimized hook for managing Viator widgets across client-side navigation.
  * 
- * Problem: Viator's script only scans the DOM once when it loads. On Next.js
- * client-side navigation, new widget containers aren't detected.
- * 
- * Solution: Completely reload the Viator script on every navigation to force
- * it to re-scan the DOM and initialize widgets.
+ * The Viator script is preloaded globally in layout.tsx, so we just need to
+ * trigger widget reinitialization when the DOM changes, not reload the script.
  */
 export function useViatorWidget(widgetRef: string) {
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const [widgetKey, setWidgetKey] = useState(() => `viator-${Date.now()}`);
-  const scriptElementRef = useRef<HTMLScriptElement | null>(null);
+  const initializedRef = useRef(false);
 
-  // Reload Viator script on navigation
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    console.log(`[Viator Widget] Pathname changed to: ${pathname}, reloading script`);
-    
-    // Remove old script if it exists
-    if (scriptElementRef.current && scriptElementRef.current.parentNode) {
-      console.log('[Viator Widget] Removing old script');
-      scriptElementRef.current.parentNode.removeChild(scriptElementRef.current);
-      scriptElementRef.current = null;
-    }
+    const initializeWidget = () => {
+      if (!widgetContainerRef.current) return;
 
-    // Also remove any scripts with the Viator URL that might exist
-    const existingScripts = document.querySelectorAll('script[src*="viator.com"]');
-    existingScripts.forEach(script => {
-      if (script.parentNode) {
-        console.log('[Viator Widget] Removing existing Viator script');
-        script.parentNode.removeChild(script);
-      }
-    });
-
-    // Delete the Viator flag so the script thinks it's a fresh page
-    if ((window as any).__VIATOR_WIDGET_SCR !== undefined) {
-      console.log('[Viator Widget] Clearing __VIATOR_WIDGET_SCR flag');
-      delete (window as any).__VIATOR_WIDGET_SCR;
-    }
-
-    // Wait a moment to ensure DOM is ready and old script is cleaned up
-    const loadTimeout = setTimeout(() => {
-      console.log('[Viator Widget] Loading fresh Viator script');
+      const container = widgetContainerRef.current;
       
-      // Create and inject new script
-      const script = document.createElement('script');
-      script.src = 'https://www.viator.com/orion/partner/widget.js';
-      script.async = true;
-      
-      script.onload = () => {
-        console.log('[Viator Widget] Script loaded and should auto-initialize');
-        
-        // Give Viator time to scan the DOM and initialize widgets
-        setTimeout(() => {
-          if (widgetContainerRef.current) {
-            const iframe = widgetContainerRef.current.querySelector('iframe');
-            if (iframe) {
-              console.log('[Viator Widget] ✓ Widget initialized successfully');
-            } else {
-              console.warn('[Viator Widget] ⚠ Widget did not initialize');
-              console.log('[Viator Widget] Container HTML:', widgetContainerRef.current.outerHTML);
-            }
+      // Ensure the container has the correct attributes
+      container.setAttribute('data-vi-partner-id', 'P00276444');
+      container.setAttribute('data-vi-widget-ref', widgetRef);
+
+      // Check if script is already loaded
+      const scriptLoaded = (window as any).viatorScriptLoaded || 
+                          (window as any).viatorScriptReady ||
+                          document.querySelector('script[src*="viator.com"]');
+
+      if (scriptLoaded) {
+        // Script is loaded, trigger widget initialization
+        // Viator script should auto-detect new widgets, but we can help it along
+        const checkWidget = () => {
+          if (container.querySelector('iframe')) {
+            initializedRef.current = true;
+            return;
           }
-        }, 1500);
-      };
-      
-      script.onerror = (error) => {
-        console.error('[Viator Widget] Script load error:', error);
-      };
-      
-      document.body.appendChild(script);
-      scriptElementRef.current = script;
-    }, 100);
 
-    // Update widget key to force remount
-    setWidgetKey(`viator-${Date.now()}`);
+          // Try to trigger Viator's widget initialization
+          // Some Viator implementations expose a global function
+          if ((window as any).viator && typeof (window as any).viator.init === 'function') {
+            (window as any).viator.init();
+          }
+
+          // Dispatch a custom event that might trigger Viator to rescan
+          window.dispatchEvent(new CustomEvent('viatorWidgetReady', {
+            detail: { widgetRef }
+          }));
+        };
+
+        // Check immediately
+        checkWidget();
+
+        // Also check after a short delay (Viator might need time to process)
+        const checkInterval = setInterval(() => {
+          if (container.querySelector('iframe')) {
+            clearInterval(checkInterval);
+            initializedRef.current = true;
+          }
+        }, 100);
+
+        // Stop checking after 2 seconds
+        setTimeout(() => {
+          clearInterval(checkInterval);
+        }, 2000);
+      } else {
+        // Script not loaded yet, wait for it
+        const onScriptLoad = () => {
+          setTimeout(initializeWidget, 100);
+        };
+
+        if ((window as any).viatorScriptLoaded) {
+          onScriptLoad();
+        } else {
+          window.addEventListener('viatorScriptLoaded', onScriptLoad, { once: true });
+          return () => {
+            window.removeEventListener('viatorScriptLoaded', onScriptLoad);
+          };
+        }
+      }
+    };
+
+    // Reset initialization state on pathname change
+    initializedRef.current = false;
+    setWidgetKey(`viator-${pathname}-${Date.now()}`);
+
+    // Small delay to ensure DOM is ready
+    const timeout = setTimeout(initializeWidget, 50);
 
     return () => {
-      clearTimeout(loadTimeout);
+      clearTimeout(timeout);
     };
-  }, [pathname]);
+  }, [pathname, widgetRef]);
 
   return {
     widgetContainerRef,

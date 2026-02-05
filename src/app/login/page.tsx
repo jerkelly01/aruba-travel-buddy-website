@@ -84,12 +84,6 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-8 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-600 text-center mb-4">Demo Credentials:</p>
-          <p className="text-sm text-gray-600 text-center">Email: admin@arubabuddy.com</p>
-          <p className="text-sm text-gray-600 text-center">Password: admin123</p>
-        </div>
-
         <div className="mt-6 text-center">
           <Link href="/" className="text-[var(--brand-wave)] hover:text-[var(--brand-ocean)] text-sm font-medium">
             Back to Home

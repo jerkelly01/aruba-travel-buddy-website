@@ -1,6 +1,7 @@
 // Public API for fetching content (no authentication required)
 // Use Supabase Edge Functions if SUPABASE_URL is set, otherwise fall back to Express API
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ydycncbqobpljrtknpqd.supabase.co';
+import { dataCache } from './data-cache';
 const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 // Determine which API to use
@@ -18,8 +19,19 @@ interface ApiResponse<T> {
 // Public API request (no authentication required)
 async function publicApiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  useCache: boolean = true
 ): Promise<ApiResponse<T>> {
+  // Check cache first for instant loading
+  if (useCache) {
+    const cached = dataCache.get<T>(endpoint);
+    if (cached) {
+      console.log('[Public API] ✓ Cache hit for:', endpoint);
+      return { success: true, data: cached };
+    }
+    console.log('[Public API] Cache miss for:', endpoint);
+  }
+
   // Map endpoint to Supabase function if using Edge Functions
   // e.g., /api/tours -> /admin-content/tours
   let mappedEndpoint = endpoint;
@@ -105,6 +117,7 @@ async function publicApiRequest<T>(
       };
     }
 
+
     // Edge Functions return { success: true, data: [...] }
     // Extract the data from the response
     const responseData = data.success && data.data ? data.data : data;
@@ -115,10 +128,17 @@ async function publicApiRequest<T>(
       firstItem: Array.isArray(responseData) && responseData.length > 0 ? responseData[0] : null
     });
     
+    // Cache the response for future requests (5 minute TTL)
+    if (useCache && responseData) {
+      dataCache.set(endpoint, responseData);
+      console.log('[Public API] ✓ Cached response for:', endpoint);
+    }
+    
     return { success: true, data: responseData };
-  } catch (error) {
-    console.error('[Public API] Request failed:', error);
+    } catch (error) {
+    console.log('[Public API] Request failed:', error);
     return {
+
       success: false,
       error: error instanceof Error ? error.message : 'Network error',
     };

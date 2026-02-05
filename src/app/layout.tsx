@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Providers } from "./providers";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import RouteWrapper from "@/components/RouteWrapper";
+import { ViatorScript } from "@/components/ViatorScript";
 
 const inter = Inter({ subsets: ["latin"] });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-display" });
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} ${playfair.variable}`}>
+        <ViatorScript />
         <Providers>
           <AnalyticsTracker />
           <Navbar />
