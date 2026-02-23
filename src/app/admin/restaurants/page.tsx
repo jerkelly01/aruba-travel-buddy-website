@@ -14,6 +14,7 @@ export default function RestaurantsPage() {
       getFields={(item) => ({
         name: item.name,
         description: item.description,
+        category: item.category || '',
         cuisine_types: item.cuisine_types || [],
         price_range: item.price_range,
         images: item.images || [],
@@ -30,6 +31,7 @@ export default function RestaurantsPage() {
       getEmptyItem={() => ({
         name: '',
         description: '',
+        category: '',
         cuisine_types: [],
         price_range: '$$',
         images: [],
