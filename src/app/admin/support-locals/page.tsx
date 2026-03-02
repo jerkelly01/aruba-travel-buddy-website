@@ -2,6 +2,7 @@
 
 import { ContentManagementPage } from '@/components/admin/ContentManagementPage';
 import { ContactInfoInput } from '@/components/admin/ContactInfoInput';
+import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
 import { supportLocalsApi } from '@/lib/admin-api';
 
 export default function SupportLocalsPage() {
@@ -24,6 +25,9 @@ export default function SupportLocalsPage() {
         active: item.active !== false,
         display_order: item.display_order || 0,
         code_snippet: item.code_snippet || '',
+        booking_url: item.booking_url || '',
+        commission_percent: item.commission_percent ?? null,
+        commission_flat: item.commission_flat ?? null,
       })}
       getEmptyItem={() => ({
         name: '',
@@ -39,6 +43,9 @@ export default function SupportLocalsPage() {
         active: true,
         display_order: 0,
         code_snippet: '',
+        booking_url: '',
+        commission_percent: null,
+        commission_flat: null,
       })}
       renderCustomFields={(item, setItem) => (
         <>
@@ -55,6 +62,14 @@ export default function SupportLocalsPage() {
           <ContactInfoInput
             value={item.contact_info || {}}
             onChange={(value) => setItem({ ...item, contact_info: value })}
+          />
+          <VendorCommissionFields
+            bookingUrl={item.booking_url || ''}
+            commissionPercent={item.commission_percent ?? null}
+            commissionFlat={item.commission_flat ?? null}
+            apiKey={item.vendor_api_key}
+            vendorStats={item.vendor_stats}
+            onChange={(fields) => setItem({ ...item, ...fields })}
           />
         </>
       )}

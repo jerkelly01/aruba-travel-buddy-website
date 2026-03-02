@@ -3,6 +3,7 @@
 import { ContentManagementPage } from '@/components/admin/ContentManagementPage';
 import { ContactInfoInput } from '@/components/admin/ContactInfoInput';
 import { PricingInfoInput } from '@/components/admin/PricingInfoInput';
+import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
 import { transportationApi } from '@/lib/admin-api';
 
 export default function TransportationPage() {
@@ -25,6 +26,9 @@ export default function TransportationPage() {
         active: item.active !== false,
         display_order: item.display_order || 0,
         code_snippet: item.code_snippet || '',
+        booking_url: item.booking_url || '',
+        commission_percent: item.commission_percent ?? null,
+        commission_flat: item.commission_flat ?? null,
       })}
       getEmptyItem={() => ({
         name: '',
@@ -40,6 +44,9 @@ export default function TransportationPage() {
         active: true,
         display_order: 0,
         code_snippet: '',
+        booking_url: '',
+        commission_percent: null,
+        commission_flat: null,
       })}
       renderCustomFields={(item, setItem) => (
         <>
@@ -65,6 +72,14 @@ export default function TransportationPage() {
           <PricingInfoInput
             value={item.pricing_info || {}}
             onChange={(value) => setItem({ ...item, pricing_info: value })}
+          />
+          <VendorCommissionFields
+            bookingUrl={item.booking_url || ''}
+            commissionPercent={item.commission_percent ?? null}
+            commissionFlat={item.commission_flat ?? null}
+            apiKey={item.vendor_api_key}
+            vendorStats={item.vendor_stats}
+            onChange={(fields) => setItem({ ...item, ...fields })}
           />
         </>
       )}

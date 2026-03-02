@@ -57,6 +57,16 @@ function mapEndpointToSupabaseFunction(endpoint: string): string {
     return endpoint.replace('/admin/feedback', '/admin-feedback');
   }
 
+  // Vendor partner management
+  if (endpoint.startsWith('/admin/vendors')) {
+    return endpoint.replace('/admin/vendors', '/admin-vendors');
+  }
+
+  // Referral campaign management
+  if (endpoint.startsWith('/admin/referral')) {
+    return endpoint.replace('/admin/referral', '/admin-referral');
+  }
+
   // Default: return as-is (for endpoints not yet migrated)
   return endpoint;
 }
@@ -751,6 +761,87 @@ export const feedbackApi = {
   },
 };
 
+// Vendor Partners API (onboarding, API keys, commissions)
+export const vendorPartnersApi = {
+  getAll: async () => {
+    return apiRequest('/admin/vendors');
+  },
+
+  getById: async (id: string) => {
+    return apiRequest(`/admin/vendors/${id}`);
+  },
+
+  create: async (vendor: {
+    vendor_name: string;
+    vendor_type: string;
+    vendor_id: string;
+    commission_percent?: number;
+    commission_flat?: number;
+  }) => {
+    return apiRequest('/admin/vendors', {
+      method: 'POST',
+      body: JSON.stringify(vendor),
+    });
+  },
+
+  update: async (id: string, updates: Partial<{
+    vendor_name: string;
+    vendor_type: string;
+    vendor_id: string;
+    commission_percent: number;
+    commission_flat: number;
+    is_active: boolean;
+  }>) => {
+    return apiRequest(`/admin/vendors/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  deactivate: async (id: string) => {
+    return apiRequest(`/admin/vendors/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  getCommissions: async (timeRange?: '7d' | '30d' | '90d') => {
+    const query = timeRange ? `?timeRange=${timeRange}` : '';
+    return apiRequest(`/admin/vendors/commissions${query}`);
+  },
+
+  getVendorCommissions: async (id: string) => {
+    return apiRequest(`/admin/vendors/${id}/commissions`);
+  },
+
+  getClicks: async (params?: { limit?: number; vendor_type?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.vendor_type) queryParams.append('vendor_type', params.vendor_type);
+    const query = queryParams.toString();
+    return apiRequest(`/admin/vendors/clicks${query ? `?${query}` : ''}`);
+  },
+};
+
+// Referral Campaign API
+export const referralCampaignApi = {
+  getPrizes: async () => apiRequest('/admin/referral/prizes'),
+  getPrize: async (month: string) => apiRequest(`/admin/referral/prizes/${month}`),
+  getEntries: async (month?: string) => {
+    const query = month ? `?month=${month}` : '';
+    return apiRequest(`/admin/referral/entries${query}`);
+  },
+  savePrize: async (data: { month?: string; prize_name: string; prize_description?: string }) =>
+    apiRequest('/admin/referral/prizes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  drawWinner: async (month?: string) =>
+    apiRequest('/admin/referral/draw', {
+      method: 'POST',
+      body: JSON.stringify({ month }),
+    }),
+};
+
 export default {
   clientProfileApi,
   websiteAnalyticsApi,
@@ -764,5 +855,7 @@ export default {
   photoChallengesApi,
   mapLocationsApi,
   feedbackApi,
+  vendorPartnersApi,
+  referralCampaignApi,
 };
 

@@ -257,6 +257,26 @@ export default function AdminDashboard() {
             </p>
             <span className="text-[var(--brand-aruba)] font-semibold">Manage Feedback →</span>
           </Link>
+          <Link
+            href="/admin/referral"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Referral Campaign</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Manage monthly prizes and draw winners for the Refer &amp; Win campaign
+            </p>
+            <span className="text-[var(--brand-aruba)] font-semibold">Manage Campaign →</span>
+          </Link>
+          <Link
+            href="/admin/vendors"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-green-500"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Vendor Partners</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Onboard vendors, manage API keys, and track booking commissions
+            </p>
+            <span className="text-[var(--brand-aruba)] font-semibold">Manage Vendors →</span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

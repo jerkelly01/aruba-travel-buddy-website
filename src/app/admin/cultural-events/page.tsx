@@ -1,6 +1,7 @@
 'use client';
 
 import { ContentManagementPage } from '@/components/admin/ContentManagementPage';
+import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
 import { culturalEventsApi } from '@/lib/admin-api';
 
 export default function CulturalEventsPage() {
@@ -23,6 +24,9 @@ export default function CulturalEventsPage() {
         featured: item.is_featured || false,
         admin_managed: true,
         code_snippet: item.code_snippet || '',
+        booking_url: item.booking_url || '',
+        commission_percent: item.commission_percent ?? null,
+        commission_flat: item.commission_flat ?? null,
       })}
       getEmptyItem={() => ({
         title: '',
@@ -38,6 +42,9 @@ export default function CulturalEventsPage() {
         is_featured: false,
         admin_managed: true,
         code_snippet: '',
+        booking_url: '',
+        commission_percent: null,
+        commission_flat: null,
       })}
       renderCustomFields={(item, setItem) => (
         <>
@@ -89,6 +96,14 @@ export default function CulturalEventsPage() {
               />
             </div>
           </div>
+          <VendorCommissionFields
+            bookingUrl={item.booking_url || ''}
+            commissionPercent={item.commission_percent ?? null}
+            commissionFlat={item.commission_flat ?? null}
+            apiKey={item.vendor_api_key}
+            vendorStats={item.vendor_stats}
+            onChange={(fields) => setItem({ ...item, ...fields })}
+          />
         </>
       )}
     />

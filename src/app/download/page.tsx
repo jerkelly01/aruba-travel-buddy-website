@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Container from '@/components/Container';
 import SectionHeader from '@/components/SectionHeader';
 import Icon, { type IconName } from '@/components/Icon';
@@ -82,9 +84,37 @@ const benefits: {
   },
 ];
 
-export default function Download() {
+function DownloadContent() {
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get('ref') || '';
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-white">
+      {/* Referral Banner - shown when ?ref= is present */}
+      {refCode && (
+        <div className="bg-gradient-to-r from-amber-100 to-orange-100 border-b-2 border-amber-200 py-4 px-4">
+          <Container>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
+              <span className="text-2xl">🎁</span>
+              <div className="flex-1">
+                <p className="font-bold text-amber-900">
+                  You were referred by a friend!
+                </p>
+                <p className="text-sm text-amber-800 mb-3">
+                  Download the app below. When you sign up, your friend automatically gets an entry to win this month&apos;s prize!
+                </p>
+                <a
+                  href={`arubatravelbuddy://download?ref=${encodeURIComponent(refCode)}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Open in App
+                </a>
+              </div>
+            </div>
+          </Container>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-[var(--brand-aruba)]/5 via-white to-[var(--brand-amber)]/5">
         <Container>
@@ -355,5 +385,13 @@ export default function Download() {
         </Container>
       </section>
     </div>
+  );
+}
+
+export default function Download() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <DownloadContent />
+    </Suspense>
   );
 }

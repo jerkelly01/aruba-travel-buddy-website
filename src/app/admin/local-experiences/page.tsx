@@ -1,6 +1,7 @@
 'use client';
 
 import { ContentManagementPage } from '@/components/admin/ContentManagementPage';
+import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
 import { localExperiencesApi } from '@/lib/admin-api';
 
 export default function LocalExperiencesPage() {
@@ -25,6 +26,9 @@ export default function LocalExperiencesPage() {
         active: item.active !== false,
         display_order: item.display_order || 0,
         code_snippet: item.code_snippet || '',
+        booking_url: item.booking_url || '',
+        commission_percent: item.commission_percent ?? null,
+        commission_flat: item.commission_flat ?? null,
       })}
       getEmptyItem={() => ({
         title: '',
@@ -42,6 +46,9 @@ export default function LocalExperiencesPage() {
         active: true,
         display_order: 0,
         code_snippet: '',
+        booking_url: '',
+        commission_percent: null,
+        commission_flat: null,
       })}
       renderCustomFields={(item, setItem) => (
         <>
@@ -67,6 +74,14 @@ export default function LocalExperiencesPage() {
               />
             </div>
           </div>
+          <VendorCommissionFields
+            bookingUrl={item.booking_url || ''}
+            commissionPercent={item.commission_percent ?? null}
+            commissionFlat={item.commission_flat ?? null}
+            apiKey={item.vendor_api_key}
+            vendorStats={item.vendor_stats}
+            onChange={(fields) => setItem({ ...item, ...fields })}
+          />
         </>
       )}
     />
