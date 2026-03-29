@@ -17,7 +17,7 @@ const Navbar = () => {
   const [isTravelTipsMobileOpen, setIsTravelTipsMobileOpen] = useState(false);
   const [isTransportationMobileOpen, setIsTransportationMobileOpen] = useState(false);
   const pathname = usePathname();
-  
+
   const attractionsDropdownRef = useRef<HTMLDivElement>(null);
   const travelTipsDropdownRef = useRef<HTMLDivElement>(null);
   const transportationDropdownRef = useRef<HTMLDivElement>(null);
@@ -75,11 +75,10 @@ const Navbar = () => {
   }, [isAttractionsOpen, isTravelTipsOpen, isTransportationOpen]);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isHomePage && !scrolled
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isHomePage && !scrolled
         ? 'bg-transparent'
         : 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100'
-    }`}>
+      }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`flex justify-between items-center ${isHomePage && !scrolled ? 'h-24' : 'h-24'}`}>
           {/* Logo */}
@@ -100,24 +99,22 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-1">
             <Link
               href="/"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
                   ? pathname === '/'
                     ? 'text-white'
                     : 'text-white/90 hover:text-white'
                   : pathname === '/'
                     ? 'text-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
+                }`}
             >
               {pathname === '/' && (
                 <motion.div
                   layoutId="activeTabHome"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
+                  className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                      ? 'bg-white/20'
                       : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
+                    }`}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -126,22 +123,20 @@ const Navbar = () => {
 
             <Link
               href="/about"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
                   ? 'text-white/90 hover:text-white'
                   : pathname === '/about'
                     ? 'text-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
+                }`}
             >
               {pathname === '/about' && (
                 <motion.div
                   layoutId="activeTabAbout"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
+                  className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                      ? 'bg-white/20'
                       : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
+                    }`}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -150,22 +145,20 @@ const Navbar = () => {
 
             <Link
               href="/features"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                isHomePage && !scrolled
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
                   ? 'text-white/90 hover:text-white'
                   : pathname === '/features'
                     ? 'text-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-              }`}
+                }`}
             >
               {pathname === '/features' && (
                 <motion.div
                   layoutId="activeTabFeatures"
-                  className={`absolute inset-0 rounded-xl ${
-                    isHomePage && !scrolled 
-                      ? 'bg-white/20' 
+                  className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                      ? 'bg-white/20'
                       : 'bg-[rgba(0,188,212,0.1)]'
-                  }`}
+                    }`}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -177,24 +170,22 @@ const Navbar = () => {
               <button
                 onMouseEnter={() => setIsAttractionsOpen(true)}
                 onMouseLeave={() => setIsAttractionsOpen(false)}
-                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                  (() => {
+                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${(() => {
                     const isExplorePage = pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map';
                     if (isHomePage && !scrolled) {
                       return isExplorePage ? 'text-white' : 'text-white/90 hover:text-white';
                     }
                     return isExplorePage ? 'text-[var(--brand-aruba)]' : 'text-gray-600 hover:text-[var(--brand-aruba)]';
                   })()
-                }`}
+                  }`}
               >
                 {(pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map') && (
                   <motion.div
                     layoutId="activeTabExploreAruba"
-                    className={`absolute inset-0 rounded-xl ${
-                      isHomePage && !scrolled 
-                        ? 'bg-white/20' 
+                    className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                        ? 'bg-white/20'
                         : 'bg-[rgba(0,188,212,0.1)]'
-                    }`}
+                      }`}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -287,24 +278,22 @@ const Navbar = () => {
               <button
                 onMouseEnter={() => setIsAttractionsOpen(true)}
                 onMouseLeave={() => setIsAttractionsOpen(false)}
-                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                  isHomePage && !scrolled
+                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
                     ? attractionsSubLinks.some(link => pathname === link.href)
                       ? 'text-white'
                       : 'text-white/90 hover:text-white'
                     : attractionsSubLinks.some(link => pathname === link.href)
                       ? 'text-[var(--brand-aruba)]'
                       : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-                }`}
+                  }`}
               >
                 {attractionsSubLinks.some(link => pathname === link.href) && (
                   <motion.div
                     layoutId="activeTabAttractions"
-                    className={`absolute inset-0 rounded-xl ${
-                      isHomePage && !scrolled 
-                        ? 'bg-white/20' 
+                    className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                        ? 'bg-white/20'
                         : 'bg-[rgba(0,188,212,0.1)]'
-                    }`}
+                      }`}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -342,11 +331,10 @@ const Navbar = () => {
                             key={subLink.name}
                             href={subLink.href}
                             onMouseEnter={() => prefetchRouteData(subLink.href)}
-                            className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                              isActive
+                            className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
                                 ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                                 : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <span className="uppercase">{subLink.name}</span>
                           </Link>
@@ -363,24 +351,22 @@ const Navbar = () => {
               <button
                 onMouseEnter={() => setIsTransportationOpen(true)}
                 onMouseLeave={() => setIsTransportationOpen(false)}
-                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                  isHomePage && !scrolled
+                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
                     ? transportationSubLinks.some(link => pathname === link.href)
                       ? 'text-white'
                       : 'text-white/90 hover:text-white'
                     : transportationSubLinks.some(link => pathname === link.href)
                       ? 'text-[var(--brand-aruba)]'
                       : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-                }`}
+                  }`}
               >
                 {transportationSubLinks.some(link => pathname === link.href) && (
                   <motion.div
                     layoutId="activeTabTransportation"
-                    className={`absolute inset-0 rounded-xl ${
-                      isHomePage && !scrolled 
-                        ? 'bg-white/20' 
+                    className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                        ? 'bg-white/20'
                         : 'bg-[rgba(0,188,212,0.1)]'
-                    }`}
+                      }`}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -418,11 +404,10 @@ const Navbar = () => {
                             key={subLink.name}
                             href={subLink.href}
                             onMouseEnter={() => prefetchRouteData(subLink.href)}
-                            className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                              isActive
+                            className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
                                 ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                                 : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <span className="uppercase">{subLink.name}</span>
                           </Link>
@@ -439,8 +424,7 @@ const Navbar = () => {
               <button
                 onMouseEnter={() => setIsTravelTipsOpen(true)}
                 onMouseLeave={() => setIsTravelTipsOpen(false)}
-                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${
-                  isHomePage && !scrolled
+                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
                     ? travelTipsSubLinks.some(link => pathname === link.href)
                       ? 'text-white'
                       : 'text-white/90 hover:text-white'
@@ -448,18 +432,17 @@ const Navbar = () => {
                       ? 'text-[var(--brand-aruba)]'
                       : 'text-gray-600 hover:text-[var(--brand-aruba)]'
                   }`}
-                >
+              >
                 {travelTipsSubLinks.some(link => pathname === link.href) && (
-                    <motion.div
+                  <motion.div
                     layoutId="activeTabTravelTips"
-                    className={`absolute inset-0 rounded-xl ${
-                      isHomePage && !scrolled 
-                        ? 'bg-white/20' 
+                    className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
+                        ? 'bg-white/20'
                         : 'bg-[rgba(0,188,212,0.1)]'
-                    }`}
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
+                      }`}
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
                 <span className="relative z-10 flex items-center gap-1 uppercase">
                   Travel Tips
                   <svg
@@ -493,16 +476,15 @@ const Navbar = () => {
                           <Link
                             key={subLink.name}
                             href={subLink.href}
-                            className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
-                              isActive
+                            className={`block px-4 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
                                 ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                                 : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <span className="uppercase">{subLink.name}</span>
-                </Link>
-              );
-            })}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}
@@ -513,12 +495,11 @@ const Navbar = () => {
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              href="/download"
-              className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                isHomePage && !scrolled
+              href="https://onelink.to/75vkw3"
+              className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${isHomePage && !scrolled
                   ? 'bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/30'
                   : 'bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-white hover:from-[var(--brand-aruba-dark)] hover:to-[var(--brand-aruba)] shadow-[rgba(0,188,212,0.3)]'
-              }`}
+                }`}
             >
               Download FREE
             </Link>
@@ -527,11 +508,10 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              isHomePage && !scrolled
+            className={`md:hidden p-2 rounded-lg transition-colors ${isHomePage && !scrolled
                 ? 'text-white hover:bg-white/20'
                 : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-100'
-            }`}
+              }`}
             aria-label="Toggle menu"
           >
             <svg
@@ -567,33 +547,30 @@ const Navbar = () => {
               <Link
                 href="/"
                 onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/'
+                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${pathname === '/'
                     ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Home
               </Link>
               <Link
                 href="/about"
                 onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/about'
+                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${pathname === '/about'
                     ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 About
               </Link>
               <Link
                 href="/features"
                 onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                  pathname === '/features'
+                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${pathname === '/features'
                     ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                     : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Features
               </Link>
@@ -601,11 +578,10 @@ const Navbar = () => {
               <div>
                 <button
                   onClick={() => setIsAttractionsMobileOpen(!isAttractionsMobileOpen)}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center justify-between ${
-                    pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center justify-between ${pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
                       ? 'bg-[var(--brand-aruba)]/10 text-[var(--brand-aruba)] font-semibold'
                       : 'text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <span>Explore Aruba</span>
                   <motion.svg
@@ -619,7 +595,7 @@ const Navbar = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </motion.svg>
                 </button>
-                
+
                 <AnimatePresence>
                   {isAttractionsMobileOpen && (
                     <motion.div
@@ -706,11 +682,10 @@ const Navbar = () => {
               <div>
                 <button
                   onClick={() => setIsAttractionsMobileOpen(!isAttractionsMobileOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                    attractionsSubLinks.some(link => pathname === link.href)
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${attractionsSubLinks.some(link => pathname === link.href)
                       ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                       : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <span>Attractions</span>
                   <svg
@@ -737,19 +712,18 @@ const Navbar = () => {
                       <div className="pl-4 pt-2 space-y-1">
                         {attractionsSubLinks.map((subLink) => {
                           const isActive = pathname === subLink.href;
-                return (
-                  <Link
+                          return (
+                            <Link
                               key={subLink.name}
                               href={subLink.href}
                               onClick={() => {
                                 setIsOpen(false);
                                 setIsAttractionsMobileOpen(false);
                               }}
-                              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 uppercase ${
-                                isActive
+                              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 uppercase ${isActive
                                   ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)]'
                                   : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                              }`}
+                                }`}
                             >
                               {subLink.name}
                             </Link>
@@ -765,11 +739,10 @@ const Navbar = () => {
               <div>
                 <button
                   onClick={() => setIsTransportationMobileOpen(!isTransportationMobileOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                    transportationSubLinks.some(link => pathname === link.href)
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${transportationSubLinks.some(link => pathname === link.href)
                       ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
                       : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <span>Transportation</span>
                   <svg
@@ -804,11 +777,10 @@ const Navbar = () => {
                                 setIsOpen(false);
                                 setIsTransportationMobileOpen(false);
                               }}
-                              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 uppercase ${
-                      isActive
+                              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 uppercase ${isActive
                                   ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)]'
                                   : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                              }`}
+                                }`}
                             >
                               {subLink.name}
                             </Link>
@@ -824,10 +796,9 @@ const Navbar = () => {
               <div>
                 <button
                   onClick={() => setIsTravelTipsMobileOpen(!isTravelTipsMobileOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
-                    travelTipsSubLinks.some(link => pathname === link.href)
-                        ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
-                        : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${travelTipsSubLinks.some(link => pathname === link.href)
+                      ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
+                      : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
                     }`}
                 >
                   <span>Travel Tips</span>
@@ -863,16 +834,15 @@ const Navbar = () => {
                                 setIsOpen(false);
                                 setIsTravelTipsMobileOpen(false);
                               }}
-                              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 uppercase ${
-                                isActive
+                              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 uppercase ${isActive
                                   ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)]'
                                   : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                              }`}
+                                }`}
                             >
                               {subLink.name}
-                  </Link>
-                );
-              })}
+                            </Link>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}
@@ -881,7 +851,7 @@ const Navbar = () => {
 
               <div className="pt-4 mt-4 border-t border-gray-100">
                 <Link
-                  href="/download"
+                  href="https://onelink.to/75vkw3"
                   onClick={() => setIsOpen(false)}
                   className="block w-full px-4 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-[var(--brand-aruba)] to-[var(--brand-aruba-light)] text-center shadow-lg hover:shadow-xl transition-all duration-300"
                 >

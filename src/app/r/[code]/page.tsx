@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const APP_STORE_URL = 'https://apps.apple.com/app/id6756806091';
+const APP_STORE_URL = 'https://apps.apple.com/us/app/aruba-travel-buddy/id6756806091';
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.arubatravelbuddy.app';
 
 function isIOS(ua: string): boolean {

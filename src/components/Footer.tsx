@@ -9,7 +9,7 @@ const Footer = () => {
     <footer className="relative bg-gradient-to-b from-white via-gray-50 to-white border-t border-gray-100">
       {/* Decorative gradient overlay */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--brand-aruba)] via-[var(--brand-amber)] to-[var(--brand-aruba)] opacity-50" />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Brand Section */}
@@ -36,23 +36,23 @@ const Footer = () => {
               Your ultimate travel companion for discovering the best of Aruba. From hidden beaches to local cuisine, we&apos;ve got you covered.
             </p>
             <div className="flex gap-3">
-              <a 
-                href="/contact-us" 
-                aria-label="Contact us via live chat" 
+              <a
+                href="/contact-us"
+                aria-label="Contact us via live chat"
                 className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-[var(--brand-aruba)] hover:text-white text-gray-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
                 <Icon name="chat" className="w-5 h-5" />
               </a>
-              <a 
-                href="/contact-us" 
-                aria-label="Contact us via email" 
+              <a
+                href="/contact-us"
+                aria-label="Contact us via email"
                 className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-[var(--brand-aruba-light)] hover:text-white text-gray-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
                 <Icon name="envelope" className="w-5 h-5" />
               </a>
-              <a 
-                href="/contact-us" 
-                aria-label="Contact us via phone" 
+              <a
+                href="/contact-us"
+                aria-label="Contact us via phone"
                 className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-[var(--brand-aruba-dark)] hover:text-white text-gray-600 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
               >
                 <Icon name="phone" className="w-5 h-5" />
@@ -76,11 +76,11 @@ const Footer = () => {
                 { name: 'Car Rentals', href: '/car-rentals' },
                 { name: 'Bus Tours', href: '/bus-tours' },
                 { name: 'Private Transportation', href: '/private-transportation' },
-                { name: 'Download FREE', href: '/download' },
+                { name: 'Download FREE', href: 'https://onelink.to/75vkw3' },
               ].map((link) => (
-                <Link 
+                <Link
                   key={link.name}
-                  href={link.href} 
+                  href={link.href}
                   className="text-gray-600 hover:text-[var(--brand-aruba)] transition-all duration-200 hover:translate-x-1 inline-block text-sm group"
                 >
                   <span className="flex items-center gap-2">
@@ -102,8 +102,8 @@ const Footer = () => {
                 { name: 'Terms of Service', href: '/terms-and-conditions' },
               ].map((link) => (
                 <li key={link.name}>
-                  <Link 
-                    href={link.href} 
+                  <Link
+                    href={link.href}
                     className="text-gray-600 hover:text-[var(--brand-peach)] transition-all duration-200 hover:translate-x-1 inline-block text-sm group"
                   >
                     <span className="flex items-center gap-2">

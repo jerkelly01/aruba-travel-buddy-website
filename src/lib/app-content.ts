@@ -27,7 +27,7 @@ export type AppContent = {
 export const defaultAppContent: AppContent = {
   title: "Aruba Travel Buddy",
   description: "Your comprehensive travel companion for discovering authentic Aruba experiences, from hidden beaches to local culture and everything in between.",
-  downloadUrl: "https://apps.apple.com",
+  downloadUrl: "https://onelink.to/75vkw3",
   features: [
     {
       id: "ai-planner",
