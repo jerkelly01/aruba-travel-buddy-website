@@ -54,7 +54,7 @@ export default function Home() {
         } else if (data.data && Array.isArray(data.data)) {
           toursData = normalizeTours(data.data);
         }
-        
+
         featuredItems = [
           ...featuredItems,
           ...toursData.map((tour: any) => ({
@@ -80,7 +80,7 @@ export default function Home() {
         } else if (data.data && Array.isArray(data.data)) {
           experiencesData = normalizeLocalExperiences(data.data);
         }
-        
+
         featuredItems = [
           ...featuredItems,
           ...experiencesData.map((exp: any) => ({
@@ -193,32 +193,37 @@ export default function Home() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 shadow-lg"
             >
-            <Icon name="sparkles" className="w-6 h-6 text-[var(--brand-sun)] animate-pulse" />
+              <Icon name="sparkles" className="w-6 h-6 text-[var(--brand-sun)] animate-pulse" />
               <span className="text-sm text-white/90 font-medium">Your Personal Aruba Guide</span>
             </motion.div>
-            
-            <motion.h1 
+
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-4 font-display drop-shadow-2xl uppercase"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-6 font-display drop-shadow-2xl"
             >
-              <span className="block">Discover</span>
-              <span className="block bg-gradient-to-r from-[var(--brand-aruba-light)] to-[var(--brand-sun)] bg-clip-text text-transparent drop-shadow-lg">
-                Aruba
-              </span>
-              <span className="block">Like Never Before</span>
+              <span className="block">Explore <span className="bg-gradient-to-r from-[var(--brand-aruba-light)] to-[var(--brand-sun)] bg-clip-text text-transparent drop-shadow-lg">Aruba</span></span>
+              <span className="block">Without the Stress 🇦🇼</span>
             </motion.h1>
-            
-            <motion.p
+
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="text-xl sm:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl"
+              className="mb-8 leading-relaxed max-w-3xl"
             >
-              Your comprehensive travel companion featuring Itinerary Generator trip planning, AR view, local experiences, and authentic cultural immersion in One Happy Island.
-            </motion.p>
-            
+              <p className="text-xl sm:text-2xl text-white font-bold mb-4">
+                Find what to do, where to go, and how to get there!
+              </p>
+              <p className="text-lg sm:text-xl text-white/90 mb-4">
+                Discover & Book restaurants, tours, cultural spots, and hidden gems, get instant directions, and plan your perfect trip with smart itineraries no more searching, or missing out.
+              </p>
+              <p className="text-lg sm:text-xl text-white font-medium">
+                📲 Explore Aruba like a local, all in one place.
+              </p>
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -234,9 +239,9 @@ export default function Home() {
               >
                 Download Free App
               </Button>
-              <Button 
-                href="/features" 
-                variant="outline" 
+              <Button
+                href="/features"
+                variant="outline"
                 size="lg"
                 className="border-2 border-white/50 text-white bg-white/10 backdrop-blur-md hover:bg-white/20 hover:border-white/70"
               >
@@ -292,8 +297,8 @@ export default function Home() {
                     {isPaused ? '▶' : '⏸'}
                   </button>
                 </div>
-                <Link 
-                  href="/experiences" 
+                <Link
+                  href="/experiences"
                   className="text-[var(--brand-aruba)] hover:text-[var(--brand-aruba-dark)] font-semibold transition-colors duration-200 flex items-center gap-2 group"
                 >
                   View all
@@ -323,11 +328,11 @@ export default function Home() {
                       <div className="card overflow-hidden h-full group">
                         <div className="relative h-64 overflow-hidden">
                           {exp.images && exp.images.length > 0 ? (
-                            <Image 
-                              src={exp.images[0]} 
-                              alt={exp.title} 
-                              fill 
-                              className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                            <Image
+                              src={exp.images[0]}
+                              alt={exp.title}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
@@ -358,8 +363,8 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-gray-900 mb-3 font-display">Travel Tips</h2>
               <p className="text-gray-600 text-lg">Essential insights for your Aruba adventure</p>
             </div>
-            <Link 
-              href="/blogs" 
+            <Link
+              href="/blogs"
               className="text-[var(--brand-aruba)] hover:text-[var(--brand-aruba-dark)] font-semibold transition-colors duration-200 flex items-center gap-2 group mt-4 sm:mt-0"
             >
               View all
@@ -398,21 +403,21 @@ export default function Home() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Link href={
-                  blog.title === "10 Essential Cultural Tips for Visiting Aruba" 
-                    ? "/blogs/10-essential-cultural-tips" 
+                  blog.title === "10 Essential Cultural Tips for Visiting Aruba"
+                    ? "/blogs/10-essential-cultural-tips"
                     : blog.title === "Complete Guide to Aruba's ED Card Requirements"
-                    ? "/blogs/complete-guide-aruba-ed-card"
-                    : blog.title === "Best Hidden Gems: Local Experiences You Can't Miss"
-                    ? "/blogs/best-hidden-gems-local-experiences"
-                    : "/blogs"
+                      ? "/blogs/complete-guide-aruba-ed-card"
+                      : blog.title === "Best Hidden Gems: Local Experiences You Can't Miss"
+                        ? "/blogs/best-hidden-gems-local-experiences"
+                        : "/blogs"
                 } className="block h-full">
                   <div className="card overflow-hidden h-full group">
                     <div className="relative h-48 overflow-hidden">
-                      <Image 
-                        src={blog.image} 
-                        alt={blog.title} 
-                        fill 
-                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                      <Image
+                        src={blog.image}
+                        alt={blog.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute top-4 left-4">
@@ -571,39 +576,39 @@ export default function Home() {
                     className="object-cover group-hover:scale-110 transition-transform duration-700"
                     unoptimized
                   />
-                  
+
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30 group-hover:from-black/80 group-hover:via-black/50 transition-all duration-500" />
-                  
+
                   {/* Content */}
                   <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
                     {/* Emoji Badge */}
                     <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-4xl mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                       {category.emoji}
                     </div>
-                    
+
                     {/* Count Badge */}
                     <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white mb-4 w-fit group-hover:bg-[var(--brand-aruba)] transition-colors duration-300">
                       <span className="text-sm font-bold">{category.count}</span>
                     </div>
-                    
+
                     {/* Title */}
                     <h3 className="text-3xl font-bold text-white mb-3 font-display group-hover:text-[var(--brand-sun)] transition-colors duration-300">
                       {category.name}
                     </h3>
-                    
+
                     {/* Description */}
                     <p className="text-white/90 mb-6 leading-relaxed text-base">
                       {category.description}
                     </p>
-                    
+
                     {/* CTA */}
                     <div className="flex items-center gap-2 text-white font-semibold group-hover:gap-3 transition-all duration-300">
                       <span className="text-sm uppercase tracking-wide">Explore</span>
                       <Icon name="arrow-right" className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-300" />
                     </div>
                   </div>
-                  
+
                   {/* Shine Effect on Hover */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </Link>
@@ -698,8 +703,8 @@ export default function Home() {
             <p className="text-xl text-white/90 mb-10 leading-relaxed">
               Join thousands of travelers using Itinerary Generator planning, AR view, and local insights to discover the real Aruba. Download now and start your adventure!
             </p>
-            <Button 
-              href="/download" 
+            <Button
+              href="/download"
               size="lg"
               className="bg-white text-[var(--brand-aruba)] hover:bg-gray-50 shadow-2xl hover:shadow-3xl"
               icon="device-phone-mobile"

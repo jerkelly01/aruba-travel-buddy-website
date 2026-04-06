@@ -44,7 +44,7 @@ export default function AdminDashboard() {
     try {
       // Fetch analytics overview
       const analyticsResponse = await websiteAnalyticsApi.getOverview('30d');
-      
+
       // Fetch counts for each content type
       const [toursRes, eventsRes, experiencesRes, restaurantsRes, locationsRes, clientsRes, feedbackStatsRes] = await Promise.all([
         toursApi.getAll({ limit: 1 }),
@@ -166,6 +166,16 @@ export default function AdminDashboard() {
               Track website performance, visitors, and conversions
             </p>
             <span className="text-[var(--brand-aruba)] font-semibold">View Analytics →</span>
+          </Link>
+          <Link
+            href="/admin/app-analytics"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-indigo-500"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-2">App Analytics</h3>
+            <p className="text-gray-600 text-sm mb-4">
+              Track how users navigate and interact with the React Native app
+            </p>
+            <span className="text-[var(--brand-aruba)] font-semibold">View App Analytics →</span>
           </Link>
           <Link
             href="/admin/tours"
