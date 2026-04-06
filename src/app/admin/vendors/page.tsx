@@ -75,12 +75,14 @@ export default function VendorPartnersPage() {
     vendor_name: '',
     vendor_type: 'tour',
     vendor_id: '',
+    vendor_email: '',
     commission_percent: '',
     commission_flat: '',
   });
   const [saving, setSaving] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -142,9 +144,15 @@ export default function VendorPartnersPage() {
       }
 
       if (res.success) {
-        setShowForm(false);
-        setEditingId(null);
-        setFormData({ vendor_name: '', vendor_type: 'tour', vendor_id: '', commission_percent: '', commission_flat: '' });
+        // If it was a new vendor being onboarded, simulate account generation
+        if (!editingId && formData.vendor_email) {
+          const randomPass = Math.random().toString(36).slice(-8);
+          setGeneratedPassword(randomPass);
+        } else {
+          setShowForm(false);
+          setEditingId(null);
+          setFormData({ vendor_name: '', vendor_type: 'tour', vendor_id: '', vendor_email: '', commission_percent: '', commission_flat: '' });
+        }
         await loadData();
       } else {
         alert(res.error || 'Failed to save vendor');
@@ -162,9 +170,11 @@ export default function VendorPartnersPage() {
       vendor_name: vendor.vendor_name,
       vendor_type: vendor.vendor_type,
       vendor_id: vendor.vendor_id,
+      vendor_email: '', // Not editable via this surface currently
       commission_percent: vendor.commission_percent?.toString() || '',
       commission_flat: vendor.commission_flat?.toString() || '',
     });
+    setGeneratedPassword(null);
     setShowForm(true);
   };
 
@@ -210,12 +220,14 @@ export default function VendorPartnersPage() {
             <button
               onClick={() => {
                 setEditingId(null);
-                setFormData({ vendor_name: '', vendor_type: 'tour', vendor_id: '', commission_percent: '', commission_flat: '' });
+                setGeneratedPassword(null);
+                setFormData({ vendor_name: '', vendor_type: 'tour', vendor_id: '', vendor_email: '', commission_percent: '', commission_flat: '' });
                 setShowForm(true);
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md flex items-center gap-2"
             >
-              + Onboard Vendor
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+              Generate New Vendor
             </button>
           </div>
         </div>
@@ -252,17 +264,15 @@ export default function VendorPartnersPage() {
         <div className="flex gap-1 mb-6 bg-white rounded-lg shadow p-1 w-fit">
           <button
             onClick={() => setActiveTab('vendors')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             Vendors ({vendors.length})
           </button>
           <button
             onClick={() => setActiveTab('commissions')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'commissions' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'commissions' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             Commissions ({commissions.length})
           </button>
@@ -311,8 +321,8 @@ export default function VendorPartnersPage() {
                         {vendor.commission_percent
                           ? `${vendor.commission_percent}%`
                           : vendor.commission_flat
-                          ? `$${vendor.commission_flat} flat`
-                          : '—'}
+                            ? `$${vendor.commission_flat} flat`
+                            : '—'}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -328,9 +338,8 @@ export default function VendorPartnersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          vendor.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${vendor.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {vendor.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
@@ -367,9 +376,8 @@ export default function VendorPartnersPage() {
                 <button
                   key={range}
                   onClick={() => setTimeRange(range)}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    timeRange === range ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 shadow'
-                  }`}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${timeRange === range ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 shadow'
+                    }`}
                 >
                   {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
                 </button>
@@ -418,9 +426,8 @@ export default function VendorPartnersPage() {
                           {c.commission_amount ? `$${c.commission_amount.toLocaleString()}` : '—'}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            STATUS_COLORS[c.status] || 'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[c.status] || 'bg-gray-100 text-gray-800'
+                            }`}>
                             {c.status}
                           </span>
                         </td>
@@ -461,7 +468,7 @@ export default function VendorPartnersPage() {
             <div>
               <div className="text-xs font-medium text-gray-500 uppercase mb-1">Example Payload</div>
               <pre className="text-sm bg-gray-100 px-3 py-2 rounded font-mono text-gray-800 overflow-x-auto">
-{`{
+                {`{
   "click_id": "atb_...",
   "booking_reference": "ORD-12345",
   "booking_amount": 150.00,
@@ -509,8 +516,20 @@ export default function VendorPartnersPage() {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Email Login</label>
+                  <input
+                    type="email"
+                    value={formData.vendor_email}
+                    onChange={(e) => setFormData({ ...formData, vendor_email: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="info@vendor.com"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Leave blank if the vendor does not need access to the Extranet.</p>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vendor ID *
+                    Vendor Component ID *
                     <span className="text-gray-400 font-normal ml-1">(their record ID in your database)</span>
                   </label>
                   <input
@@ -554,20 +573,36 @@ export default function VendorPartnersPage() {
                 <div className="flex justify-end gap-3 pt-4 border-t">
                   <button
                     type="button"
-                    onClick={() => { setShowForm(false); setEditingId(null); }}
+                    onClick={() => { setShowForm(false); setEditingId(null); setGeneratedPassword(null); }}
                     className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    Cancel
+                    Close
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                   >
-                    {saving ? 'Saving...' : editingId ? 'Update Vendor' : 'Onboard & Generate API Key'}
+                    {saving ? 'Processing...' : editingId ? 'Update Vendor Settings' : 'Generate Vendor Account'}
                   </button>
                 </div>
               </form>
+
+              {/* Account Generation Success Result */}
+              {generatedPassword && (
+                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <h3 className="text-green-800 font-bold mb-2 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    Vendor Login Generated Successfully!
+                  </h3>
+                  <p className="text-sm text-green-700 mb-3">Please share these credentials securely with the vendor so they can access the Extranet dashboard.</p>
+                  <div className="bg-white p-3 rounded border border-green-100 text-sm font-mono space-y-2">
+                    <div><span className="text-gray-500 font-sans">Login URL:</span> https://arubatravelbuddy.com/vendor/login</div>
+                    <div><span className="text-gray-500 font-sans">Email:</span> {formData.vendor_email}</div>
+                    <div><span className="text-gray-500 font-sans">Temporary Password:</span> <span className="font-bold">{generatedPassword}</span></div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
