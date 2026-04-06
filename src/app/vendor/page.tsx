@@ -30,7 +30,7 @@ export default function VendorDashboard() {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push('/login');
+            router.push('/vendor/login');
         }
         // TODO: Fetch real vendor profile to get their entity_id
         // TODO: Fetch bookings from Supabase Edge Function
@@ -39,7 +39,7 @@ export default function VendorDashboard() {
 
     const handleLogout = () => {
         logout();
-        router.push('/');
+        router.push('/vendor/login');
     };
 
     const toggleBlockDate = (date: string) => {
@@ -131,8 +131,8 @@ export default function VendorDashboard() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-red-100 text-red-800'
+                                                    booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'
                                                     }`}>
                                                     {booking.status}
                                                 </span>
@@ -179,8 +179,8 @@ export default function VendorDashboard() {
                                             key={day}
                                             onClick={() => toggleBlockDate(dateStr)}
                                             className={`h-24 p-2 border rounded-lg flex flex-col justify-between transition-all ${isBlocked
-                                                    ? 'bg-red-50 border-red-200 hover:bg-red-100'
-                                                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
+                                                ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                                                : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
                                                 }`}
                                         >
                                             <span className={`font-semibold ${isBlocked ? 'text-red-700' : 'text-gray-700'}`}>{day}</span>
