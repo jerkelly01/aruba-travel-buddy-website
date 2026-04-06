@@ -287,10 +287,19 @@ export default function AdminDashboard() {
             </p>
             <span className="text-[var(--brand-aruba)] font-semibold">Manage Vendors →</span>
           </Link>
+          <Link
+            href="/admin/vendor-dashboard"
+            className="bg-gradient-to-br from-[#1a365d] to-[#2a4a7f] rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-indigo-400"
+          >
+            <h3 className="text-xl font-bold text-white mb-2">Vendor Extranet</h3>
+            <p className="text-blue-100 text-sm mb-4">
+              Access the web portal where local businesses manage their calendars and bookings.
+            </p>
+            <span className="text-white font-semibold">View Dashboard →</span>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          {/* Stats Cards - Real Data */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">          {/* Stats Cards - Real Data */}
           {loading ? (
             <>
               <div className="bg-white rounded-lg shadow p-6">
