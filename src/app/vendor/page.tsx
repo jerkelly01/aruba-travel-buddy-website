@@ -20,6 +20,12 @@ export default function VendorDashboard() {
 
     const [activeTab, setActiveTab] = useState<'bookings' | 'calendar'>('bookings');
 
+    // Integration Modals State
+    const [showIntegrationModal, setShowIntegrationModal] = useState<'fareharbor' | 'zapier' | null>(null);
+    const [integrationForm, setIntegrationForm] = useState({ shortname: '', apiKey: '', webhookUrl: '' });
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [icalKey, setIcalKey] = useState<string | null>(null);
+
     // Scaffolded state
     const [bookings, setBookings] = useState<Booking[]>([
         { id: '1', customer_name: 'John Doe', date: '2026-04-10', time: '19:00', party_size: 2, status: 'confirmed' },
@@ -50,6 +56,22 @@ export default function VendorDashboard() {
             setBlockedDates([...blockedDates, date]);
             // TODO: INSERT into vendor_availability
         }
+    };
+
+    const handleGenerateIcal = () => {
+        setIcalKey(`https://arubatravelbuddy.com/api/sync/v1/calendar_${Math.random().toString(36).slice(-10)}.ics`);
+    };
+
+    const handleConnectIntegration = (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSyncing(true);
+        // Simulate API call to save to vendor_integrations
+        setTimeout(() => {
+            setIsSyncing(false);
+            setShowIntegrationModal(null);
+            alert(`Successfully connected to ${showIntegrationModal === 'fareharbor' ? 'FareHarbor' : 'Zapier'}! Your calendar will now sync automatically.`);
+            setIntegrationForm({ shortname: '', apiKey: '', webhookUrl: '' });
+        }, 1500);
     };
 
     if (isLoading) {
@@ -200,27 +222,132 @@ export default function VendorDashboard() {
                             <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl shadow-md p-6 text-white">
                                 <h3 className="font-bold text-lg mb-2">Sync Your Calendar</h3>
                                 <p className="text-blue-100 text-sm mb-4">Want to see these bookings directly on your iPhone or Google Calendar?</p>
-                                <button className="w-full bg-white text-blue-700 font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-50 transition-colors text-sm">
-                                    Get iCal Link
-                                </button>
+                                {icalKey ? (
+                                    <div className="bg-white/10 p-3 rounded text-sm break-all font-mono mb-2">
+                                        {icalKey}
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={handleGenerateIcal}
+                                        className="w-full bg-white text-blue-700 font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-50 transition-colors text-sm"
+                                    >
+                                        Get iCal Link
+                                    </button>
+                                )}
+                                {icalKey && <p className="text-xs text-blue-200 mt-2">Paste this URL into the "Subscribe to Calendar" setting in Google Calendar or Apple iOS.</p>}
                             </div>
 
                             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                                 <h3 className="font-bold text-gray-800 mb-2">Integration Types</h3>
                                 <p className="text-sm text-gray-600 mb-4">Do you use FareHarbor, OpenTable, or another booking software?</p>
-                                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 mb-2">
+                                <div
+                                    onClick={() => setShowIntegrationModal('fareharbor')}
+                                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 mb-2 transition-colors"
+                                >
                                     <span className="font-medium text-gray-700 text-sm">FareHarbor Integration</span>
-                                    <span className="text-blue-600 text-sm">Connect →</span>
+                                    <span className="text-blue-600 text-sm font-semibold py-1 px-2 bg-blue-50 rounded">Connect →</span>
                                 </div>
-                                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <div
+                                    onClick={() => setShowIntegrationModal('zapier')}
+                                    className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                >
                                     <span className="font-medium text-gray-700 text-sm">Zapier Webhooks</span>
-                                    <span className="text-blue-600 text-sm">Connect →</span>
+                                    <span className="text-blue-600 text-sm font-semibold py-1 px-2 bg-blue-50 rounded">Connect →</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
             </div>
+
+            {/* Integration Modals */}
+            {showIntegrationModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                            <h2 className="text-lg font-bold text-gray-900">
+                                {showIntegrationModal === 'fareharbor' ? 'Connect FareHarbor' : 'Connect Zapier Webhooks'}
+                            </h2>
+                            <button
+                                onClick={() => setShowIntegrationModal(null)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleConnectIntegration} className="p-6">
+                            {showIntegrationModal === 'fareharbor' ? (
+                                <>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        Enter your FareHarbor Shortname and App/User Key to allow Aruba Travel Buddy to automatically check your live inventory and push bookings directly to your FareHarbor manifests.
+                                    </p>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Company Shortname</label>
+                                            <input
+                                                required
+                                                type="text"
+                                                placeholder="e.g. arubabeachtours"
+                                                value={integrationForm.shortname}
+                                                onChange={(e) => setIntegrationForm({ ...integrationForm, shortname: e.target.value })}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">API Header Value (User / App Key)</label>
+                                            <input
+                                                required
+                                                type="password"
+                                                placeholder="••••••••••••••"
+                                                value={integrationForm.apiKey}
+                                                onChange={(e) => setIntegrationForm({ ...integrationForm, apiKey: e.target.value })}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        Input a Zapier Webhook URL target. We will send a POST payload regarding the customer whenever a booking is created or cancelled.
+                                    </p>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Target Webhook URL</label>
+                                            <input
+                                                required
+                                                type="url"
+                                                placeholder="https://hooks.zapier.com/hooks/catch/..."
+                                                value={integrationForm.webhookUrl}
+                                                onChange={(e) => setIntegrationForm({ ...integrationForm, webhookUrl: e.target.value })}
+                                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            <div className="mt-6 flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowIntegrationModal(null)}
+                                    className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSyncing}
+                                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium text-sm"
+                                >
+                                    {isSyncing ? 'Authenticating...' : 'Connect Automatically'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
