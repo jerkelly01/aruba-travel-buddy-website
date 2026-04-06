@@ -288,7 +288,7 @@ export default function AdminDashboard() {
             <span className="text-[var(--brand-aruba)] font-semibold">Manage Vendors →</span>
           </Link>
           <Link
-            href="/admin/vendor-dashboard"
+            href="/vendor"
             className="bg-gradient-to-br from-[#1a365d] to-[#2a4a7f] rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-indigo-400"
           >
             <h3 className="text-xl font-bold text-white mb-2">Vendor Extranet</h3>
