@@ -55,11 +55,11 @@ export default function VendorLogin() {
                 {/* Content */}
                 <div className="relative z-10 px-12 py-10">
                     {/* Logo */}
-                    <div className="flex items-center gap-3 mb-10">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base shadow-lg" style={{ background: 'linear-gradient(135deg, #d4af37, #f0d060)', color: '#071529' }}>A</div>
+                    <div className="flex items-center gap-4 mb-10">
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #d4af37, #f0d060)', color: '#071529' }}>A</div>
                         <div>
-                            <div className="font-bold text-base leading-tight text-white">Aruba Travel Buddy</div>
-                            <div className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#d4af37' }}>for Business</div>
+                            <div className="font-extrabold text-xl leading-tight text-white">Aruba Travel Buddy</div>
+                            <div className="text-sm uppercase tracking-widest font-bold mt-0.5" style={{ color: '#d4af37' }}>for Business</div>
                         </div>
                     </div>
 
