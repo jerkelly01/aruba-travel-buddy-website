@@ -5,7 +5,11 @@ import { NextRequest, NextResponse } from 'next/server';
  * Avoids client-side CORS/ad-block issues and does not require the anon key in the browser bundle.
  */
 export async function POST(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+  const supabaseUrl = (
+    process.env.SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    ''
+  ).replace(/\/$/, '');
   const anonKey =
     process.env.SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||

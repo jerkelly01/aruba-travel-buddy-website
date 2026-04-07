@@ -1,11 +1,6 @@
 // Website Analytics Tracking
 // Tracks page views, user interactions, and conversions
 
-// Use Supabase Edge Functions if SUPABASE_URL is set, otherwise fall back to Express API
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-const USE_SUPABASE_EDGE_FUNCTIONS = !!SUPABASE_URL;
-
 class AnalyticsTracker {
   private sessionId: string;
   private currentPage: string = '';
@@ -91,15 +86,6 @@ class AnalyticsTracker {
   }) {
     try {
       if (typeof window !== 'undefined') {
-        const isProduction =
-          !window.location.hostname.includes('localhost') &&
-          !window.location.hostname.includes('127.0.0.1');
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        // Without Supabase, production cannot reach a localhost Express API
-        if (!USE_SUPABASE_EDGE_FUNCTIONS && isProduction && apiUrl.includes('localhost')) {
-          return;
-        }
-        // Re-resolve session id if module was evaluated before a browser session existed
         if (!this.sessionId) {
           this.sessionId = this.getOrCreateSessionId();
         }
@@ -112,10 +98,8 @@ class AnalyticsTracker {
       const pageInfo = this.getPageInfo();
       const deviceInfo = this.getDeviceInfo();
 
-      // Same-origin API route proxies to Supabase (avoids CORS / missing NEXT_PUBLIC_* in client bundle)
-      const trackingUrl = USE_SUPABASE_EDGE_FUNCTIONS
-        ? '/api/analytics/track'
-        : `${EXPRESS_API_URL}/admin/analytics/website/track`;
+      // Always same-origin: works even when NEXT_PUBLIC_SUPABASE_* was missing at client build time.
+      const trackingUrl = '/api/analytics/track';
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
