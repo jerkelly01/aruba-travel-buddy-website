@@ -56,18 +56,18 @@ export default function VendorLogin() {
                 <div className="relative z-10 px-12 py-10">
                     {/* Logo */}
                     <div className="flex items-center gap-3 mb-10">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shadow-lg" style={{ background: 'linear-gradient(135deg, #d4af37, #f0d060)', color: '#071529' }}>A</div>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base shadow-lg" style={{ background: 'linear-gradient(135deg, #d4af37, #f0d060)', color: '#071529' }}>A</div>
                         <div>
-                            <div className="font-bold text-sm leading-tight text-white">Aruba Travel Buddy</div>
+                            <div className="font-bold text-base leading-tight text-white">Aruba Travel Buddy</div>
                             <div className="text-xs uppercase tracking-widest font-semibold" style={{ color: '#d4af37' }}>for Business</div>
                         </div>
                     </div>
 
                     {/* Headline */}
-                    <h1 className="font-extrabold leading-tight mb-3" style={{ fontSize: '2.1rem', background: 'linear-gradient(to right, #ffffff, #a8d8f0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    <h1 className="font-extrabold leading-tight mb-4" style={{ fontSize: '2.6rem', background: 'linear-gradient(to right, #ffffff, #a8d8f0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                         Your business.<br />Our platform.
                     </h1>
-                    <p className="text-sm leading-relaxed mb-10" style={{ color: '#8bb8d4' }}>
+                    <p className="leading-relaxed mb-10" style={{ fontSize: '1rem', color: '#8bb8d4' }}>
                         Manage bookings, sync your calendar, and connect with thousands of tourists discovering Aruba every day.
                     </p>
 
@@ -79,10 +79,10 @@ export default function VendorLogin() {
                             { icon: '📲', label: 'iCal Sync for iPhone & Google' },
                         ].map(f => (
                             <div key={f.label} className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)' }}>
+                                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0" style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)' }}>
                                     {f.icon}
                                 </div>
-                                <span className="text-sm font-medium" style={{ color: '#c5dff0' }}>{f.label}</span>
+                                <span className="font-medium" style={{ fontSize: '0.95rem', color: '#c5dff0' }}>{f.label}</span>
                             </div>
                         ))}
                     </div>
@@ -110,22 +110,22 @@ export default function VendorLogin() {
                     </div>
 
                     {/* Card */}
-                    <div className="bg-white rounded-2xl p-7 shadow-2xl" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.06)' }}>
+                    <div className="bg-white rounded-2xl p-8 shadow-2xl" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.06)' }}>
                         <div className="mb-6">
-                            <h2 className="font-extrabold text-gray-900" style={{ fontSize: '1.35rem' }}>Welcome back</h2>
-                            <p className="text-xs mt-0.5" style={{ color: '#7a8fa6' }}>Sign in to your Vendor Portal</p>
+                            <h2 className="font-extrabold text-gray-900" style={{ fontSize: '1.6rem' }}>Welcome back</h2>
+                            <p className="mt-1" style={{ fontSize: '0.9rem', color: '#7a8fa6' }}>Sign in to your Vendor Portal</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-3">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             {error && (
-                                <div className="text-xs bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-xl flex items-center gap-2">
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2.5 rounded-xl flex items-center gap-2" style={{ fontSize: '0.85rem' }}>
                                     <span>⚠</span> {error}
                                 </div>
                             )}
 
                             {/* Email */}
                             <div>
-                                <label className="block text-xs font-semibold mb-1.5" style={{ color: '#4a5568' }}>Business Email</label>
+                                <label className="block font-semibold mb-1.5" style={{ fontSize: '0.8rem', color: '#4a5568' }}>Business Email</label>
                                 <div className="relative">
                                     <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9ba8b5' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                                     <input
@@ -135,8 +135,8 @@ export default function VendorLogin() {
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
                                         placeholder="you@yourbusiness.com"
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
-                                        style={{ border: '1.5px solid #e2e8f0', background: '#f7fafc', color: '#1a202c' }}
+                                        className="w-full pl-9 pr-4 py-3 rounded-xl outline-none transition-all"
+                                        style={{ border: '1.5px solid #e2e8f0', background: '#f7fafc', color: '#1a202c', fontSize: '0.9rem' }}
                                         onFocus={e => e.currentTarget.style.borderColor = '#0e4a6e'}
                                         onBlur={e => e.currentTarget.style.borderColor = '#e2e8f0'}
                                     />
@@ -145,7 +145,7 @@ export default function VendorLogin() {
 
                             {/* Password */}
                             <div>
-                                <label className="block text-xs font-semibold mb-1.5" style={{ color: '#4a5568' }}>Password</label>
+                                <label className="block font-semibold mb-1.5" style={{ fontSize: '0.8rem', color: '#4a5568' }}>Password</label>
                                 <div className="relative">
                                     <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#9ba8b5' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                                     <input
@@ -155,12 +155,12 @@ export default function VendorLogin() {
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
                                         placeholder="Enter your password"
-                                        className="w-full pl-9 pr-14 py-2.5 rounded-xl text-sm outline-none transition-all"
-                                        style={{ border: '1.5px solid #e2e8f0', background: '#f7fafc', color: '#1a202c' }}
+                                        className="w-full pl-9 pr-14 py-3 rounded-xl outline-none transition-all"
+                                        style={{ border: '1.5px solid #e2e8f0', background: '#f7fafc', color: '#1a202c', fontSize: '0.9rem' }}
                                         onFocus={e => e.currentTarget.style.borderColor = '#0e4a6e'}
                                         onBlur={e => e.currentTarget.style.borderColor = '#e2e8f0'}
                                     />
-                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold transition-colors" style={{ color: '#9ba8b5' }}>
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 font-semibold transition-colors" style={{ fontSize: '0.75rem', color: '#9ba8b5' }}>
                                         {showPassword ? 'Hide' : 'Show'}
                                     </button>
                                 </div>
@@ -169,18 +169,19 @@ export default function VendorLogin() {
                             {/* Remember / Forgot */}
                             <div className="flex items-center justify-between pt-0.5">
                                 <label className="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" className="w-3.5 h-3.5 rounded" />
-                                    <span className="text-xs" style={{ color: '#718096' }}>Remember me</span>
+                                    <input type="checkbox" className="w-4 h-4 rounded" />
+                                    <span style={{ fontSize: '0.85rem', color: '#718096' }}>Remember me</span>
                                 </label>
-                                <a href="#" className="text-xs font-semibold hover:underline" style={{ color: '#0e4a6e' }}>Forgot password?</a>
+                                <a href="#" className="font-semibold hover:underline" style={{ fontSize: '0.85rem', color: '#0e4a6e' }}>Forgot password?</a>
                             </div>
 
                             {/* CTA Button */}
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 mt-1"
+                                className="w-full py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 mt-1"
                                 style={{
+                                    fontSize: '0.95rem',
                                     background: isLoading ? '#4a6fa5' : 'linear-gradient(135deg, #0a3060, #0e4a6e)',
                                     color: 'white',
                                     boxShadow: '0 4px 14px rgba(10, 48, 96, 0.4)',
