@@ -10,6 +10,7 @@ export default function VendorLogin() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const { login } = useAuth();
 
@@ -17,99 +18,156 @@ export default function VendorLogin() {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-
         try {
             await login(email, password);
             router.push('/vendor');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Login failed');
+            setError(err instanceof Error ? err.message : 'Invalid email or password. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-                <div>
-                    <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
-                        Aruba Travel Buddy
-                    </h2>
-                    <p className="text-center text-blue-600 font-semibold mb-6 uppercase tracking-wider text-sm">for Business</p>
-                    <h3 className="text-center text-lg text-gray-600">
-                        Sign in to your Vendor Portal
-                    </h3>
+        <div className="min-h-screen flex">
+            {/* Left Panel - Branding */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0f2044] via-[#1a365d] to-[#2a5298] flex-col justify-between p-12 text-white relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-300 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                 </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
-                            {error}
-                        </div>
-                    )}
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        <div className="mb-4">
-                            <label htmlFor="email-address" className="sr-only">Email address</label>
-                            <input
-                                id="email-address"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                placeholder="Business Email Address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-16">
+                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#1a365d] font-black text-lg">A</div>
                         <div>
-                            <label htmlFor="password" className="sr-only">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
+                            <div className="font-bold text-lg leading-tight">Aruba Travel Buddy</div>
+                            <div className="text-blue-300 text-xs uppercase tracking-widest font-semibold">for Business</div>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <input
-                                id="remember-me"
-                                name="remember-me"
-                                type="checkbox"
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                                Remember me
-                            </label>
-                        </div>
+                    <h1 className="text-4xl font-extrabold mb-6 leading-tight">
+                        Your business.<br />Our platform.
+                    </h1>
+                    <p className="text-blue-200 text-lg leading-relaxed">
+                        Manage bookings, sync your calendar, and connect with thousands of tourists discovering Aruba through our app.
+                    </p>
+                </div>
 
-                        <div className="text-sm">
-                            <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                                Forgot password?
-                            </a>
+                <div className="relative z-10 space-y-4">
+                    {[
+                        { icon: '📅', label: 'Real-time Booking Management' },
+                        { icon: '🔗', label: 'FareHarbor & Zapier Integration' },
+                        { icon: '📲', label: 'iCal Sync for iPhone & Google' },
+                    ].map(f => (
+                        <div key={f.label} className="flex items-center gap-3 text-blue-100">
+                            <span className="text-xl">{f.icon}</span>
+                            <span className="text-sm font-medium">{f.label}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Right Panel - Login Form */}
+            <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-gray-50">
+                <div className="w-full max-w-md">
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden text-center mb-8">
+                        <div className="inline-flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 bg-[#1a365d] rounded-xl flex items-center justify-center text-white font-black text-lg">A</div>
+                            <div className="text-left">
+                                <div className="font-bold text-gray-900">Aruba Travel Buddy</div>
+                                <div className="text-blue-600 text-xs uppercase tracking-widest font-semibold">for Business</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#1a365d] hover:bg-[#2a4a7f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 transition-colors"
-                        >
-                            {isLoading ? 'Signing in...' : 'Sign in to Dashboard'}
-                        </button>
+                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                        <div className="mb-8">
+                            <h2 className="text-2xl font-extrabold text-gray-900">Welcome back</h2>
+                            <p className="text-gray-500 mt-1">Sign in to your Vendor Portal</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {error && (
+                                <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                                    <span className="mt-0.5 text-red-500">⚠</span>
+                                    {error}
+                                </div>
+                            )}
+
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">Business Email</label>
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    required
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 transition-all bg-gray-50 hover:bg-white"
+                                    placeholder="you@yourbusiness.com"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                                <div className="relative">
+                                    <input
+                                        id="password"
+                                        name="password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        autoComplete="current-password"
+                                        required
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400 transition-all bg-gray-50 hover:bg-white"
+                                        placeholder="Enter your password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm font-medium"
+                                    >
+                                        {showPassword ? 'Hide' : 'Show'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                                    <span className="text-sm text-gray-600">Remember me</span>
+                                </label>
+                                <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700">Forgot password?</a>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full py-3.5 bg-[#1a365d] text-white font-bold rounded-xl hover:bg-[#2a4a7f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-60 transition-all duration-200 flex items-center justify-center gap-2 shadow-md"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                        Signing in...
+                                    </>
+                                ) : 'Sign in to Dashboard'}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+                            <p className="text-sm text-gray-500">
+                                Not a partner yet?{' '}
+                                <Link href="/become-a-partner" className="text-blue-600 font-semibold hover:underline">Apply to join →</Link>
+                            </p>
+                        </div>
                     </div>
-                </form>
-                <div className="text-center mt-6 pt-4 border-t border-gray-100">
-                    <p className="text-sm text-gray-500">
-                        Not a partner yet? <Link href="/become-a-partner" className="text-blue-600 font-medium hover:underline">Apply here</Link>
+
+                    <p className="text-center text-xs text-gray-400 mt-6">
+                        © {new Date().getFullYear()} Aruba Travel Buddy · <a href="/privacy-policy" className="hover:underline">Privacy Policy</a>
                     </p>
                 </div>
             </div>
