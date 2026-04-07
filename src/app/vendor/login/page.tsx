@@ -79,13 +79,13 @@ export default function VendorLogin() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-7">
-                        <div className="mb-5">
-                            <h2 className="text-2xl font-extrabold text-gray-900">Welcome back</h2>
-                            <p className="text-gray-500 mt-0.5 text-sm">Sign in to your Vendor Portal</p>
+                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                        <div className="mb-4">
+                            <h2 className="text-xl font-extrabold text-gray-900">Welcome back</h2>
+                            <p className="text-gray-500 mt-0.5 text-xs">Sign in to your Vendor Portal</p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-3">
                             {error && (
                                 <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-sm">
                                     <span>⚠</span> {error}
@@ -93,7 +93,7 @@ export default function VendorLogin() {
                             )}
 
                             <div>
-                                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">Business Email</label>
+                                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1">Business Email</label>
                                 <input
                                     id="email"
                                     type="email"
@@ -101,13 +101,13 @@ export default function VendorLogin() {
                                     required
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white text-sm text-gray-900 placeholder-gray-400 transition-all"
+                                    className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white text-sm text-gray-900 placeholder-gray-400 transition-all"
                                     placeholder="you@yourbusiness.com"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
                                 <div className="relative">
                                     <input
                                         id="password"
@@ -116,7 +116,7 @@ export default function VendorLogin() {
                                         required
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
-                                        className="w-full px-4 py-2.5 pr-16 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white text-sm text-gray-900 placeholder-gray-400 transition-all"
+                                        className="w-full px-3 py-2 pr-16 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white text-sm text-gray-900 placeholder-gray-400 transition-all"
                                         placeholder="Enter your password"
                                     />
                                     <button
@@ -140,7 +140,7 @@ export default function VendorLogin() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-3 bg-[#1a365d] text-white font-bold rounded-xl hover:bg-[#2a4a7f] disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-md text-sm"
+                                className="w-full py-2.5 bg-[#1a365d] text-white font-bold rounded-xl hover:bg-[#2a4a7f] disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-md text-sm"
                             >
                                 {isLoading ? (
                                     <>
@@ -154,7 +154,7 @@ export default function VendorLogin() {
                             </button>
                         </form>
 
-                        <div className="mt-5 pt-4 border-t border-gray-100 text-center">
+                        <div className="mt-4 pt-3 border-t border-gray-100 text-center">
                             <p className="text-sm text-gray-500">
                                 Not a partner yet?{' '}
                                 <Link href="/become-a-partner" className="text-blue-600 font-semibold hover:underline">Apply to join →</Link>
