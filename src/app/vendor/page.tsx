@@ -23,13 +23,62 @@ const INITIAL_BOOKINGS: Booking[] = [
     { id: '3', customer_name: 'Mike Johnson', date: '2026-04-10', time: '20:00', party_size: 3, status: 'confirmed' },
 ];
 
-const TIMES = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
+interface ScheduleSettings {
+    openTime: string;    // "08:00"
+    closeTime: string;   // "22:00"
+    intervalMinutes: number; // 15 | 30 | 60 | 90 | 120
+    maxGuestsPerSlot: number;
+    slotPadding: number; // buffer between bookings in minutes
+}
+
+const DEFAULT_SCHEDULE: ScheduleSettings = {
+    openTime: '09:00',
+    closeTime: '21:00',
+    intervalMinutes: 60,
+    maxGuestsPerSlot: 20,
+    slotPadding: 0,
+};
+
+const INTERVAL_OPTIONS = [15, 30, 45, 60, 90, 120] as const;
+
+const VENDOR_SCHEDULE_STORAGE_KEY = 'arubaVendorScheduleSettings';
+
+function normalizeSchedule(raw: Partial<ScheduleSettings> | null | undefined): ScheduleSettings {
+    const base = { ...DEFAULT_SCHEDULE, ...raw };
+    const interval = INTERVAL_OPTIONS.includes(base.intervalMinutes as (typeof INTERVAL_OPTIONS)[number])
+        ? base.intervalMinutes
+        : DEFAULT_SCHEDULE.intervalMinutes;
+    return { ...base, intervalMinutes: interval };
+}
+
+function generateTimeSlots(settings: ScheduleSettings): string[] {
+    const slots: string[] = [];
+    const [openH, openM] = settings.openTime.split(':').map(Number);
+    const [closeH, closeM] = settings.closeTime.split(':').map(Number);
+    let current = openH * 60 + openM;
+    const end = closeH * 60 + closeM;
+    while (current < end) {
+        const h = Math.floor(current / 60).toString().padStart(2, '0');
+        const m = (current % 60).toString().padStart(2, '0');
+        slots.push(`${h}:${m}`);
+        current += settings.intervalMinutes + settings.slotPadding;
+    }
+    return slots;
+}
+
+function formatSlot(time: string, intervalMinutes: number): string {
+    const [h, m] = time.split(':').map(Number);
+    const end = h * 60 + m + intervalMinutes;
+    const endH = Math.floor(end / 60).toString().padStart(2, '0');
+    const endM = (end % 60).toString().padStart(2, '0');
+    return `${time} – ${endH}:${endM}`;
+}
 
 export default function VendorDashboard() {
     const router = useRouter();
     const { user, isLoading, logout, isAuthenticated } = useAuth();
 
-    const [activeTab, setActiveTab] = useState<'bookings' | 'calendar'>('bookings');
+    const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'settings'>('bookings');
     const [showIntegrationModal, setShowIntegrationModal] = useState<'fareharbor' | 'zapier' | null>(null);
     const [integrationForm, setIntegrationForm] = useState({ shortname: '', apiKey: '', webhookUrl: '' });
     const [isSyncing, setIsSyncing] = useState(false);
@@ -38,12 +87,39 @@ export default function VendorDashboard() {
     const [blockedDates, setBlockedDates] = useState<string[]>(['2026-04-15', '2026-04-16']);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [showAddBookingForm, setShowAddBookingForm] = useState(false);
-    const [newBooking, setNewBooking] = useState({ customer_name: '', customer_email: '', customer_phone: '', time: '10:00', party_size: '2', notes: '' });
     const [bookingFilter, setBookingFilter] = useState<'all' | 'pending' | 'confirmed'>('all');
+
+    // Schedule settings
+    const [schedule, setSchedule] = useState<ScheduleSettings>(DEFAULT_SCHEDULE);
+    const [draftSchedule, setDraftSchedule] = useState<ScheduleSettings>(DEFAULT_SCHEDULE);
+    const [scheduleSaved, setScheduleSaved] = useState(false);
+
+    const timeSlots = generateTimeSlots(schedule);
+    const [newBooking, setNewBooking] = useState({ customer_name: '', customer_email: '', customer_phone: '', time: timeSlots[0] || '09:00', party_size: '2', notes: '' });
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) router.push('/vendor/login');
     }, [isLoading, isAuthenticated, router]);
+
+    useEffect(() => {
+        try {
+            const raw = typeof window !== 'undefined' ? localStorage.getItem(VENDOR_SCHEDULE_STORAGE_KEY) : null;
+            if (raw) {
+                const parsed = normalizeSchedule(JSON.parse(raw) as Partial<ScheduleSettings>);
+                setSchedule(parsed);
+                setDraftSchedule(parsed);
+            }
+        } catch {
+            /* ignore corrupt storage */
+        }
+    }, []);
+
+    useEffect(() => {
+        setNewBooking(prev => {
+            if (timeSlots.includes(prev.time)) return prev;
+            return { ...prev, time: timeSlots[0] || '09:00' };
+        });
+    }, [schedule]);
 
     const handleLogout = () => { logout(); router.push('/vendor/login'); };
     const getBookingsForDate = (date: string) => bookings.filter(b => b.date === date && b.status !== 'cancelled');
@@ -98,6 +174,20 @@ export default function VendorDashboard() {
             setShowIntegrationModal(null);
             setIntegrationForm({ shortname: '', apiKey: '', webhookUrl: '' });
         }, 1500);
+    };
+
+    const handleSaveScheduleSettings = (e: React.FormEvent) => {
+        e.preventDefault();
+        const next = normalizeSchedule(draftSchedule);
+        setSchedule(next);
+        setDraftSchedule(next);
+        try {
+            localStorage.setItem(VENDOR_SCHEDULE_STORAGE_KEY, JSON.stringify(next));
+        } catch {
+            /* quota / private mode */
+        }
+        setScheduleSaved(true);
+        window.setTimeout(() => setScheduleSaved(false), 3500);
     };
 
     if (isLoading) return <div className="flex items-center justify-center min-h-screen bg-gray-50"><div className="text-gray-500 animate-pulse">Loading...</div></div>;
@@ -192,17 +282,20 @@ export default function VendorDashboard() {
 
             {/* Tabs */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-                <div className="flex gap-1 bg-white rounded-xl p-1 shadow-sm border border-gray-100 w-fit mb-6">
-                    {(['bookings', 'calendar'] as const).map(tab => (
+                <div className="flex flex-wrap gap-1 bg-white rounded-xl p-1 shadow-sm border border-gray-100 w-fit mb-6">
+                    {(['bookings', 'calendar', 'settings'] as const).map(tab => (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab)}
+                            onClick={() => {
+                                if (tab === 'settings') setDraftSchedule(schedule);
+                                setActiveTab(tab);
+                            }}
                             className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === tab
                                 ? 'bg-[#1a365d] text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                 }`}
                         >
-                            {tab === 'bookings' ? '📋 Bookings' : '📅 Calendar'}
+                            {tab === 'bookings' ? '📋 Bookings' : tab === 'calendar' ? '📅 Calendar' : '⚙️ Settings'}
                         </button>
                     ))}
                 </div>
@@ -267,7 +360,7 @@ export default function VendorDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                                            'bg-yellow-100 text-yellow-800'
+                                                        'bg-yellow-100 text-yellow-800'
                                                         }`}>
                                                         <span className={`w-1.5 h-1.5 rounded-full ${booking.status === 'confirmed' ? 'bg-green-500' : 'bg-yellow-500'}`}></span>
                                                         {booking.status === 'confirmed' ? 'Confirmed' : 'Pending'}
@@ -329,8 +422,8 @@ export default function VendorDashboard() {
                                             key={day}
                                             onClick={() => handleDayClick(dateStr)}
                                             className={`h-16 p-2 border rounded-xl flex flex-col items-center justify-between transition-all text-center relative ${isSelected ? 'border-blue-500 ring-2 ring-blue-200 bg-blue-50 shadow-sm'
-                                                    : isBlocked ? 'bg-red-50 border-red-200 hover:bg-red-100'
-                                                        : 'bg-white border-gray-100 hover:border-blue-200 hover:shadow-md hover:bg-blue-50/30'
+                                                : isBlocked ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                                                    : 'bg-white border-gray-100 hover:border-blue-200 hover:shadow-md hover:bg-blue-50/30'
                                                 }`}
                                         >
                                             {hasPending && <span className="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full"></span>}
@@ -364,8 +457,8 @@ export default function VendorDashboard() {
                                             <button
                                                 onClick={handleToggleBlock}
                                                 className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors shrink-0 ${isSelectedBlocked
-                                                        ? 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                                                        : 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
+                                                    ? 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                                                    : 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
                                                     }`}
                                             >
                                                 {isSelectedBlocked ? '✓ Unblock' : '🚫 Block'}
@@ -439,7 +532,7 @@ export default function VendorDashboard() {
                                                                 onChange={e => setNewBooking({ ...newBooking, time: e.target.value })}
                                                                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50"
                                                             >
-                                                                {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
+                                                                {timeSlots.map(t => <option key={t} value={t}>{t}</option>)}
                                                             </select>
                                                         </div>
                                                         <div>
@@ -516,6 +609,81 @@ export default function VendorDashboard() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* SETTINGS TAB */}
+                {activeTab === 'settings' && (
+                    <div className="max-w-2xl">
+                        <form onSubmit={handleSaveScheduleSettings} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="px-6 py-5 border-b border-gray-100">
+                                <h2 className="text-lg font-bold text-gray-900">Schedule settings</h2>
+                                <p className="text-sm text-gray-500 mt-1">Control how time slots appear when you add bookings on the calendar.</p>
+                            </div>
+                            <div className="p-6 space-y-6">
+                                <div>
+                                    <label htmlFor="interval" className="block text-sm font-semibold text-gray-800 mb-2">
+                                        Booking slot interval
+                                    </label>
+                                    <p className="text-xs text-gray-500 mb-3">Length of each bookable block (for example, 30 minutes for quick turns or 60 minutes for seatings).</p>
+                                    <select
+                                        id="interval"
+                                        value={draftSchedule.intervalMinutes}
+                                        onChange={e =>
+                                            setDraftSchedule({
+                                                ...draftSchedule,
+                                                intervalMinutes: Number(e.target.value),
+                                            })
+                                        }
+                                        className="w-full max-w-md border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                                    >
+                                        {INTERVAL_OPTIONS.map(m => (
+                                            <option key={m} value={m}>
+                                                {m} minutes
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="openTime" className="block text-sm font-semibold text-gray-800 mb-2">Opens</label>
+                                        <input
+                                            id="openTime"
+                                            type="time"
+                                            value={draftSchedule.openTime}
+                                            onChange={e => setDraftSchedule({ ...draftSchedule, openTime: e.target.value })}
+                                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="closeTime" className="block text-sm font-semibold text-gray-800 mb-2">Closes</label>
+                                        <input
+                                            id="closeTime"
+                                            type="time"
+                                            value={draftSchedule.closeTime}
+                                            onChange={e => setDraftSchedule({ ...draftSchedule, closeTime: e.target.value })}
+                                            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="rounded-xl bg-gray-50 border border-gray-100 px-4 py-3 text-sm text-gray-600">
+                                    <span className="font-semibold text-gray-800">Preview: </span>
+                                    {generateTimeSlots(normalizeSchedule(draftSchedule)).slice(0, 6).join(', ')}
+                                    {generateTimeSlots(normalizeSchedule(draftSchedule)).length > 6 ? ' …' : ''}
+                                </div>
+                            </div>
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                {scheduleSaved && (
+                                    <span className="text-sm font-semibold text-green-700">Settings saved.</span>
+                                )}
+                                <button
+                                    type="submit"
+                                    className="sm:ml-auto px-6 py-2.5 bg-[#1a365d] text-white rounded-xl text-sm font-semibold hover:bg-[#2a4a7f] shadow-sm transition-colors"
+                                >
+                                    Save settings
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 )}
 
