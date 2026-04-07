@@ -12,6 +12,7 @@ export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
   const [overview, setOverview] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -27,13 +28,19 @@ export default function AnalyticsPage() {
 
   const fetchAnalytics = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const response = await websiteAnalyticsApi.getOverview(timeRange);
       if (response.success && response.data) {
         setOverview(response.data);
+      } else {
+        setOverview(null);
+        setLoadError(response.error || 'Could not load analytics');
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
+      setOverview(null);
+      setLoadError(error instanceof Error ? error.message : 'Could not load analytics');
     } finally {
       setLoading(false);
     }
@@ -87,6 +94,13 @@ export default function AnalyticsPage() {
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-gray-600">Loading analytics...</div>
+          </div>
+        ) : loadError ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center">
+            <p className="text-red-600 font-medium">{loadError}</p>
+            <p className="text-gray-600 text-sm mt-2">
+              Ensure you are logged in as an admin and migration 026 (website analytics) is applied.
+            </p>
           </div>
         ) : overview ? (
           <>

@@ -5,9 +5,6 @@
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 const USE_SUPABASE_EDGE_FUNCTIONS = !!SUPABASE_URL;
-const API_BASE_URL = USE_SUPABASE_EDGE_FUNCTIONS 
-  ? `${SUPABASE_URL}/functions/v1` 
-  : EXPRESS_API_URL;
 
 class AnalyticsTracker {
   private sessionId: string;
@@ -93,35 +90,40 @@ class AnalyticsTracker {
     custom_properties?: Record<string, any>;
   }) {
     try {
-      // Skip analytics tracking in production if API is localhost
-      // Analytics tracking requires Express backend which isn't available in production
       if (typeof window !== 'undefined') {
-        const isProduction = !window.location.hostname.includes('localhost') && 
-                            !window.location.hostname.includes('127.0.0.1');
+        const isProduction =
+          !window.location.hostname.includes('localhost') &&
+          !window.location.hostname.includes('127.0.0.1');
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
-        const trackingUrl = USE_SUPABASE_EDGE_FUNCTIONS
-          ? `${EXPRESS_API_URL}/admin/analytics/website/track`
-          : `${API_BASE_URL}/admin/analytics/website/track`;
-        
-        // Skip if in production and API URL is localhost
-        if (isProduction && (apiUrl.includes('localhost') || trackingUrl.includes('localhost'))) {
-          return; // Silently skip - analytics not available in production
+        // Without Supabase, production cannot reach a localhost Express API
+        if (!USE_SUPABASE_EDGE_FUNCTIONS && isProduction && apiUrl.includes('localhost')) {
+          return;
         }
+        // Re-resolve session id if module was evaluated before a browser session existed
+        if (!this.sessionId) {
+          this.sessionId = this.getOrCreateSessionId();
+        }
+      }
+
+      if (!this.sessionId) {
+        return;
       }
 
       const pageInfo = this.getPageInfo();
       const deviceInfo = this.getDeviceInfo();
 
-      // Analytics tracking endpoint - use Express API for now (not migrated to Edge Functions yet)
+      // Same-origin API route proxies to Supabase (avoids CORS / missing NEXT_PUBLIC_* in client bundle)
       const trackingUrl = USE_SUPABASE_EDGE_FUNCTIONS
-        ? `${EXPRESS_API_URL}/admin/analytics/website/track` // Fallback to Express API for analytics
-        : `${API_BASE_URL}/admin/analytics/website/track`;
-      
+        ? '/api/analytics/track'
+        : `${EXPRESS_API_URL}/admin/analytics/website/track`;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
       await fetch(trackingUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           session_id: this.sessionId,
           ...event,

@@ -15,60 +15,71 @@ interface ApiResponse<T> {
   details?: any;
 }
 
-// Map Express API endpoints to Supabase Edge Functions
-function mapEndpointToSupabaseFunction(endpoint: string): string {
+function splitEndpoint(endpoint: string): { path: string; query: string } {
+  const q = endpoint.indexOf('?');
+  if (q === -1) return { path: endpoint, query: '' };
+  return { path: endpoint.slice(0, q), query: endpoint.slice(q + 1) };
+}
+
+// Map Express API endpoints to Supabase Edge Functions (path only; query string appended separately)
+function mapEndpointToSupabaseFunction(endpointPath: string): string {
   if (!USE_SUPABASE_EDGE_FUNCTIONS) {
-    return endpoint;
+    return endpointPath;
   }
 
   // Auth endpoints
-  if (endpoint === '/auth/login') {
+  if (endpointPath === '/auth/login') {
     return '/admin-auth';
   }
 
-  // Dashboard analytics
-  if (endpoint.startsWith('/admin/analytics/website/overview')) {
+  // Dashboard + website analytics overview (same edge function; honors ?timeRange=)
+  if (endpointPath.startsWith('/admin/analytics/website/overview')) {
     return '/admin-dashboard';
+  }
+
+  // Public website event tracking
+  if (endpointPath.startsWith('/admin/analytics/website/track')) {
+    return '/website-analytics-track';
   }
 
   // Content management (tours, events, experiences, restaurants, etc.)
   const contentTypes = ['tours', 'cultural-events', 'local-experiences', 'restaurants', 'transportation', 'support-locals', 'photo-challenges'];
   for (const type of contentTypes) {
-    if (endpoint.startsWith(`/admin/${type}`)) {
+    if (endpointPath.startsWith(`/admin/${type}`)) {
       // Extract the rest of the path (e.g., /123 or empty)
-      const rest = endpoint.replace(`/admin/${type}`, '');
+      const rest = endpointPath.replace(`/admin/${type}`, '');
       // Pass content type in the path for the Edge Function
       return `/admin-content/${type}${rest}`;
     }
   }
 
   // Map locations
-  if (endpoint.startsWith('/admin/map-locations')) {
-    return endpoint.replace('/admin/map-locations', '/admin-map-locations');
+  if (endpointPath.startsWith('/admin/map-locations')) {
+    return endpointPath.replace('/admin/map-locations', '/admin-map-locations');
   }
 
   // Client profiles
-  if (endpoint.startsWith('/admin/clients')) {
-    return endpoint.replace('/admin/clients', '/admin-clients');
+  if (endpointPath.startsWith('/admin/clients')) {
+    return endpointPath.replace('/admin/clients', '/admin-clients');
   }
 
   // Feedback management
-  if (endpoint.startsWith('/admin/feedback')) {
-    return endpoint.replace('/admin/feedback', '/admin-feedback');
+  if (endpointPath.startsWith('/admin/feedback')) {
+    return endpointPath.replace('/admin/feedback', '/admin-feedback');
   }
 
   // Vendor partner management
-  if (endpoint.startsWith('/admin/vendors')) {
-    return endpoint.replace('/admin/vendors', '/admin-vendors');
+  if (endpointPath.startsWith('/admin/vendors')) {
+    return endpointPath.replace('/admin/vendors', '/admin-vendors');
   }
 
   // Referral campaign management
-  if (endpoint.startsWith('/admin/referral')) {
-    return endpoint.replace('/admin/referral', '/admin-referral');
+  if (endpointPath.startsWith('/admin/referral')) {
+    return endpointPath.replace('/admin/referral', '/admin-referral');
   }
 
   // Default: return as-is (for endpoints not yet migrated)
-  return endpoint;
+  return endpointPath;
 }
 
 async function apiRequest<T>(
@@ -97,8 +108,10 @@ async function apiRequest<T>(
     };
   }
   
-  // Map endpoint to Supabase function if using Edge Functions
-  const mappedEndpoint = mapEndpointToSupabaseFunction(endpoint);
+  // Map endpoint to Supabase function if using Edge Functions (preserve query string)
+  const { path: endpointPath, query: endpointQuery } = splitEndpoint(endpoint);
+  const mappedPath = mapEndpointToSupabaseFunction(endpointPath);
+  const querySuffix = endpointQuery ? `?${endpointQuery}` : '';
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -125,10 +138,11 @@ async function apiRequest<T>(
   }
 
   try {
-    const fullUrl = `${API_BASE_URL}${mappedEndpoint}`;
+    const fullUrl = `${API_BASE_URL}${mappedPath}${querySuffix}`;
     console.log('[Admin API] Making request:', {
       endpoint,
-      mappedEndpoint,
+      mappedPath,
+      querySuffix,
       fullUrl,
       method: options.method || 'GET',
       useEdgeFunctions: USE_SUPABASE_EDGE_FUNCTIONS,
@@ -363,8 +377,8 @@ async function apiRequest<T>(
           error: errorMessage,
           details: { 
             originalError: error.message,
-            endpoint: `${API_BASE_URL}${mappedEndpoint}`,
-            fullUrl: `${API_BASE_URL}${mappedEndpoint}`,
+            endpoint: `${API_BASE_URL}${mappedPath}${querySuffix}`,
+            fullUrl: `${API_BASE_URL}${mappedPath}${querySuffix}`,
             useEdgeFunctions: USE_SUPABASE_EDGE_FUNCTIONS,
             hasAnonKey: USE_SUPABASE_EDGE_FUNCTIONS ? !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY : 'N/A',
             type: 'NetworkError'
