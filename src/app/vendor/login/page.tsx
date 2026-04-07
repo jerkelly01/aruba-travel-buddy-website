@@ -31,34 +31,34 @@ export default function VendorLogin() {
     return (
         <div className="h-screen flex overflow-hidden">
             {/* Left Panel - Branding (hidden on mobile) */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0f2044] via-[#1a365d] to-[#2a5298] flex-col justify-between p-10 text-white relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0f2044] via-[#1a365d] to-[#2a5298] flex-col justify-center gap-8 p-10 text-white relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-300 rounded-full translate-y-1/2 -translate-x-1/2"></div>
                 </div>
 
                 <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-10">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#1a365d] font-black text-lg">A</div>
+                    <div className="flex items-center gap-3 mb-5">
+                        <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center text-[#1a365d] font-black text-base">A</div>
                         <div>
-                            <div className="font-bold text-lg leading-tight">Aruba Travel Buddy</div>
+                            <div className="font-bold text-base leading-tight">Aruba Travel Buddy</div>
                             <div className="text-blue-300 text-xs uppercase tracking-widest font-semibold">for Business</div>
                         </div>
                     </div>
-                    <h1 className="text-4xl font-extrabold mb-4 leading-tight">Your business.<br />Our platform.</h1>
-                    <p className="text-blue-200 text-lg leading-relaxed">
+                    <h1 className="text-3xl font-extrabold mb-3 leading-tight">Your business.<br />Our platform.</h1>
+                    <p className="text-blue-200 text-sm leading-relaxed">
                         Manage bookings, sync your calendar, and connect with thousands of tourists discovering Aruba through our app.
                     </p>
                 </div>
 
-                <div className="relative z-10 space-y-3">
+                <div className="relative z-10 space-y-2">
                     {[
                         { icon: '📅', label: 'Real-time Booking Management' },
                         { icon: '🔗', label: 'FareHarbor & Zapier Integration' },
                         { icon: '📲', label: 'iCal Sync for iPhone & Google' },
                     ].map(f => (
-                        <div key={f.label} className="flex items-center gap-3 text-blue-100">
-                            <span className="text-xl">{f.icon}</span>
+                        <div key={f.label} className="flex items-center gap-2.5 text-blue-100">
+                            <span className="text-base">{f.icon}</span>
                             <span className="text-sm font-medium">{f.label}</span>
                         </div>
                     ))}
