@@ -3,6 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import {
+    fetchBlockedDates,
+    fetchVendorBookings,
+    createWalkinBooking,
+    updateBookingStatus as syncBookingStatus,
+    setBlockedDate as syncBlockedDate,
+    saveVendorSettings,
+    type EntityProfile,
+} from '@/lib/vendor-api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -36,6 +45,18 @@ const INTERVAL_OPTIONS = [15, 30, 45, 60, 90, 120] as const;
 const SCHEDULE_KEY = 'arubaVendorScheduleSettings';
 const BOOKINGS_KEY  = 'arubaVendorBookings';
 const BLOCKED_KEY   = 'arubaVendorBlockedDates';
+const PROFILE_KEY   = 'arubaVendorProfile';
+
+const ENTITY_TYPE_LABELS: Record<string, string> = {
+    restaurant:     'Restaurant',
+    tour:           'Tour',
+    experience:     'Local Experience',
+    transportation: 'Transportation',
+};
+
+const ENTITY_TYPE_EMOJI: Record<string, string> = {
+    restaurant: '🍽️', tour: '🌊', experience: '🎯', transportation: '🚗',
+};
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 const DEFAULT_SCHEDULE: ScheduleSettings = {
@@ -110,6 +131,31 @@ const SS: Record<BookingStatus, { pill: string; dot: string; label: string }> = 
     'no-show':  { pill: 'bg-red-100 text-red-700',       dot: 'bg-red-500',    label: 'No-show'   },
 };
 
+// ─── Supabase booking mapper ───────────────────────────────────────────────────
+
+function mapSupabaseBooking(b: Record<string, unknown>): Booking {
+    const time = b.booking_time ? String(b.booking_time).substring(0, 5) : '09:00';
+    const rawStatus = String(b.status || 'pending');
+    const status: BookingStatus =
+        rawStatus === 'no_show' ? 'no-show' :
+        (['confirmed', 'pending', 'cancelled', 'no-show'] as BookingStatus[]).includes(rawStatus as BookingStatus)
+            ? rawStatus as BookingStatus : 'pending';
+
+    return {
+        id:             String(b.id),
+        customer_name:  String(b.customer_name || 'Customer'),
+        customer_email: b.contact_email  ? String(b.contact_email)  : undefined,
+        customer_phone: b.contact_phone  ? String(b.contact_phone)  : undefined,
+        date:           String(b.booking_date),
+        time,
+        party_size:     Number(b.party_size) || 1,
+        status,
+        notes:          b.special_requests ? String(b.special_requests) : undefined,
+        is_manual:      Boolean(b.is_manual),
+        created_at:     String(b.created_at || new Date().toISOString()),
+    };
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function VendorDashboard() {
@@ -150,22 +196,38 @@ export default function VendorDashboard() {
     const [isSyncing, setIsSyncing] = useState(false);
     const [icalKey, setIcalKey]     = useState<string | null>(null);
 
+    // Entity profile — connects this dashboard to a real business in Supabase
+    const [entityProfile, setEntityProfile] = useState<EntityProfile | null>(null);
+    const [draftProfile, setDraftProfile]   = useState<{ entity_type: string; entity_id: string }>({ entity_type: 'restaurant', entity_id: '' });
+    const [isSupabaseSyncing, setIsSupabaseSyncing] = useState(false);
+    const [supabaseSyncLabel, setSupabaseSyncLabel] = useState<string | null>(null);
+
     // ─── Auth guard ──────────────────────────────────────────────────────────
     useEffect(() => {
         if (!isLoading && !isAuthenticated) router.push('/vendor/login');
     }, [isLoading, isAuthenticated, router]);
 
-    // ─── Load localStorage ───────────────────────────────────────────────────
+    // ─── Load localStorage + bootstrap Supabase ──────────────────────────────
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         try {
-            if (typeof window === 'undefined') return;
             const s = localStorage.getItem(SCHEDULE_KEY);
             if (s) { const p = normalizeSchedule(JSON.parse(s) as Partial<ScheduleSettings>); setSchedule(p); setDraftSchedule(p); }
             const b = localStorage.getItem(BOOKINGS_KEY);
             if (b) setBookings(JSON.parse(b) as Booking[]);
             const bl = localStorage.getItem(BLOCKED_KEY);
             if (bl) setBlockedDates(JSON.parse(bl) as string[]);
+
+            // Load entity profile — if set, fetch live data from Supabase
+            const prof = localStorage.getItem(PROFILE_KEY);
+            if (prof) {
+                const profile = JSON.parse(prof) as EntityProfile;
+                setEntityProfile(profile);
+                setDraftProfile({ entity_type: profile.entity_type, entity_id: profile.entity_id });
+                loadFromSupabase(profile);
+            }
         } catch { /* corrupt storage */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ─── Persist ─────────────────────────────────────────────────────────────
@@ -222,6 +284,45 @@ export default function VendorDashboard() {
     const getSlotGuests   = (date: string, time: string) =>
         getSlotBookings(date, time).reduce((s, b) => s + b.party_size, 0);
 
+    // ─── Supabase sync helpers ────────────────────────────────────────────────
+
+    const loadFromSupabase = async (profile: EntityProfile) => {
+        setIsSupabaseSyncing(true);
+        setSupabaseSyncLabel('Syncing with Supabase…');
+        try {
+            const [dbBookings, dbBlocked] = await Promise.all([
+                fetchVendorBookings(profile.entity_type, profile.entity_id),
+                fetchBlockedDates(profile.entity_type, profile.entity_id),
+            ]);
+            if (dbBookings.length > 0) setBookings(dbBookings.map(mapSupabaseBooking));
+            if (dbBlocked.length > 0)  setBlockedDates(dbBlocked);
+            setSupabaseSyncLabel('Synced ✓');
+            setTimeout(() => setSupabaseSyncLabel(null), 3000);
+        } catch {
+            setSupabaseSyncLabel(null);
+        } finally {
+            setIsSupabaseSyncing(false);
+        }
+    };
+
+    // ─── Entity profile handlers ──────────────────────────────────────────────
+
+    const handleConnectProfile = () => {
+        const profile: EntityProfile = {
+            entity_type: draftProfile.entity_type,
+            entity_id:   draftProfile.entity_id.trim(),
+            entity_name: ENTITY_TYPE_LABELS[draftProfile.entity_type] || draftProfile.entity_type,
+        };
+        setEntityProfile(profile);
+        try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch { }
+        loadFromSupabase(profile);
+    };
+
+    const handleDisconnectProfile = () => {
+        setEntityProfile(null);
+        try { localStorage.removeItem(PROFILE_KEY); } catch { }
+    };
+
     // ─── Handlers ────────────────────────────────────────────────────────────
 
     const handleLogout = () => { logout(); router.push('/vendor/login'); };
@@ -229,6 +330,11 @@ export default function VendorDashboard() {
     const handleUpdateStatus = (id: string, status: BookingStatus) => {
         setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
         setSelectedBooking(prev => prev?.id === id ? { ...prev, status } : prev);
+        // Supabase: map no-show → no_show
+        if (entityProfile) {
+            const supabaseStatus = status === 'no-show' ? 'no_show' : status;
+            syncBookingStatus(id, supabaseStatus).catch(console.error);
+        }
     };
 
     const handleCancelBooking = (id: string) => {
@@ -245,9 +351,14 @@ export default function VendorDashboard() {
 
     const handleToggleBlock = () => {
         if (!selectedDate) return;
+        const nowBlocked = blockedDates.includes(selectedDate);
         setBlockedDates(prev =>
-            prev.includes(selectedDate) ? prev.filter(d => d !== selectedDate) : [...prev, selectedDate]
+            nowBlocked ? prev.filter(d => d !== selectedDate) : [...prev, selectedDate]
         );
+        if (entityProfile) {
+            syncBlockedDate(entityProfile.entity_type, entityProfile.entity_id, selectedDate, !nowBlocked)
+                .catch(console.error);
+        }
     };
 
     const handleAddManualBooking = (e: React.FormEvent) => {
@@ -259,8 +370,9 @@ export default function VendorDashboard() {
             alert(`Slot is at capacity (${existing}/${schedule.maxGuestsPerSlot} guests). Choose a different time or increase max guests in Settings.`);
             return;
         }
-        setBookings(prev => [...prev, {
-            id: `manual-${Date.now()}`,
+        const localId = `manual-${Date.now()}`;
+        const localBooking: Booking = {
+            id: localId,
             customer_name:  newBooking.customer_name,
             customer_email: newBooking.customer_email  || undefined,
             customer_phone: newBooking.customer_phone  || undefined,
@@ -271,9 +383,29 @@ export default function VendorDashboard() {
             status:     'confirmed',
             is_manual:  true,
             created_at: new Date().toISOString(),
-        }]);
+        };
+        setBookings(prev => [...prev, localBooking]);
         setShowAddForm(false);
         setNewBooking(prev => ({ ...prev, customer_name: '', customer_email: '', customer_phone: '', party_size: '2', notes: '' }));
+
+        // Sync to Supabase — replace local id with real id on success
+        if (entityProfile) {
+            createWalkinBooking({
+                entity_type:    entityProfile.entity_type,
+                entity_id:      entityProfile.entity_id,
+                customer_name:  localBooking.customer_name,
+                customer_email: localBooking.customer_email,
+                customer_phone: localBooking.customer_phone,
+                date:           selectedDate,
+                time:           localBooking.time,
+                party_size:     incoming,
+                notes:          localBooking.notes,
+            }).then(result => {
+                if (result) {
+                    setBookings(prev => prev.map(b => b.id === localId ? { ...b, id: result.id } : b));
+                }
+            }).catch(console.error);
+        }
     };
 
     const handleExportCSV = () => {
@@ -311,6 +443,16 @@ export default function VendorDashboard() {
         try { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(next)); } catch { }
         setScheduleSaved(true);
         setTimeout(() => setScheduleSaved(false), 3500);
+        // Sync to Supabase so the app picks up the new slot schedule
+        if (entityProfile) {
+            saveVendorSettings(entityProfile.entity_type, entityProfile.entity_id, {
+                open_time:           next.openTime,
+                close_time:          next.closeTime,
+                interval_minutes:    next.intervalMinutes,
+                max_guests_per_slot: next.maxGuestsPerSlot,
+                slot_padding:        next.slotPadding,
+            }).catch(console.error);
+        }
     };
 
     const prevMonth = () => {
@@ -362,6 +504,12 @@ export default function VendorDashboard() {
                             >
                                 📅 Today
                             </button>
+                            {entityProfile && (
+                                <div className="hidden sm:flex items-center gap-1.5 bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-semibold px-3 py-1.5 rounded-full">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                    {ENTITY_TYPE_EMOJI[entityProfile.entity_type]} Live
+                                </div>
+                            )}
                             <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-xl px-4 py-2">
                                 <div className="w-7 h-7 rounded-full bg-blue-400 flex items-center justify-center text-white font-bold text-xs">
                                     {user?.name?.charAt(0)?.toUpperCase() || 'V'}
@@ -794,6 +942,102 @@ export default function VendorDashboard() {
                 {/* ══ SETTINGS TAB ══ */}
                 {activeTab === 'settings' && (
                     <div className="max-w-2xl space-y-6">
+
+                        {/* ── Business Profile ── */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4">
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-900">Business profile</h2>
+                                    <p className="text-sm text-gray-500 mt-1">Link your listing to sync live availability with the Aruba Travel Buddy app.</p>
+                                </div>
+                                {entityProfile && (
+                                    <span className="shrink-0 flex items-center gap-1.5 text-xs font-bold text-green-700 bg-green-100 px-3 py-1.5 rounded-full border border-green-200">
+                                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        Connected
+                                    </span>
+                                )}
+                            </div>
+
+                            {entityProfile ? (
+                                <div className="p-6 space-y-3">
+                                    <div className="flex items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                        <div className="w-11 h-11 rounded-xl bg-white border border-green-200 flex items-center justify-center text-2xl shadow-sm">
+                                            {ENTITY_TYPE_EMOJI[entityProfile.entity_type] || '🏢'}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="font-bold text-gray-900">{entityProfile.entity_name}</div>
+                                            <div className="text-xs text-gray-500 mt-0.5 capitalize font-mono truncate">
+                                                {entityProfile.entity_type} · {entityProfile.entity_id}
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleDisconnectProfile}
+                                            className="shrink-0 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors"
+                                        >
+                                            Disconnect
+                                        </button>
+                                    </div>
+                                    {supabaseSyncLabel && (
+                                        <p className="text-xs text-gray-400 text-center">{supabaseSyncLabel}</p>
+                                    )}
+                                    <p className="text-xs text-gray-400">
+                                        Customers booking this {ENTITY_TYPE_LABELS[entityProfile.entity_type]?.toLowerCase() || entityProfile.entity_type} in the app will see your schedule settings, blocked dates, and live capacity.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => loadFromSupabase(entityProfile)}
+                                        disabled={isSupabaseSyncing}
+                                        className="text-xs font-semibold text-blue-600 hover:underline disabled:opacity-50"
+                                    >
+                                        {isSupabaseSyncing ? 'Refreshing…' : '↻ Refresh from Supabase'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="p-6 space-y-4">
+                                    <div className="grid sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-800 mb-1">Business type</label>
+                                            <select
+                                                value={draftProfile.entity_type}
+                                                onChange={e => setDraftProfile({ ...draftProfile, entity_type: e.target.value })}
+                                                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                            >
+                                                <option value="restaurant">Restaurant</option>
+                                                <option value="tour">Tour</option>
+                                                <option value="experience">Local Experience</option>
+                                                <option value="transportation">Transportation</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-800 mb-1">
+                                                Entity ID <span className="text-gray-400 font-normal">(UUID from admin)</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. 3f2c1a90-…"
+                                                value={draftProfile.entity_id}
+                                                onChange={e => setDraftProfile({ ...draftProfile, entity_id: e.target.value })}
+                                                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50 font-mono"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700">
+                                        Find your entity ID in the <strong>Admin panel → {ENTITY_TYPE_LABELS[draftProfile.entity_type] || draftProfile.entity_type}s</strong> listing page.
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleConnectProfile}
+                                        disabled={!draftProfile.entity_id.trim()}
+                                        className="px-5 py-2.5 bg-[#1a365d] text-white rounded-xl text-sm font-semibold hover:bg-[#2a4a7f] disabled:opacity-40 shadow-sm transition-colors"
+                                    >
+                                        Connect business
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Schedule & Capacity ── */}
                         <form onSubmit={handleSaveSchedule} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-5 border-b border-gray-100">
                                 <h2 className="text-lg font-bold text-gray-900">Schedule & capacity</h2>
