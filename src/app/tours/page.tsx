@@ -9,7 +9,6 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicToursApi } from "@/lib/public-api";
 import { normalizeTours } from "@/lib/data-normalization";
-import { CodeSnippet } from "@/components/CodeSnippet";
 import { useViatorWidget } from "@/hooks/useViatorWidget";
 
 // Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
@@ -25,6 +24,7 @@ interface Tour {
   category?: string;
   tags?: string[];
   code_snippet?: string;
+  booking_url?: string;
 }
 
 export default function ToursPage() {
@@ -162,7 +162,13 @@ export default function ToursPage() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <div className="card overflow-hidden h-full group">
+                  <a
+                    href={tour.booking_url || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`card overflow-hidden h-full group flex flex-col${tour.booking_url ? ' cursor-pointer' : ''}`}
+                    onClick={(e) => !tour.booking_url && e.preventDefault()}
+                  >
                     <div className="relative h-56 overflow-hidden">
                       {tour.images && tour.images.length > 0 ? (
                         <Image 
@@ -193,7 +199,7 @@ export default function ToursPage() {
                         </div>
                       )}
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-1">
                       <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
                         {tour.title}
                       </h3>
@@ -220,14 +226,15 @@ export default function ToursPage() {
                           </div>
                         )}
                       </div>
-                      {/* Render code snippet if available */}
-                      {tour.code_snippet && (
+                      {tour.booking_url && (
                         <div className="mt-4 pt-4 border-t border-gray-200">
-                          <CodeSnippet code={tour.code_snippet} />
+                          <span className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm group-hover:bg-[var(--brand-aruba-dark)] transition-colors duration-200">
+                            Book Now
+                          </span>
                         </div>
                       )}
                     </div>
-                  </div>
+                  </a>
                 </motion.div>
               ))}
             </div>

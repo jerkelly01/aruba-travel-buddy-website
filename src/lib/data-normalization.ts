@@ -14,6 +14,7 @@ export function normalizeTours(data: any[]): any[] {
     category: item.category || '',
     tags: Array.isArray(item.tags) ? item.tags : [],
     code_snippet: item.code_snippet || '',
+    booking_url: item.code_snippet || '',
   }));
 }
 
