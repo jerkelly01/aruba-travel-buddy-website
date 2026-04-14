@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -9,9 +8,6 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeLocalExperiences } from "@/lib/data-normalization";
-import { useViatorWidget } from "@/hooks/useViatorWidget";
-
-// Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
 interface LocalExperience {
   id: string;
   title: string;
@@ -23,14 +19,13 @@ interface LocalExperience {
   featured: boolean;
   category?: string;
   tags?: string[];
+  booking_url?: string;
 }
 
 export default function LocalExperiencesPage() {
   const [experiences, setExperiences] = React.useState<LocalExperience[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-931e6709-1fe0-41fe-bf74-7daea45d8d5a");
-
   React.useEffect(() => {
     loadExperiences();
   }, []);
@@ -105,19 +100,6 @@ export default function LocalExperiencesPage() {
         </Container>
       </section>
 
-      {/* Viator Widget Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
-        <Container>
-          <div
-            key={`viator-widget-${viatorWidgetKey}`}
-            ref={viatorWidgetRef}
-            data-vi-partner-id="P00276444"
-            data-vi-widget-ref="W-931e6709-1fe0-41fe-bf74-7daea45d8d5a"
-            id="viator-widget-experiences"
-          ></div>
-        </Container>
-      </section>
-
       {/* Results Section */}
       <section className="py-12 bg-white">
         <Container>
@@ -137,9 +119,9 @@ export default function LocalExperiencesPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="heart" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Experiences Above</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No Results Found</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Explore available Experiences through our partner widget'}
+                {query ? 'Try adjusting your search criteria' : 'No local experiences available at the moment'}
               </p>
               {query && (
                 <button
@@ -160,7 +142,13 @@ export default function LocalExperiencesPage() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <div className="card overflow-hidden h-full group">
+                  <a
+                    href={exp.booking_url || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`card overflow-hidden h-full group flex flex-col${exp.booking_url ? ' cursor-pointer' : ''}`}
+                    onClick={(e) => !exp.booking_url && e.preventDefault()}
+                  >
                     <div className="relative h-56 overflow-hidden">
                       {exp.images && exp.images.length > 0 ? (
                         <Image 
@@ -191,7 +179,7 @@ export default function LocalExperiencesPage() {
                         </div>
                       )}
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-1">
                       <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
                         {exp.title}
                       </h3>
@@ -218,8 +206,15 @@ export default function LocalExperiencesPage() {
                           </div>
                         )}
                       </div>
+                      {exp.booking_url && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <span className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm group-hover:bg-[var(--brand-aruba-dark)] transition-colors duration-200">
+                            Book Now
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  </a>
                 </motion.div>
               ))}
             </div>

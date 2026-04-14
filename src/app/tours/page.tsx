@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -9,9 +8,6 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicToursApi } from "@/lib/public-api";
 import { normalizeTours } from "@/lib/data-normalization";
-import { useViatorWidget } from "@/hooks/useViatorWidget";
-
-// Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
 interface Tour {
   id: string;
   title: string;
@@ -31,7 +27,6 @@ export default function ToursPage() {
   const [tours, setTours] = React.useState<Tour[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-44ff9515-9337-48ed-ad52-88b94d11c81d");
 
   React.useEffect(() => {
     loadTours();
@@ -107,19 +102,6 @@ export default function ToursPage() {
         </Container>
       </section>
 
-      {/* Viator Widget Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
-        <Container>
-          <div
-            key={`viator-widget-${viatorWidgetKey}`}
-            ref={viatorWidgetRef}
-            data-vi-partner-id="P00276444"
-            data-vi-widget-ref="W-44ff9515-9337-48ed-ad52-88b94d11c81d"
-            id="viator-widget-tours"
-          ></div>
-        </Container>
-      </section>
-
       {/* Results Section */}
       <section className="py-12 bg-white">
         <Container>
@@ -139,9 +121,9 @@ export default function ToursPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="map-pin" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Tours Above</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No Tours Found</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Explore available tours through our partner widget'}
+                {query ? 'Try adjusting your search criteria' : 'No tours are available at the moment'}
               </p>
               {query && (
                 <button

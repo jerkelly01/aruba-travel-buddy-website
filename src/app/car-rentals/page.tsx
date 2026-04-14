@@ -1,8 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -11,9 +9,6 @@ import Icon from "@/components/Icon";
 import { publicTransportationApi } from "@/lib/public-api";
 import { normalizeTransportation } from "@/lib/data-normalization";
 
-import { useViatorWidget } from "@/hooks/useViatorWidget";
-
-// Custom hook to reinitialize Viator widget when tab becomes visible or page navigates
 interface Transportation {
   id: string;
   name: string;
@@ -28,14 +23,13 @@ interface Transportation {
     price?: string;
   };
   contact_info?: any;
+  booking_url?: string;
 }
 
 export default function CarRentalsPage() {
   const [rentals, setRentals] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-30795ed3-bd02-41b4-9f61-c1c69d3dbba1");
-
   React.useEffect(() => {
     loadRentals();
   }, []);
@@ -109,19 +103,6 @@ export default function CarRentalsPage() {
         </Container>
       </section>
 
-      {/* Viator Widget Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
-        <Container>
-          <div
-            key={`viator-widget-${viatorWidgetKey}`}
-            ref={viatorWidgetRef}
-            data-vi-partner-id="P00276444"
-            data-vi-widget-ref="W-30795ed3-bd02-41b4-9f61-c1c69d3dbba1"
-            id="viator-widget-car-rentals"
-          ></div>
-        </Container>
-      </section>
-
       {/* Results Section */}
       <section className="py-12 bg-white">
         <Container>
@@ -141,9 +122,9 @@ export default function CarRentalsPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="device-phone-mobile" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Car Rentals Above</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No Results Found</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Explore available car rentals through our partner widget'}
+                {query ? 'Try adjusting your search criteria' : 'No car rentals available at the moment'}
               </p>
               {query && (
                 <button
@@ -169,18 +150,25 @@ export default function CarRentalsPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <div className="card overflow-hidden h-full group">
+                    <a
+                      href={rental.booking_url || undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`card overflow-hidden h-full group flex flex-col${rental.booking_url ? ' cursor-pointer' : ''}`}
+                      onClick={(e) => !rental.booking_url && e.preventDefault()}
+                    >
                       <div className="relative h-56 overflow-hidden">
                         {rental.images && rental.images.length > 0 ? (
                           <Image 
                             src={rental.images[0]} 
                             alt={title} 
                             fill 
-                            className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            unoptimized={true}
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
-                            <Icon name="device-phone-mobile" className="w-16 h-16 text-white opacity-50" />
+                            <Icon name="map-pin" className="w-16 h-16 text-white opacity-50" />
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -199,7 +187,7 @@ export default function CarRentalsPage() {
                           </div>
                         )}
                       </div>
-                      <div className="p-6">
+                      <div className="p-6 flex flex-col flex-1">
                         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
                           {title}
                         </h3>
@@ -214,8 +202,15 @@ export default function CarRentalsPage() {
                             </div>
                           )}
                         </div>
+                        {rental.booking_url && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <span className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm group-hover:bg-[var(--brand-aruba-dark)] transition-colors duration-200">
+                              Book Now
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    </a>
                   </motion.div>
                 );
               })}

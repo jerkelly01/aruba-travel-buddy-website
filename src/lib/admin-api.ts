@@ -78,6 +78,10 @@ function mapEndpointToSupabaseFunction(endpointPath: string): string {
     return endpointPath.replace('/admin/referral', '/admin-referral');
   }
 
+  if (endpointPath.startsWith('/admin/commissions')) {
+    return endpointPath.replace('/admin/commissions', '/admin-referral/commissions');
+  }
+
   // Default: return as-is (for endpoints not yet migrated)
   return endpointPath;
 }
@@ -157,6 +161,7 @@ async function apiRequest<T>(
       headers,
       mode: 'cors', // Explicitly set CORS mode
       credentials: 'omit', // Don't send cookies
+      cache: 'no-store',
     };
     
     const response = await fetch(fullUrl, fetchOptions);
@@ -495,8 +500,10 @@ export const clientProfileApi = {
 export const websiteAnalyticsApi = {
   // Get overview
   getOverview: async (timeRange?: '7d' | '30d' | '90d') => {
-    const query = timeRange ? `?timeRange=${timeRange}` : '';
-    return apiRequest(`/admin/analytics/website/overview${query}`);
+    const q = new URLSearchParams();
+    if (timeRange) q.set('timeRange', timeRange);
+    q.set('_ts', String(Date.now()));
+    return apiRequest(`/admin/analytics/website/overview?${q.toString()}`);
   },
 
   // Get traffic metrics
@@ -837,7 +844,41 @@ export const vendorPartnersApi = {
 };
 
 // Referral Campaign API
+export const ambassadorCommissionsApi = {
+  getCommissions: async (params?: { status?: string; limit?: number; offset?: number; search?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.status)            q.set('status', params.status);
+    if (params?.limit !== undefined) q.set('limit', String(params.limit));
+    if (params?.offset !== undefined) q.set('offset', String(params.offset));
+    if (params?.search)            q.set('search', params.search);
+    const qs = q.toString();
+    return apiRequest(`/admin/referral/commissions${qs ? `?${qs}` : ''}`);
+  },
+  updateStatus: async (id: string, status: string, notes?: string) =>
+    apiRequest(`/admin/referral/commissions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, notes }),
+    }),
+  bulkUpdateStatus: async (ids: string[], status: string, notes?: string) =>
+    apiRequest('/admin/referral/commissions/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ ids, status, notes }),
+    }),
+};
+
 export const referralCampaignApi = {
+  /** Overview stats: installs, booking clicks, attributed vs orphan, commission sums */
+  getDashboard: async (month?: string) => {
+    const q = month ? `?month=${encodeURIComponent(month)}` : '';
+    return apiRequest(`/admin/referral/dashboard${q}`);
+  },
+  getLeaderboard: async (month?: string, limit?: number) => {
+    const p = new URLSearchParams();
+    if (month) p.set('month', month);
+    if (limit != null) p.set('limit', String(limit));
+    const qs = p.toString();
+    return apiRequest(`/admin/referral/leaderboard${qs ? `?${qs}` : ''}`);
+  },
   getPrizes: async () => apiRequest('/admin/referral/prizes'),
   getPrize: async (month: string) => apiRequest(`/admin/referral/prizes/${month}`),
   getEntries: async (month?: string) => {
@@ -871,5 +912,6 @@ export default {
   feedbackApi,
   vendorPartnersApi,
   referralCampaignApi,
+  ambassadorCommissionsApi,
 };
 

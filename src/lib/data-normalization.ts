@@ -49,6 +49,7 @@ export function normalizeLocalExperiences(data: any[]): any[] {
     category: item.category || '',
     tags: Array.isArray(item.tags) ? item.tags : [],
     code_snippet: item.code_snippet || '',
+    booking_url: item.code_snippet || '',
   }));
 }
 
@@ -80,6 +81,7 @@ export function normalizeTransportation(data: any[]): any[] {
     contact_info: item.contact_info || {},
     pricing_info: item.pricing_info || {},
     code_snippet: item.code_snippet || '',
+    booking_url: item.code_snippet || '',
   }));
 }
 

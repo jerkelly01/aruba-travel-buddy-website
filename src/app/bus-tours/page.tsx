@@ -1,8 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -10,8 +8,6 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicTransportationApi } from "@/lib/public-api";
 import { normalizeTransportation } from "@/lib/data-normalization";
-
-import { useViatorWidget } from "@/hooks/useViatorWidget";
 
 interface Transportation {
   id: string;
@@ -27,14 +23,13 @@ interface Transportation {
     price?: string;
   };
   contact_info?: any;
+  booking_url?: string;
 }
 
 export default function BusToursPage() {
   const [tours, setTours] = React.useState<Transportation[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [query, setQuery] = React.useState("");
-  const { widgetContainerRef: viatorWidgetRef, widgetKey: viatorWidgetKey } = useViatorWidget("W-b22b5a1c-f1f0-4250-a286-b83572c5e664");
-
   React.useEffect(() => {
     loadTours();
   }, []);
@@ -108,19 +103,6 @@ export default function BusToursPage() {
         </Container>
       </section>
 
-      {/* Viator Widget Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
-        <Container>
-          <div
-            key={`viator-widget-${viatorWidgetKey}`}
-            ref={viatorWidgetRef}
-            data-vi-partner-id="P00276444"
-            data-vi-widget-ref="W-b22b5a1c-f1f0-4250-a286-b83572c5e664"
-            id="viator-widget-bus-tours"
-          ></div>
-        </Container>
-      </section>
-
       {/* Results Section */}
       <section className="py-12 bg-white">
         <Container>
@@ -140,9 +122,9 @@ export default function BusToursPage() {
               <div className="text-gray-400 mb-4">
                 <Icon name="map-pin" className="w-16 h-16 mx-auto" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Browse Bus Tours Above</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">No Results Found</h3>
               <p className="text-gray-600 mb-6">
-                {query ? 'Try adjusting your search criteria' : 'Explore available bus tours through our partner widget'}
+                {query ? 'Try adjusting your search criteria' : 'No bus tours available at the moment'}
               </p>
               {query && (
                 <button
@@ -168,14 +150,21 @@ export default function BusToursPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <div className="card overflow-hidden h-full group">
+                    <a
+                      href={tour.booking_url || undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`card overflow-hidden h-full group flex flex-col${tour.booking_url ? ' cursor-pointer' : ''}`}
+                      onClick={(e) => !tour.booking_url && e.preventDefault()}
+                    >
                       <div className="relative h-56 overflow-hidden">
                         {tour.images && tour.images.length > 0 ? (
                           <Image 
                             src={tour.images[0]} 
                             alt={title} 
                             fill 
-                            className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            unoptimized={true}
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
@@ -198,7 +187,7 @@ export default function BusToursPage() {
                           </div>
                         )}
                       </div>
-                      <div className="p-6">
+                      <div className="p-6 flex flex-col flex-1">
                         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
                           {title}
                         </h3>
@@ -213,8 +202,15 @@ export default function BusToursPage() {
                             </div>
                           )}
                         </div>
+                        {tour.booking_url && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <span className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm group-hover:bg-[var(--brand-aruba-dark)] transition-colors duration-200">
+                              Book Now
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    </a>
                   </motion.div>
                 );
               })}
