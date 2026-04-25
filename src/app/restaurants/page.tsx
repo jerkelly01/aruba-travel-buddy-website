@@ -151,65 +151,67 @@ export default function RestaurantsPage() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <div className="card overflow-hidden h-full group">
-                    <div className="relative h-56 overflow-hidden">
-                      {rest.images && rest.images.length > 0 ? (
-                        <Image 
-                          src={rest.images[0]} 
-                          alt={rest.name} 
-                          fill 
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          unoptimized={true}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
-                          <Icon name="star" className="w-16 h-16 text-white opacity-50" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {rest.featured && (
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
-                            Featured
-                          </span>
-                        </div>
-                      )}
-                      {rest.price_range && (
-                        <div className="absolute top-4 right-4">
-                          <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
-                            {rest.price_range}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
-                        {rest.name}
-                      </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-2">
-                        {rest.description}
-                      </p>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        {rest.location && (
-                          <div className="flex items-center gap-2">
-                            <Icon name="map-pin" className="w-4 h-4" />
-                            <span>{rest.location}</span>
+                  <div className="card overflow-hidden h-full group flex flex-col">
+                    <Link href={`/restaurants/${rest.id}`} className="flex flex-col flex-1 min-h-0">
+                      <div className="relative h-56 overflow-hidden">
+                        {rest.images && rest.images.length > 0 ? (
+                          <Image 
+                            src={rest.images[0]} 
+                            alt={rest.name} 
+                            fill 
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            unoptimized={true}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
+                            <Icon name="star" className="w-16 h-16 text-white opacity-50" />
                           </div>
                         )}
-                        {rest.cuisine_types && rest.cuisine_types.length > 0 && (
-                          <div className="flex items-center gap-2">
-                            <Icon name="sparkles" className="w-4 h-4" />
-                            <span>{rest.cuisine_types.join(', ')}</span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {rest.featured && (
+                          <div className="absolute top-4 left-4">
+                            <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
+                              Featured
+                            </span>
                           </div>
                         )}
-                        {rest.contact_info?.phone && (
-                          <div className="flex items-center gap-2">
-                            <Icon name="phone" className="w-4 h-4" />
-                            <span>{rest.contact_info.phone}</span>
+                        {rest.price_range && (
+                          <div className="absolute top-4 right-4">
+                            <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
+                              {rest.price_range}
+                            </span>
                           </div>
                         )}
                       </div>
-                    </div>
+                      <div className="p-6 flex flex-col flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
+                          {rest.name}
+                        </h3>
+                        <p className="text-gray-600 mb-4 line-clamp-2">
+                          {rest.description}
+                        </p>
+                        <div className="space-y-2 text-sm text-gray-600">
+                          {rest.location && (
+                            <div className="flex items-center gap-2">
+                              <Icon name="map-pin" className="w-4 h-4" />
+                              <span>{rest.location}</span>
+                            </div>
+                          )}
+                          {rest.cuisine_types && rest.cuisine_types.length > 0 && (
+                            <div className="flex items-center gap-2">
+                              <Icon name="sparkles" className="w-4 h-4" />
+                              <span>{rest.cuisine_types.join(', ')}</span>
+                            </div>
+                          )}
+                          {rest.contact_info?.phone && (
+                            <div className="flex items-center gap-2">
+                              <Icon name="phone" className="w-4 h-4" />
+                              <span>{rest.contact_info.phone}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
                   </div>
                 </motion.div>
               ))}
