@@ -8,7 +8,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicCulturalEventsApi } from "@/lib/public-api";
-import { normalizeCulturalEvents } from "@/lib/data-normalization";
+import { normalizeCulturalEvents, formatCulturalCalendarDate, formatCulturalTime } from "@/lib/data-normalization";
 
 interface CulturalEvent {
   id: string;
@@ -22,6 +22,7 @@ interface CulturalEvent {
   price?: number;
   images: string[];
   is_featured: boolean;
+  booking_url?: string;
 }
 
 export default function CulturalEventsPage() {
@@ -109,33 +110,6 @@ export default function CulturalEventsPage() {
     });
   }, [events, query]);
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-      });
-    } catch {
-      return dateStr;
-    }
-  };
-
-  const formatTime = (timeStr?: string) => {
-    if (!timeStr) return '';
-    try {
-      const [hours, minutes] = timeStr.split(':');
-      const hour = parseInt(hours);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour % 12 || 12;
-      return `${displayHour}:${minutes} ${ampm}`;
-    } catch {
-      return timeStr;
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -206,14 +180,16 @@ export default function CulturalEventsPage() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <div className="card overflow-hidden h-full group">
+                  <div className="card overflow-hidden h-full group flex flex-col">
+                    <Link href={`/cultural-events/${event.id}`} className="flex flex-col flex-1 min-h-0">
                     <div className="relative h-56 overflow-hidden">
                       {event.images && event.images.length > 0 ? (
                         <Image 
                           src={event.images[0]} 
                           alt={event.title} 
                           fill 
-                          className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                          className="object-cover object-center group-hover:scale-110 transition-transform duration-500" 
+                          unoptimized
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
@@ -236,36 +212,37 @@ export default function CulturalEventsPage() {
                         </div>
                       )}
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-1">
                       <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
                         {event.title}
                       </h3>
                       <p className="text-gray-600 mb-4 line-clamp-2">
                         {event.description}
                       </p>
-                      <div className="space-y-2 text-sm text-gray-600">
+                      <div className="space-y-2 text-sm text-gray-600 mt-auto">
                         <div className="flex items-center gap-2">
-                          <Icon name="map-pin" className="w-4 h-4" />
+                          <Icon name="map-pin" className="w-4 h-4 shrink-0" />
                           <span>{event.location}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Icon name="calendar-days" className="w-4 h-4" />
+                          <Icon name="calendar-days" className="w-4 h-4 shrink-0" />
                           <span>
-                            {formatDate(event.start_date)}
-                            {event.end_date && event.start_date !== event.end_date && ` - ${formatDate(event.end_date)}`}
+                            {formatCulturalCalendarDate(event.start_date)}
+                            {event.end_date && event.start_date !== event.end_date && ` – ${formatCulturalCalendarDate(event.end_date)}`}
                           </span>
                         </div>
                         {event.start_time && (
                           <div className="flex items-center gap-2">
-                            <Icon name="calendar-days" className="w-4 h-4" />
+                            <Icon name="sparkles" className="w-4 h-4 shrink-0" />
                             <span>
-                              {formatTime(event.start_time)}
-                              {event.end_time && ` - ${formatTime(event.end_time)}`}
+                              {formatCulturalTime(event.start_time)}
+                              {event.end_time && ` – ${formatCulturalTime(event.end_time)}`}
                             </span>
                           </div>
                         )}
                       </div>
                     </div>
+                    </Link>
                   </div>
                 </motion.div>
               ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -8,6 +9,7 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicTransportationApi } from "@/lib/public-api";
 import { normalizeTransportation } from "@/lib/data-normalization";
+import { sanitizeBookingUrl } from "@/lib/booking-url";
 
 interface Transportation {
   id: string;
@@ -142,6 +144,7 @@ export default function CarRentalsPage() {
                 const price = rental.pricing_info?.price 
                   || (rental.pricing_info?.daily_rate ? `From $${rental.pricing_info.daily_rate}/day` : '')
                   || (rental.pricing_info?.hourly_rate ? `From $${rental.pricing_info.hourly_rate}/hour` : '');
+                const bookHref = rental.booking_url ? sanitizeBookingUrl(rental.booking_url) : "";
                 return (
                   <motion.div
                     key={rental.id}
@@ -150,67 +153,68 @@ export default function CarRentalsPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <a
-                      href={rental.booking_url || undefined}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`card overflow-hidden h-full group flex flex-col${rental.booking_url ? ' cursor-pointer' : ''}`}
-                      onClick={(e) => !rental.booking_url && e.preventDefault()}
-                    >
-                      <div className="relative h-56 overflow-hidden">
-                        {rental.images && rental.images.length > 0 ? (
-                          <Image 
-                            src={rental.images[0]} 
-                            alt={title} 
-                            fill 
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                            unoptimized={true}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
-                            <Icon name="map-pin" className="w-16 h-16 text-white opacity-50" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        {rental.featured && (
-                          <div className="absolute top-4 left-4">
-                            <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
-                              Featured
-                            </span>
-                          </div>
-                        )}
-                        {price && (
-                          <div className="absolute top-4 right-4">
-                            <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
-                              {price}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-6 flex flex-col flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
-                          {title}
-                        </h3>
-                        <p className="text-gray-600 mb-4 line-clamp-2">
-                          {rental.description}
-                        </p>
-                        <div className="space-y-2 text-sm text-gray-600">
-                          {rental.location && (
-                            <div className="flex items-center gap-2">
-                              <Icon name="map-pin" className="w-4 h-4" />
-                              <span>{rental.location}</span>
+                    <div className="card overflow-hidden h-full group flex flex-col">
+                      <Link href={`/transportation/${rental.id}?from=car`} className="flex flex-col flex-1 min-h-0">
+                        <div className="relative h-56 overflow-hidden">
+                          {rental.images && rental.images.length > 0 ? (
+                            <Image 
+                              src={rental.images[0]} 
+                              alt={title} 
+                              fill 
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              unoptimized={true}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
+                              <Icon name="map-pin" className="w-16 h-16 text-white opacity-50" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          {rental.featured && (
+                            <div className="absolute top-4 left-4">
+                              <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
+                                Featured
+                              </span>
+                            </div>
+                          )}
+                          {price && (
+                            <div className="absolute top-4 right-4">
+                              <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
+                                {price}
+                              </span>
                             </div>
                           )}
                         </div>
-                        {rental.booking_url && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <span className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm group-hover:bg-[var(--brand-aruba-dark)] transition-colors duration-200">
-                              Book Now
-                            </span>
+                        <div className="p-6 flex flex-col flex-1">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
+                            {title}
+                          </h3>
+                          <p className="text-gray-600 mb-4 line-clamp-2">
+                            {rental.description}
+                          </p>
+                          <div className="space-y-2 text-sm text-gray-600">
+                            {rental.location && (
+                              <div className="flex items-center gap-2">
+                                <Icon name="map-pin" className="w-4 h-4" />
+                                <span>{rental.location}</span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    </a>
+                        </div>
+                      </Link>
+                      {bookHref ? (
+                        <div className="px-6 pb-6 pt-0 mt-auto border-t border-gray-100">
+                          <a
+                            href={bookHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm hover:bg-[var(--brand-aruba-dark)] transition-colors"
+                          >
+                            Book Now
+                          </a>
+                        </div>
+                      ) : null}
+                    </div>
                   </motion.div>
                 );
               })}

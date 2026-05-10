@@ -879,6 +879,13 @@ export const referralCampaignApi = {
     const qs = p.toString();
     return apiRequest(`/admin/referral/leaderboard${qs ? `?${qs}` : ''}`);
   },
+  /** Admin: all ambassador codes + app user + saved payout / bank fields */
+  getPayoutDirectory: async () => apiRequest('/admin/referral/payout-directory'),
+  upsertPayoutProfile: async (referralCode: string, body: Record<string, unknown>) =>
+    apiRequest(`/admin/referral/payout-profiles/${encodeURIComponent(referralCode)}`, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
   getPrizes: async () => apiRequest('/admin/referral/prizes'),
   getPrize: async (month: string) => apiRequest(`/admin/referral/prizes/${month}`),
   getEntries: async (month?: string) => {

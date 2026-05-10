@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { referralCampaignApi } from '@/lib/admin-api';
 import { AmbassadorPayoutsPanel } from '@/components/admin/AmbassadorPayoutsPanel';
+import { AmbassadorPayoutDirectoryPanel } from '@/components/admin/AmbassadorPayoutDirectoryPanel';
 
-type Tab = 'overview' | 'installs' | 'payouts';
+type Tab = 'overview' | 'installs' | 'payouts' | 'contacts';
 
 function monthNow(): string {
   const d = new Date();
@@ -78,7 +79,9 @@ function AmbassadorAdminInner() {
 
   const tabParam = (searchParams.get('tab') || 'overview').toLowerCase();
   const tab: Tab =
-    tabParam === 'installs' || tabParam === 'payouts' ? (tabParam as Tab) : 'overview';
+    tabParam === 'installs' || tabParam === 'payouts' || tabParam === 'contacts'
+      ? (tabParam as Tab)
+      : 'overview';
 
   const [month, setMonth] = useState(monthNow);
   const [dash, setDash] = useState<DashboardStats | null>(null);
@@ -215,6 +218,7 @@ function AmbassadorAdminInner() {
         { id: 'overview' as Tab, label: 'Overview' },
         { id: 'installs' as Tab, label: 'App installs' },
         { id: 'payouts' as Tab, label: 'Booking payouts' },
+        { id: 'contacts' as Tab, label: 'Payout contacts' },
       ] as const,
     [],
   );
@@ -252,16 +256,18 @@ function AmbassadorAdminInner() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <label className="text-sm text-gray-600 flex items-center gap-2">
-            Month
-            <input
-              type="month"
-              value={month}
-              onChange={(e) => setMonth(e.target.value)}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm"
-            />
-          </label>
-          <nav className="flex gap-1 bg-white border border-gray-200 rounded-lg p-1">
+          {(tab === 'overview' || tab === 'installs') && (
+            <label className="text-sm text-gray-600 flex items-center gap-2">
+              Month
+              <input
+                type="month"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm"
+              />
+            </label>
+          )}
+          <nav className="flex gap-1 bg-white border border-gray-200 rounded-lg p-1 flex-wrap">
             {tabs.map((t) => (
               <button
                 key={t.id}
@@ -487,6 +493,8 @@ function AmbassadorAdminInner() {
         )}
 
         {tab === 'payouts' && <AmbassadorPayoutsPanel />}
+
+        {tab === 'contacts' && <AmbassadorPayoutDirectoryPanel />}
       </div>
     </div>
   );

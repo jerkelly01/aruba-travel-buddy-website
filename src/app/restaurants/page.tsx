@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicRestaurantsApi } from "@/lib/public-api";
 import { normalizeRestaurants } from "@/lib/data-normalization";
+import { sanitizeBookingUrl } from "@/lib/booking-url";
 
 interface Restaurant {
   id: string;
@@ -19,6 +20,8 @@ interface Restaurant {
   location?: string;
   images: string[];
   featured: boolean;
+  menu_url?: string;
+  menu_image_url?: string;
   contact_info?: {
     phone?: string;
     email?: string;
@@ -159,7 +162,7 @@ export default function RestaurantsPage() {
                             src={rest.images[0]} 
                             alt={rest.name} 
                             fill 
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            className="object-cover object-[center_72%] group-hover:scale-110 transition-transform duration-500"
                             unoptimized={true}
                           />
                         ) : (
@@ -212,6 +215,37 @@ export default function RestaurantsPage() {
                         </div>
                       </div>
                     </Link>
+                    {(() => {
+                      const menuLink = sanitizeBookingUrl((rest.menu_url || "").trim());
+                      const menuImg = sanitizeBookingUrl((rest.menu_image_url || "").trim());
+                      if (!menuLink && !menuImg) return null;
+                      return (
+                        <div className="px-6 pb-4 flex flex-wrap gap-2 border-t border-gray-100 bg-white">
+                          {menuLink ? (
+                            <a
+                              href={menuLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--brand-aruba)] hover:underline"
+                            >
+                              <Icon name="document-text" className="w-4 h-4" />
+                              Menu
+                            </a>
+                          ) : null}
+                          {menuImg ? (
+                            <a
+                              href={menuImg}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--brand-aruba)] hover:underline"
+                            >
+                              <Icon name="document-text" className="w-4 h-4" />
+                              Menu photo
+                            </a>
+                          ) : null}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </motion.div>
               ))}

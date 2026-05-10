@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import * as React from "react";
 import Container from "@/components/Container";
 import SectionHeader from "@/components/SectionHeader";
@@ -8,6 +9,7 @@ import { motion } from "framer-motion";
 import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeLocalExperiences } from "@/lib/data-normalization";
+import { sanitizeBookingUrl } from "@/lib/booking-url";
 interface LocalExperience {
   id: string;
   title: string;
@@ -134,7 +136,9 @@ export default function LocalExperiencesPage() {
             </motion.div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-              {filteredExperiences.map((exp, index) => (
+              {filteredExperiences.map((exp, index) => {
+                const bookHref = exp.booking_url ? sanitizeBookingUrl(exp.booking_url) : "";
+                return (
                 <motion.div
                   key={exp.id}
                   initial={{ opacity: 0, y: 30 }}
@@ -142,81 +146,83 @@ export default function LocalExperiencesPage() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <a
-                    href={exp.booking_url || undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`card overflow-hidden h-full group flex flex-col${exp.booking_url ? ' cursor-pointer' : ''}`}
-                    onClick={(e) => !exp.booking_url && e.preventDefault()}
-                  >
-                    <div className="relative h-56 overflow-hidden">
-                      {exp.images && exp.images.length > 0 ? (
-                        <Image 
-                          src={exp.images[0]} 
-                          alt={exp.title} 
-                          fill 
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          unoptimized={true}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
-                          <Icon name="heart" className="w-16 h-16 text-white opacity-50" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {exp.featured && (
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
-                            Featured
-                          </span>
-                        </div>
-                      )}
-                      {exp.price && (
-                        <div className="absolute top-4 right-4">
-                          <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
-                            {exp.price}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-6 flex flex-col flex-1">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
-                        {exp.title}
-                      </h3>
-                      <p className="text-gray-600 mb-4 line-clamp-2">
-                        {exp.description}
-                      </p>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        {exp.location && (
-                          <div className="flex items-center gap-2">
-                            <Icon name="map-pin" className="w-4 h-4" />
-                            <span>{exp.location}</span>
+                  <div className="card overflow-hidden h-full group flex flex-col">
+                    <Link href={`/local-experiences/${exp.id}`} className="flex flex-col flex-1 min-h-0">
+                      <div className="relative h-56 overflow-hidden">
+                        {exp.images && exp.images.length > 0 ? (
+                          <Image 
+                            src={exp.images[0]} 
+                            alt={exp.title} 
+                            fill 
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            unoptimized={true}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
+                            <Icon name="heart" className="w-16 h-16 text-white opacity-50" />
                           </div>
                         )}
-                        {exp.duration && (
-                          <div className="flex items-center gap-2">
-                            <Icon name="calendar-days" className="w-4 h-4" />
-                            <span>{exp.duration}</span>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {exp.featured && (
+                          <div className="absolute top-4 left-4">
+                            <span className="px-3 py-1 rounded-full bg-yellow-400/90 backdrop-blur-sm text-sm font-semibold text-gray-900">
+                              Featured
+                            </span>
                           </div>
                         )}
-                        {exp.category && (
-                          <div className="flex items-center gap-2">
-                            <Icon name="sparkles" className="w-4 h-4" />
-                            <span>{exp.category}</span>
+                        {exp.price && (
+                          <div className="absolute top-4 right-4">
+                            <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-sm font-semibold text-[var(--brand-aruba)]">
+                              {exp.price}
+                            </span>
                           </div>
                         )}
                       </div>
-                      {exp.booking_url && (
-                        <div className="mt-4 pt-4 border-t border-gray-200">
-                          <span className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm group-hover:bg-[var(--brand-aruba-dark)] transition-colors duration-200">
-                            Book Now
-                          </span>
+                      <div className="p-6 flex flex-col flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[var(--brand-aruba)] transition-colors duration-200 font-display">
+                          {exp.title}
+                        </h3>
+                        <p className="text-gray-600 mb-4 line-clamp-2">
+                          {exp.description}
+                        </p>
+                        <div className="space-y-2 text-sm text-gray-600">
+                          {exp.location && (
+                            <div className="flex items-center gap-2">
+                              <Icon name="map-pin" className="w-4 h-4" />
+                              <span>{exp.location}</span>
+                            </div>
+                          )}
+                          {exp.duration && (
+                            <div className="flex items-center gap-2">
+                              <Icon name="calendar-days" className="w-4 h-4" />
+                              <span>{exp.duration}</span>
+                            </div>
+                          )}
+                          {exp.category && (
+                            <div className="flex items-center gap-2">
+                              <Icon name="sparkles" className="w-4 h-4" />
+                              <span>{exp.category}</span>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </a>
+                      </div>
+                    </Link>
+                    {bookHref ? (
+                      <div className="px-6 pb-6 pt-0 mt-auto border-t border-gray-100">
+                        <a
+                          href={bookHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full text-center px-4 py-2.5 bg-[var(--brand-aruba)] text-white rounded-xl font-semibold text-sm hover:bg-[var(--brand-aruba-dark)] transition-colors"
+                        >
+                          Book Now
+                        </a>
+                      </div>
+                    ) : null}
+                  </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Container>
