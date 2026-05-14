@@ -297,6 +297,16 @@ export default function AdminDashboard() {
             </p>
             <span className="text-white font-semibold">View Dashboard →</span>
           </Link>
+          <Link
+            href="/admin/concierge"
+            className="bg-gradient-to-br from-[#0d3b4d] to-[#0891b2] rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-teal-400"
+          >
+            <h3 className="text-xl font-bold text-white mb-2">Concierge Hosts</h3>
+            <p className="text-teal-100 text-sm mb-4">
+              Create &amp; manage hotel/Airbnb hosts, room tablets, integrations, and guest communication.
+            </p>
+            <span className="text-white font-semibold">Manage Concierge →</span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">          {/* Stats Cards - Real Data */}

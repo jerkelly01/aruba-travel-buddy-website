@@ -82,6 +82,11 @@ function mapEndpointToSupabaseFunction(endpointPath: string): string {
     return endpointPath.replace('/admin/commissions', '/admin-referral/commissions');
   }
 
+  // Concierge host management
+  if (endpointPath.startsWith('/admin/concierge')) {
+    return endpointPath.replace('/admin/concierge', '/admin-concierge');
+  }
+
   // Default: return as-is (for endpoints not yet migrated)
   return endpointPath;
 }
@@ -904,6 +909,62 @@ export const referralCampaignApi = {
     }),
 };
 
+// =====================================================
+// Concierge Host Management API
+// =====================================================
+export const conciergeHostsApi = {
+  // --- Hosts ---
+  getHosts: async () => apiRequest('/admin/concierge/hosts'),
+  getHost: async (id: string) => apiRequest(`/admin/concierge/hosts/${id}`),
+  createHost: async (data: {
+    name: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    welcome_message?: string;
+    logo_url?: string;
+    theme_colors?: Record<string, string>;
+  }) => apiRequest('/admin/concierge/hosts', { method: 'POST', body: JSON.stringify(data) }),
+  updateHost: async (id: string, updates: Record<string, any>) =>
+    apiRequest(`/admin/concierge/hosts/${id}`, { method: 'PUT', body: JSON.stringify(updates) }),
+  deleteHost: async (id: string) =>
+    apiRequest(`/admin/concierge/hosts/${id}`, { method: 'DELETE' }),
+
+  // --- Host Info sections ---
+  getHostInfo: async (hostId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/info`),
+  upsertHostInfo: async (hostId: string, section: Record<string, any>) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/info`, { method: 'POST', body: JSON.stringify(section) }),
+  deleteHostInfo: async (hostId: string, sectionId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/info/${sectionId}`, { method: 'DELETE' }),
+
+  // --- Rooms ---
+  getRooms: async (hostId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/rooms`),
+  createRoom: async (hostId: string, data: { room_number: string; room_label?: string }) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/rooms`, { method: 'POST', body: JSON.stringify(data) }),
+  updateRoom: async (hostId: string, roomId: string, updates: Record<string, any>) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/rooms/${roomId}`, { method: 'PUT', body: JSON.stringify(updates) }),
+  deleteRoom: async (hostId: string, roomId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/rooms/${roomId}`, { method: 'DELETE' }),
+
+  // --- Integrations ---
+  getIntegrations: async (hostId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/integrations`),
+  upsertIntegration: async (hostId: string, data: Record<string, any>) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/integrations`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteIntegration: async (hostId: string, integrationId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/integrations/${integrationId}`, { method: 'DELETE' }),
+
+  // --- Escalation ---
+  getEscalation: async (hostId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/escalation`),
+  upsertEscalation: async (hostId: string, data: Record<string, any>) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/escalation`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteEscalation: async (hostId: string, escalationId: string) =>
+    apiRequest(`/admin/concierge/hosts/${hostId}/escalation/${escalationId}`, { method: 'DELETE' }),
+};
+
 export default {
   clientProfileApi,
   websiteAnalyticsApi,
@@ -920,5 +981,6 @@ export default {
   vendorPartnersApi,
   referralCampaignApi,
   ambassadorCommissionsApi,
+  conciergeHostsApi,
 };
 
