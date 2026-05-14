@@ -73,6 +73,11 @@ interface AccountCredentials {
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ydycncbqobpljrtknpqd.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+/** Edge functions always live on your Supabase project — not on arubatravelbuddy.com */
+const SUPABASE_ORIGIN = SUPABASE_URL.replace(/\/$/, '');
+const VENDOR_WEBHOOK_ROOT = `${SUPABASE_ORIGIN}/functions/v1/vendor-webhook`;
+const VENDOR_WEBHOOK_CONFIRM_URL = `${VENDOR_WEBHOOK_ROOT}/booking-confirmed`;
+const VENDOR_WEBHOOK_CANCEL_URL = `${VENDOR_WEBHOOK_ROOT}/booking-cancelled`;
 
 const ENTITY_TYPES = [
   { value: 'restaurant',     label: 'Restaurant',         emoji: '🍽️' },
@@ -116,7 +121,7 @@ export default function VendorPartnersPage() {
   const [commissionSummary, setCommissionSummary] = useState<CommissionSummary | null>(null);
   const [commissions, setCommissions] = useState<CommissionEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'accounts' | 'vendors' | 'commissions'>('accounts');
+  const [activeTab, setActiveTab] = useState<'setup' | 'accounts' | 'vendors' | 'commissions'>('setup');
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
 
   // Onboard form state (API key vendors)
@@ -356,6 +361,42 @@ export default function VendorPartnersPage() {
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
+  const vendorHandoutMarkdown = `Aruba Travel Buddy — Booking confirmation webhook
+
+SECURITY
+- Call these URLs only from your server (never from the browser).
+- Store the API key as an environment variable. Do not commit it to git.
+
+ENDPOINTS (HTTPS POST)
+Confirm: ${VENDOR_WEBHOOK_CONFIRM_URL}
+Cancel:  ${VENDOR_WEBHOOK_CANCEL_URL}
+
+HEADER (required on every request)
+x-vendor-api-key: <secret key provided by Aruba Travel Buddy>
+
+CONFIRM BODY (JSON)
+{
+  "click_id": "<copy from the click_id query parameter when the customer lands from the app>",
+  "booking_reference": "<your order id>",
+  "booking_amount": 150.00,
+  "currency": "USD"
+}
+
+CANCEL BODY (JSON)
+{
+  "booking_reference": "<same order id you used on confirm>"
+}
+
+ATTRIBUTION
+When a user taps Book in the Aruba Travel Buddy app, they open your site with ?click_id=... (or &click_id=...).
+You must keep that value through checkout and send it back in "click_id" when payment succeeds so commission can be matched.
+
+Questions: contact your Aruba Travel Buddy partner manager.`;
+
+  const copyVendorHandout = () => {
+    void copyToClipboard(vendorHandoutMarkdown, 'vendor-handout');
+  };
+
   if (isLoading || !isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -423,26 +464,184 @@ export default function VendorPartnersPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 bg-white rounded-lg shadow p-1 w-fit">
+        <div className="flex flex-wrap gap-1 mb-6 bg-white rounded-lg shadow p-1 w-fit max-w-full">
           <button
+            type="button"
+            onClick={() => setActiveTab('setup')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'setup' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+          >
+            Commission setup
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab('accounts')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'accounts' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
           >
-            🔑 Accounts ({accounts.length})
+            Accounts ({accounts.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('vendors')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
           >
-            API Keys ({vendors.length})
+            API keys ({vendors.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('commissions')}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'commissions' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
           >
             Commissions ({commissions.length})
           </button>
         </div>
+
+        {/* ══ SETUP / WEBHOOK GUIDE ══ */}
+        {activeTab === 'setup' && (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950">
+              <p className="font-bold text-amber-900 mb-2">Keep commissions safe</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>
+                  <strong>Never</strong> put the vendor API key in frontend JavaScript, public repos, or client-side code.
+                  Vendors should call webhooks from <strong>their server</strong> only (same as Stripe webhooks).
+                </li>
+                <li>
+                  Only use <strong className="font-mono">https://</strong> URLs below — they are your live Supabase Edge
+                  Functions, not your marketing domain.
+                </li>
+                <li>
+                  Rotate a key if it leaks: deactivate the vendor in <strong>API keys</strong>, create a new row / key, and
+                  update the vendor&apos;s environment variable.
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900 mb-2">How commission tracking works</h2>
+              <ol className="list-decimal pl-5 space-y-3 text-sm text-gray-700">
+                <li>
+                  <strong>You</strong> add the partner in <strong>Admin</strong> as a listing (tour, transportation, restaurant,
+                  etc.) with a <strong>booking URL</strong> and <strong>commission %</strong> or <strong>flat fee</strong>.
+                  Saving that creates an <strong>API key</strong> (see <strong>API keys</strong> tab) tied to the listing&apos;s{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">vendor_id</code>.
+                </li>
+                <li>
+                  When a traveler taps <strong>Book</strong> in the Aruba Travel Buddy app, we open the vendor&apos;s URL and
+                  append <code className="text-xs bg-gray-100 px-1 rounded">click_id=atb_…</code>. We also log the click in
+                  our database.
+                </li>
+                <li>
+                  The vendor&apos;s website or booking engine must <strong>read and keep</strong>{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">click_id</code> through checkout (cookie, session, or
+                  order metadata).
+                </li>
+                <li>
+                  After payment succeeds, their <strong>backend</strong> POSTs to our webhook with{' '}
+                  <code className="text-xs bg-gray-100 px-1 rounded">click_id</code>, order reference, and amount. We record
+                  commission for you — view it under <strong>Commissions</strong>.
+                </li>
+              </ol>
+              <p className="mt-4 text-xs text-gray-500">
+                <strong>Vendor dashboard (extranet)</strong> at <span className="font-mono">/vendor</span> is separate: it
+                manages slots and bookings inside our system. It does <strong>not</strong> replace the webhook if the customer
+                books on the vendor&apos;s own website.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Webhook endpoints (share with vendor IT)</h2>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Confirm booking</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <code className="text-xs sm:text-sm bg-gray-900 text-green-400 px-3 py-2 rounded-lg font-mono break-all flex-1 min-w-0">
+                      POST {VENDOR_WEBHOOK_CONFIRM_URL}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => void copyToClipboard(VENDOR_WEBHOOK_CONFIRM_URL, 'url-confirm')}
+                      className="shrink-0 text-sm px-3 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+                    >
+                      {copiedKey === 'url-confirm' ? 'Copied' : 'Copy URL'}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Cancel booking</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <code className="text-xs sm:text-sm bg-gray-900 text-green-400 px-3 py-2 rounded-lg font-mono break-all flex-1 min-w-0">
+                      POST {VENDOR_WEBHOOK_CANCEL_URL}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => void copyToClipboard(VENDOR_WEBHOOK_CANCEL_URL, 'url-cancel')}
+                      className="shrink-0 text-sm px-3 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700"
+                    >
+                      {copiedKey === 'url-cancel' ? 'Copied' : 'Copy URL'}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Required header</div>
+                  <code className="text-sm block bg-gray-100 px-3 py-2 rounded-lg font-mono text-gray-800">
+                    x-vendor-api-key: &lt;paste from API keys tab — treat like a password&gt;
+                  </code>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Confirm JSON body</div>
+                    <pre className="text-xs bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-x-auto text-gray-800">
+{`{
+  "click_id": "atb_…",
+  "booking_reference": "ORD-12345",
+  "booking_amount": 150.00,
+  "currency": "USD"
+}`}
+                    </pre>
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Cancel JSON body</div>
+                    <pre className="text-xs bg-gray-50 border border-gray-200 rounded-lg p-3 overflow-x-auto text-gray-800">
+{`{
+  "booking_reference": "ORD-12345"
+}`}
+                    </pre>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Commission amount is calculated on our servers from <code className="bg-gray-100 px-1 rounded">booking_amount</code> and the
+                  percentage or flat fee stored on the API key.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-6 border border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">Vendor handout</h2>
+                <p className="text-sm text-gray-600">
+                  One copy-paste document you can email to any partner (WordPress, custom PHP, Node, .NET, etc.).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={copyVendorHandout}
+                className="shrink-0 px-5 py-2.5 rounded-xl bg-[#1a365d] text-white text-sm font-semibold hover:bg-[#2a4a7f]"
+              >
+                {copiedKey === 'vendor-handout' ? 'Copied to clipboard' : 'Copy full handout'}
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-sm text-gray-700">
+              <p className="font-semibold text-gray-900 mb-2">Checklist for you (admin)</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Listing has the correct <strong>booking URL</strong> (where travelers actually pay).</li>
+                <li>Commission % or flat fee is set and saved (creates or updates the API key when a URL + commission exist).</li>
+                <li>You copied the <strong>API key</strong> from the <strong>API keys</strong> tab and sent it securely to the vendor.</li>
+                <li>Vendor <code className="text-xs bg-white px-1 rounded border">vendor_id</code> matches the listing&apos;s database ID.</li>
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* ══ ACCOUNTS TAB ══ */}
         {activeTab === 'accounts' && (
@@ -864,44 +1063,6 @@ export default function VendorPartnersPage() {
           </div>
         )}
 
-        {/* Webhook Info Card */}
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Webhook Integration Info</h3>
-          <p className="text-gray-600 text-sm mb-4">
-            Share this information with your vendor partners so they can confirm bookings:
-          </p>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <div>
-              <div className="text-xs font-medium text-gray-500 uppercase mb-1">Confirm Booking Endpoint</div>
-              <code className="text-sm bg-gray-100 px-3 py-1.5 rounded block font-mono text-gray-800">
-                POST {typeof window !== 'undefined' ? window.location.origin : ''}/functions/v1/vendor-webhook/booking-confirmed
-              </code>
-            </div>
-            <div>
-              <div className="text-xs font-medium text-gray-500 uppercase mb-1">Cancel Booking Endpoint</div>
-              <code className="text-sm bg-gray-100 px-3 py-1.5 rounded block font-mono text-gray-800">
-                POST {typeof window !== 'undefined' ? window.location.origin : ''}/functions/v1/vendor-webhook/booking-cancelled
-              </code>
-            </div>
-            <div>
-              <div className="text-xs font-medium text-gray-500 uppercase mb-1">Required Header</div>
-              <code className="text-sm bg-gray-100 px-3 py-1.5 rounded block font-mono text-gray-800">
-                x-vendor-api-key: {'<their API key from above>'}
-              </code>
-            </div>
-            <div>
-              <div className="text-xs font-medium text-gray-500 uppercase mb-1">Example Payload</div>
-              <pre className="text-sm bg-gray-100 px-3 py-2 rounded font-mono text-gray-800 overflow-x-auto">
-                {`{
-  "click_id": "atb_...",
-  "booking_reference": "ORD-12345",
-  "booking_amount": 150.00,
-  "currency": "USD"
-}`}
-              </pre>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Onboard / Edit Modal */}
