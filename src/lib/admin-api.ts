@@ -965,6 +965,19 @@ export const conciergeHostsApi = {
     apiRequest(`/admin/concierge/hosts/${hostId}/escalation/${escalationId}`, { method: 'DELETE' }),
 };
 
+export const googleReviewsApi = {
+  import: async (entityType: string, entityId: string, googlePlaceId: string) => {
+    // The Edge Function requires authentication (admin token) which fetchAdminAPI handles
+    // But fetchAdminAPI might not point to edge functions if USE_SUPABASE_EDGE_FUNCTIONS is false.
+    // However, our edge functions have a specific path in admin-api: USE_SUPABASE_EDGE_FUNCTIONS controls this.
+    // If we use fetchAdminAPI with true for edge function:
+    return fetchAdminAPI('/import-google-reviews', {
+      method: 'POST',
+      body: JSON.stringify({ entityType, entityId, googlePlaceId }),
+    }, true);
+  }
+};
+
 export default {
   clientProfileApi,
   websiteAnalyticsApi,
@@ -982,5 +995,6 @@ export default {
   referralCampaignApi,
   ambassadorCommissionsApi,
   conciergeHostsApi,
+  googleReviewsApi,
 };
 

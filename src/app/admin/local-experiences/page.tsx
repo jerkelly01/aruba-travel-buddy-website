@@ -2,6 +2,7 @@
 
 import { ContentManagementPage } from '@/components/admin/ContentManagementPage';
 import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
+import { GoogleReviewsImport } from '@/components/admin/GoogleReviewsImport';
 import { localExperiencesApi } from '@/lib/admin-api';
 
 export default function LocalExperiencesPage() {
@@ -115,6 +116,12 @@ export default function LocalExperiencesPage() {
               </div>
             </div>
           </div>
+          <GoogleReviewsImport
+            entityType="local-experiences"
+            entityId={item.id}
+            googlePlaceId={item.google_place_id}
+            onPlaceIdChange={(placeId) => setItem({ ...item, google_place_id: placeId })}
+          />
           <VendorCommissionFields
             bookingUrl={item.booking_url || ''}
             commissionPercent={item.commission_percent ?? null}

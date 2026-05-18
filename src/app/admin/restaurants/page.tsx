@@ -4,6 +4,7 @@ import { ContentManagementPage } from '@/components/admin/ContentManagementPage'
 import { ContactInfoInput } from '@/components/admin/ContactInfoInput';
 import { OperatingHoursInput } from '@/components/admin/OperatingHoursInput';
 import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
+import { GoogleReviewsImport } from '@/components/admin/GoogleReviewsImport';
 import { restaurantsApi } from '@/lib/admin-api';
 
 export default function RestaurantsPage() {
@@ -129,6 +130,12 @@ export default function RestaurantsPage() {
               </div>
             </div>
           </div>
+          <GoogleReviewsImport
+            entityType="restaurant"
+            entityId={item.id}
+            googlePlaceId={item.google_place_id}
+            onPlaceIdChange={(placeId) => setItem({ ...item, google_place_id: placeId })}
+          />
           <VendorCommissionFields
             bookingUrl={item.booking_url || ''}
             commissionPercent={item.commission_percent ?? null}

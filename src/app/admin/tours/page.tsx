@@ -2,6 +2,7 @@
 
 import { ContentManagementPage } from '@/components/admin/ContentManagementPage';
 import { VendorCommissionFields } from '@/components/admin/VendorCommissionFields';
+import { GoogleReviewsImport } from '@/components/admin/GoogleReviewsImport';
 import { toursApi } from '@/lib/admin-api';
 
 export default function ToursPage() {
@@ -113,6 +114,12 @@ export default function ToursPage() {
               </div>
             </div>
           </div>
+          <GoogleReviewsImport
+            entityType="tour"
+            entityId={item.id}
+            googlePlaceId={item.google_place_id}
+            onPlaceIdChange={(placeId) => setItem({ ...item, google_place_id: placeId })}
+          />
           <VendorCommissionFields
             bookingUrl={item.booking_url || ''}
             commissionPercent={item.commission_percent ?? null}
