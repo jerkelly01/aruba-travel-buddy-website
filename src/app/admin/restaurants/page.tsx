@@ -29,6 +29,9 @@ export default function RestaurantsPage() {
         display_order: item.display_order || 0,
         code_snippet: item.code_snippet || '',
         booking_url: item.booking_url || '',
+        facebook_url: item.facebook_url || '',
+        instagram_url: item.instagram_url || '',
+        tiktok_url: item.tiktok_url || '',
         commission_percent: item.commission_percent ?? null,
         commission_flat: item.commission_flat ?? null,
       })}
@@ -49,6 +52,9 @@ export default function RestaurantsPage() {
         display_order: 0,
         code_snippet: '',
         booking_url: '',
+        facebook_url: '',
+        instagram_url: '',
+        tiktok_url: '',
         commission_percent: null,
         commission_flat: null,
       })}
@@ -88,6 +94,41 @@ export default function RestaurantsPage() {
             value={item.operating_hours || {}}
             onChange={(value) => setItem({ ...item, operating_hours: value })}
           />
+          <div className="mt-6 border-t pt-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Social Media Links</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Facebook URL</label>
+                <input
+                  type="url"
+                  value={item.facebook_url || ''}
+                  onChange={(e) => setItem({ ...item, facebook_url: e.target.value })}
+                  placeholder="https://facebook.com/..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
+                <input
+                  type="url"
+                  value={item.instagram_url || ''}
+                  onChange={(e) => setItem({ ...item, instagram_url: e.target.value })}
+                  placeholder="https://instagram.com/..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">TikTok URL</label>
+                <input
+                  type="url"
+                  value={item.tiktok_url || ''}
+                  onChange={(e) => setItem({ ...item, tiktok_url: e.target.value })}
+                  placeholder="https://tiktok.com/@..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
           <VendorCommissionFields
             bookingUrl={item.booking_url || ''}
             commissionPercent={item.commission_percent ?? null}
