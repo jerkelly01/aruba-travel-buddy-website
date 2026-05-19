@@ -967,7 +967,7 @@ export const conciergeHostsApi = {
 
 export const googleReviewsApi = {
   import: async (entityType: string, entityId: string, googlePlaceId: string) => {
-    return apiRequest('/import-google-reviews', {
+    return apiRequest<{ message?: string; imported?: number }>('/import-google-reviews', {
       method: 'POST',
       body: JSON.stringify({ entityType, entityId, googlePlaceId }),
     });
