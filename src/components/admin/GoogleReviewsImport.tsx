@@ -21,21 +21,29 @@ export function GoogleReviewsImport({
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchStatus, setSearchStatus] = useState<string | null>(null);
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) return;
     setIsSearching(true);
     setSearchResults([]);
+    setSearchStatus(null);
     setImportResult(null);
     try {
       const response = await adminApi.googleReviewsApi.searchPlaces(searchTerm);
+      console.log('[GoogleReviewsImport] Search response:', response);
       if (response && response.success && response.data) {
-        setSearchResults(response.data.results || []);
+        const results = response.data.results || [];
+        setSearchResults(results);
+        if (results.length === 0) {
+          setSearchStatus('No places found. Try a different search term, like adding "Aruba" to the name.');
+        }
       } else {
-        setImportResult({ success: false, message: response?.error || 'Failed to search places.' });
+        setSearchStatus(`Search failed: ${response?.error || 'Unknown error. Check the browser console for details.'}`);
       }
     } catch (error: any) {
-      setImportResult({ success: false, message: error.message || 'Error searching places.' });
+      console.error('[GoogleReviewsImport] Search error:', error);
+      setSearchStatus(`Error: ${error.message || 'Could not connect to search service.'}`);
     } finally {
       setIsSearching(false);
     }
@@ -95,6 +103,13 @@ export function GoogleReviewsImport({
             {isSearching ? 'Searching...' : 'Search'}
           </button>
         </div>
+
+        {/* Search Status / No Results */}
+        {searchStatus && (
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+            {searchStatus}
+          </div>
+        )}
 
         {/* Search Results */}
         {searchResults.length > 0 && (
