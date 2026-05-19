@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { adminApi } from '@/lib/admin-api';
+import adminApi from '@/lib/admin-api';
 
 interface GoogleReviewsImportProps {
   entityType: string;
