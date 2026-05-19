@@ -44,6 +44,9 @@ export function normalizeTours(data: any[]): any[] {
     tags: Array.isArray(item.tags) ? item.tags : [],
     code_snippet: item.code_snippet || '',
     booking_url: item.code_snippet || '',
+    facebook_url: item.facebook_url || '',
+    instagram_url: item.instagram_url || '',
+    tiktok_url: item.tiktok_url || '',
   }));
 }
 
@@ -87,6 +90,9 @@ export function normalizeLocalExperiences(data: any[]): any[] {
     tags: Array.isArray(item.tags) ? item.tags : [],
     code_snippet: item.code_snippet || '',
     booking_url: item.code_snippet || '',
+    facebook_url: item.facebook_url || '',
+    instagram_url: item.instagram_url || '',
+    tiktok_url: item.tiktok_url || '',
   }));
 }
 
@@ -142,6 +148,9 @@ export function normalizeRestaurants(data: any[]): any[] {
       code_snippet: item.code_snippet || '',
       menu_url: (item.menu_url && String(item.menu_url).trim()) || '',
       menu_image_url: (item.menu_image_url && String(item.menu_image_url).trim()) || '',
+      facebook_url: item.facebook_url || '',
+      instagram_url: item.instagram_url || '',
+      tiktok_url: item.tiktok_url || '',
     };
   });
 }

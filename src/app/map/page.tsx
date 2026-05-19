@@ -6,7 +6,7 @@ import type { LatLngExpression } from 'leaflet';
 import Container from '@/components/Container';
 import SectionHeader from '@/components/SectionHeader';
 import AppIcon from '@/components/Icon';
-import { publicMapLocationsApi } from '@/lib/public-api';
+import { publicMapLocationsApi, publicRestaurantsApi } from '@/lib/public-api';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -212,19 +212,22 @@ export default function MapPage() {
 
   useEffect(() => {
     loadLocations();
-  }, [selectedCategory]);
+  }, []);
 
   const loadLocations = async () => {
     try {
       setLoading(true);
-      const response = await publicMapLocationsApi.getAll({
-        category: selectedCategory as any,
-        active: true,
-      });
+      
+      const [mapResponse, restResponse] = await Promise.all([
+        publicMapLocationsApi.getAll({ active: true }),
+        publicRestaurantsApi.getAll({ active: true })
+      ]);
 
-      if (response.success && response.data) {
-        let locationsData: MapLocation[] = [];
-        const data = response.data as any;
+      let combined: MapLocation[] = [];
+
+      if (mapResponse.success && mapResponse.data) {
+        let locationsData: any[] = [];
+        const data = mapResponse.data as any;
 
         if (Array.isArray(data)) {
           locationsData = data;
@@ -236,17 +239,73 @@ export default function MapPage() {
           locationsData = data.data;
         }
 
-        // Filter locations with valid coordinates
-        const validLocations = locationsData.filter(
-          (loc) => loc.latitude && loc.longitude && 
-          loc.latitude >= 12.4 && loc.latitude <= 12.65 &&
-          loc.longitude >= -70.1 && loc.longitude <= -69.85
-        );
+        const validMapLocations = locationsData
+          .filter(
+            (loc) => loc.latitude && loc.longitude && 
+            loc.latitude >= 12.4 && loc.latitude <= 12.65 &&
+            loc.longitude >= -70.1 && loc.longitude <= -69.85
+          )
+          .map((loc) => ({
+            id: loc.id?.toString() || `map_${loc.name?.replace(/\s+/g, '_').toLowerCase()}`,
+            name: loc.name,
+            description: loc.description || '',
+            category: loc.category || 'activity',
+            images: Array.isArray(loc.images) ? loc.images : (loc.images ? [loc.images] : []),
+            location: loc.location || loc.address || '',
+            address: loc.address || '',
+            latitude: parseFloat(loc.latitude) || undefined,
+            longitude: parseFloat(loc.longitude) || undefined,
+            featured: loc.featured || false,
+            contact_info: {
+              phone: loc.contact_info?.phone || '',
+              email: loc.contact_info?.email || '',
+              website: loc.contact_info?.website || '',
+            }
+          }));
 
-        setLocations(validLocations);
-      } else {
-        setLocations([]);
+        combined.push(...validMapLocations);
       }
+
+      if (restResponse.success && restResponse.data) {
+        const rawRests = restResponse.data as any[];
+        const validRests = rawRests
+          .filter(
+            (r) => r.latitude && r.longitude && 
+            parseFloat(r.latitude) >= 12.4 && parseFloat(r.latitude) <= 12.65 &&
+            parseFloat(r.longitude) >= -70.1 && parseFloat(r.longitude) <= -69.85
+          )
+          .map((r) => {
+            // Build photos array from available image fields
+            let photos: string[] = [];
+            if (r.images && Array.isArray(r.images)) {
+              photos.push(...r.images);
+            } else if (r.images) {
+              photos.push(r.images);
+            }
+
+            return {
+              id: `restaurant_${r.id}`,
+              name: r.name,
+              description: r.description || '',
+              category: 'restaurant',
+              images: photos,
+              location: r.location || r.location_name || '',
+              address: r.address || '',
+              latitude: parseFloat(r.latitude) || undefined,
+              longitude: parseFloat(r.longitude) || undefined,
+              featured: r.featured || false,
+              contact_info: {
+                phone: r.contact_info?.phone || '',
+                email: r.contact_info?.email || '',
+                website: r.contact_info?.website || r.menu_url || '',
+              },
+            };
+          });
+
+        combined.push(...validRests);
+      }
+
+      setLocations(combined);
     } catch (error) {
       console.error('Error loading locations:', error);
       setLocations([]);

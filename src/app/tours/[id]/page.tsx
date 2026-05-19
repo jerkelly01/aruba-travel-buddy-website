@@ -8,6 +8,7 @@ import Icon from "@/components/Icon";
 import { publicToursApi } from "@/lib/public-api";
 import { normalizeTours } from "@/lib/data-normalization";
 import { sanitizeBookingUrl } from "@/lib/booking-url";
+import SocialLinks from "@/components/SocialLinks";
 
 export default function TourDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = React.useState<string | null>(null);
@@ -123,6 +124,12 @@ export default function TourDetailPage({ params }: { params: Promise<{ id: strin
           <div className="prose prose-gray max-w-none">
             <p className="text-lg text-gray-700 whitespace-pre-wrap">{tour.description}</p>
           </div>
+
+          <SocialLinks
+            facebookUrl={tour.facebook_url}
+            instagramUrl={tour.instagram_url}
+            tiktokUrl={tour.tiktok_url}
+          />
         </article>
       </Container>
 

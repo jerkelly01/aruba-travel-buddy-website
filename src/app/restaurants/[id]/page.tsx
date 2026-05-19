@@ -8,6 +8,7 @@ import Icon from "@/components/Icon";
 import { publicRestaurantsApi } from "@/lib/public-api";
 import { normalizeRestaurants } from "@/lib/data-normalization";
 import { sanitizeBookingUrl } from "@/lib/booking-url";
+import SocialLinks from "@/components/SocialLinks";
 
 type RestaurantRow = ReturnType<typeof normalizeRestaurants>[0];
 
@@ -359,6 +360,12 @@ export default function RestaurantDetailPage({ params }: { params: Promise<{ id:
                 </ul>
               </div>
             ) : null}
+
+            <SocialLinks
+              facebookUrl={restaurant.facebook_url}
+              instagramUrl={restaurant.instagram_url}
+              tiktokUrl={restaurant.tiktok_url}
+            />
           </div>
         </article>
       </Container>

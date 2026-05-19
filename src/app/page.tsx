@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { publicToursApi, publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeTours, normalizeLocalExperiences } from "@/lib/data-normalization";
+import { SafeImage } from "@/components/SafeImage";
 
 interface FeaturedItem {
   id: string;
@@ -327,18 +328,13 @@ export default function Home() {
                     <Link href={exp.href || `/experiences`} className="block h-full">
                       <div className="card overflow-hidden h-full group">
                         <div className="relative h-64 overflow-hidden">
-                          {exp.images && exp.images.length > 0 ? (
-                            <Image
-                              src={exp.images[0]}
-                              alt={exp.title}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-[var(--brand-aruba)] to-[var(--brand-tropical)] flex items-center justify-center">
-                              <Icon name="sparkles" className="w-16 h-16 text-white opacity-50" />
-                            </div>
-                          )}
+                          <SafeImage
+                            src={exp.images}
+                            alt={exp.title}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            fallbackIcon="sparkles"
+                          />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                           <div className="absolute bottom-4 left-4 right-4">
                             <h3 className="text-xl font-bold text-white mb-1 font-display">{exp.title}</h3>

@@ -8,6 +8,7 @@ import Icon from "@/components/Icon";
 import { publicLocalExperiencesApi } from "@/lib/public-api";
 import { normalizeLocalExperiences } from "@/lib/data-normalization";
 import { sanitizeBookingUrl } from "@/lib/booking-url";
+import SocialLinks from "@/components/SocialLinks";
 
 export default function LocalExperienceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [experience, setExperience] = React.useState<ReturnType<typeof normalizeLocalExperiences>[0] | null>(null);
@@ -117,6 +118,11 @@ export default function LocalExperienceDetailPage({ params }: { params: Promise<
             ) : null}
           </div>
           <p className="text-lg text-gray-700 whitespace-pre-wrap">{experience.description}</p>
+          <SocialLinks
+            facebookUrl={experience.facebook_url}
+            instagramUrl={experience.instagram_url}
+            tiktokUrl={experience.tiktok_url}
+          />
         </article>
       </Container>
 
