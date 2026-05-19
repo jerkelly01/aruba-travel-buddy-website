@@ -971,6 +971,12 @@ export const googleReviewsApi = {
       method: 'POST',
       body: JSON.stringify({ entityType, entityId, googlePlaceId }),
     });
+  },
+  searchPlaces: async (query: string) => {
+    return apiRequest<{ results: Array<{ name: string; place_id: string; address: string; rating?: number; user_ratings_total?: number }> }>('/search-google-places', {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    });
   }
 };
 
