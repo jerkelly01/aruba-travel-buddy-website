@@ -973,7 +973,7 @@ export const googleReviewsApi = {
     });
   },
   searchPlaces: async (query: string) => {
-    return apiRequest<{ results: Array<{ name: string; place_id: string; address: string; rating?: number; user_ratings_total?: number }> }>('/search-google-places', {
+    return apiRequest<{ results: Array<{ name: string; place_id: string; address: string; rating?: number; user_ratings_total?: number }>; debug?: { findPlaceStatus: string; textSearchStatus: string; findPlaceError: string | null; textSearchError: string | null } }>('/search-google-places', {
       method: 'POST',
       body: JSON.stringify({ query }),
     });

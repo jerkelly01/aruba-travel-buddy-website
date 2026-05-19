@@ -34,9 +34,11 @@ export function GoogleReviewsImport({
       console.log('[GoogleReviewsImport] Search response:', response);
       if (response && response.success && response.data) {
         const results = response.data.results || [];
+        const debug = response.data.debug;
         setSearchResults(results);
         if (results.length === 0) {
-          setSearchStatus('No places found. Try a different search term, like adding "Aruba" to the name.');
+          const debugMsg = debug ? ` (Find Place: ${debug.findPlaceStatus}${debug.findPlaceError ? ' - '+debug.findPlaceError : ''}, Text Search: ${debug.textSearchStatus}${debug.textSearchError ? ' - '+debug.textSearchError : ''})` : '';
+          setSearchStatus(`No places found.${debugMsg} Try a different name, or this business may not be searchable via Google API.`);
         }
       } else {
         setSearchStatus(`Search failed: ${response?.error || 'Unknown error. Check the browser console for details.'}`);
