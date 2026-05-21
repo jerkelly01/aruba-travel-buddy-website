@@ -7,10 +7,11 @@ export const metadata = {
 
 export default function TaxiFarePage() {
   return (
-    <div className="fixed inset-0 pt-24 bg-white z-0">
+    <div className="h-[calc(100vh-96px)] w-full">
       <iframe 
         src="https://www.taxi.aw/"
-        className="w-full h-full border-0"
+        className="w-full h-full border-0 block"
+        style={{ display: 'block' }}
         title="Aruba Official Taxi Fare Calculator"
         loading="lazy"
         allowFullScreen
