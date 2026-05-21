@@ -42,6 +42,7 @@ const Navbar = () => {
     { name: 'Car Rentals', href: '/car-rentals' },
     { name: 'Bus Tours', href: '/bus-tours' },
     { name: 'Private Transportation', href: '/private-transportation' },
+    { name: 'Taxi Fare Calculator', href: '/taxi-fare' },
   ];
 
   useEffect(() => {
