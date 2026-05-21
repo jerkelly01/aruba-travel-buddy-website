@@ -7,16 +7,14 @@ export const metadata = {
 
 export default function TaxiFarePage() {
   return (
-    <div className="h-screen w-full pt-24 bg-gray-50 flex flex-col">
-      <div className="flex-1 w-full h-full">
-        <iframe 
-          src="https://www.taxi.aw/"
-          className="w-full h-full border-0"
-          title="Aruba Official Taxi Fare Calculator"
-          loading="lazy"
-          allowFullScreen
-        />
-      </div>
+    <div className="fixed inset-0 pt-24 bg-white z-0">
+      <iframe 
+        src="https://www.taxi.aw/"
+        className="w-full h-full border-0"
+        title="Aruba Official Taxi Fare Calculator"
+        loading="lazy"
+        allowFullScreen
+      />
     </div>
   );
 }
