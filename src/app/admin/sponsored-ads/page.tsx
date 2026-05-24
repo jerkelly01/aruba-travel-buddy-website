@@ -12,7 +12,7 @@ interface SponsoredAd {
   title: string;
   description: string | null;
   cover_image: string;
-  destination_url: string;
+  destination_url: string | null;
   sponsor_name: string | null;
   sponsor_logo: string | null;
   duration_months: number;
@@ -111,8 +111,8 @@ export default function SponsoredAdsPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.cover_image || !formData.destination_url) {
-      alert('Please fill in Title, Cover Image URL, and Destination URL');
+    if (!formData.title || !formData.cover_image) {
+      alert('Please fill in Title and Cover Image URL');
       return;
     }
     setSaving(true);
@@ -326,14 +326,16 @@ export default function SponsoredAdsPage() {
                     )}
 
                     {/* Link Preview */}
-                    <a
-                      href={ad.destination_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-indigo-600 hover:text-indigo-800 truncate block mb-3"
-                    >
-                      🔗 {ad.destination_url}
-                    </a>
+                    {ad.destination_url && (
+                      <a
+                        href={ad.destination_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-600 hover:text-indigo-800 truncate block mb-3"
+                      >
+                        🔗 {ad.destination_url}
+                      </a>
+                    )}
 
                     {/* Stats Row */}
                     <div className="flex items-center justify-between text-xs text-gray-500 mb-3 border-t border-gray-100 pt-3">
@@ -469,10 +471,9 @@ export default function SponsoredAdsPage() {
 
                 {/* Destination URL */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Destination Link *</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Destination Link</label>
                   <input
                     type="url"
-                    required
                     value={formData.destination_url || ''}
                     onChange={(e) => setFormData({ ...formData, destination_url: e.target.value })}
                     placeholder="https://partner-site.com/promo"
@@ -574,7 +575,7 @@ export default function SponsoredAdsPage() {
                   </button>
                   <button
                     onClick={handleSave}
-                    disabled={saving || !formData.title || !formData.cover_image || !formData.destination_url}
+                    disabled={saving || !formData.title || !formData.cover_image}
                     className="px-8 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 font-semibold shadow-lg"
                   >
                     {saving ? 'Saving...' : editingId ? 'Update Ad' : 'Create Ad'}
