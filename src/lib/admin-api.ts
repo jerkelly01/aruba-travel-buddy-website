@@ -87,6 +87,11 @@ function mapEndpointToSupabaseFunction(endpointPath: string): string {
     return endpointPath.replace('/admin/concierge', '/admin-concierge');
   }
 
+  // Sponsored ads management
+  if (endpointPath.startsWith('/admin/sponsored-ads')) {
+    return endpointPath.replace('/admin/sponsored-ads', '/admin-sponsored-ads');
+  }
+
   // Default: return as-is (for endpoints not yet migrated)
   return endpointPath;
 }
@@ -980,6 +985,72 @@ export const googleReviewsApi = {
   }
 };
 
+// Sponsored Ads API
+export const sponsoredAdsApi = {
+  getAll: async (params?: {
+    slot?: number;
+    active?: boolean;
+    search?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.slot) queryParams.append('slot', params.slot.toString());
+    if (params?.active !== undefined) queryParams.append('active', params.active.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    const query = queryParams.toString();
+    return apiRequest(`/admin/sponsored-ads${query ? `?${query}` : ''}`);
+  },
+
+  getById: async (id: string) => {
+    return apiRequest(`/admin/sponsored-ads/${id}`);
+  },
+
+  create: async (data: {
+    title: string;
+    description?: string;
+    cover_image: string;
+    destination_url: string;
+    ad_slot: number;
+    sponsor_name?: string;
+    sponsor_logo?: string;
+    duration_months?: number;
+    start_date?: string;
+    price_per_month?: number;
+    active?: boolean;
+    display_order?: number;
+  }) => {
+    return apiRequest('/admin/sponsored-ads', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  update: async (id: string, updates: Partial<{
+    title: string;
+    description: string;
+    cover_image: string;
+    destination_url: string;
+    ad_slot: number;
+    sponsor_name: string;
+    sponsor_logo: string;
+    duration_months: number;
+    start_date: string;
+    price_per_month: number;
+    active: boolean;
+    display_order: number;
+  }>) => {
+    return apiRequest(`/admin/sponsored-ads/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ id, ...updates }),
+    });
+  },
+
+  delete: async (id: string) => {
+    return apiRequest(`/admin/sponsored-ads/${id}`, {
+      method: 'DELETE',
+    });
+  },
+};
+
 export default {
   clientProfileApi,
   websiteAnalyticsApi,
@@ -998,5 +1069,6 @@ export default {
   ambassadorCommissionsApi,
   conciergeHostsApi,
   googleReviewsApi,
+  sponsoredAdsApi,
 };
 

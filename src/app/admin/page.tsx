@@ -307,6 +307,16 @@ export default function AdminDashboard() {
             </p>
             <span className="text-white font-semibold">Manage Concierge →</span>
           </Link>
+          <Link
+            href="/admin/sponsored-ads"
+            className="bg-gradient-to-br from-[#e65100] to-[#d81b60] rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-l-4 border-orange-400"
+          >
+            <h3 className="text-xl font-bold text-white mb-2">Sponsored Ads</h3>
+            <p className="text-orange-100 text-sm mb-4">
+              Manage 5 ad slots with cover images, destination links, duration, and pricing.
+            </p>
+            <span className="text-white font-semibold">Manage Ads →</span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">          {/* Stats Cards - Real Data */}
