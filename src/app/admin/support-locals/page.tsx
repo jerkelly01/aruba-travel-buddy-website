@@ -28,6 +28,11 @@ export default function SupportLocalsPage() {
         booking_url: item.booking_url || '',
         commission_percent: item.commission_percent ?? null,
         commission_flat: item.commission_flat ?? null,
+        whatsapp_number: item.whatsapp_number || '',
+        promo_code: item.promo_code || '',
+        partner_type: item.partner_type || 'commission',
+        monthly_ad_fee: item.monthly_ad_fee ?? null,
+        billing_email: item.billing_email || '',
       })}
       getEmptyItem={() => ({
         name: '',
@@ -46,6 +51,11 @@ export default function SupportLocalsPage() {
         booking_url: '',
         commission_percent: null,
         commission_flat: null,
+        whatsapp_number: '',
+        promo_code: '',
+        partner_type: 'commission',
+        monthly_ad_fee: null,
+        billing_email: '',
       })}
       renderCustomFields={(item, setItem) => (
         <>
@@ -67,6 +77,11 @@ export default function SupportLocalsPage() {
             bookingUrl={item.booking_url || ''}
             commissionPercent={item.commission_percent ?? null}
             commissionFlat={item.commission_flat ?? null}
+            whatsappNumber={item.whatsapp_number || ''}
+            promoCode={item.promo_code || ''}
+            partnerType={item.partner_type || 'commission'}
+            monthlyAdFee={item.monthly_ad_fee ?? null}
+            billingEmail={item.billing_email || ''}
             apiKey={item.vendor_api_key}
             vendorStats={item.vendor_stats}
             onChange={(fields) => setItem({ ...item, ...fields })}
