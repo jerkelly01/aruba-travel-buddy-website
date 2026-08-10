@@ -851,6 +851,42 @@ export const vendorPartnersApi = {
     const query = queryParams.toString();
     return apiRequest(`/admin/vendors/clicks${query ? `?${query}` : ''}`);
   },
+
+  getInvoices: async (status?: string) => {
+    const query = status ? `?status=${status}` : '';
+    return apiRequest(`/admin/vendors/invoices${query}`);
+  },
+
+  createInvoice: async (invoice: {
+    vendor_id: string;
+    vendor_name: string;
+    billing_email?: string;
+    partner_type?: string;
+    monthly_ad_fee?: number;
+    commission_amount?: number;
+    total_amount: number;
+    line_items?: Array<{ description: string; amount: number }>;
+    due_date?: string;
+    notes?: string;
+  }) => {
+    return apiRequest('/admin/vendors/invoices', {
+      method: 'POST',
+      body: JSON.stringify(invoice),
+    });
+  },
+
+  updateInvoiceStatus: async (id: string, status: 'pending' | 'sent' | 'paid' | 'overdue' | 'cancelled') => {
+    return apiRequest(`/admin/vendors/invoices/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  sendInvoiceEmail: async (id: string) => {
+    return apiRequest(`/admin/vendors/invoices/${id}/send`, {
+      method: 'POST',
+    });
+  },
 };
 
 // Referral Campaign API

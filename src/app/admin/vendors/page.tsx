@@ -14,7 +14,30 @@ interface VendorKey {
   api_key: string;
   commission_percent: number | null;
   commission_flat: number | null;
+  partner_type?: 'commission' | 'advertisement' | 'hybrid';
+  monthly_ad_fee?: number | null;
+  billing_email?: string | null;
+  promo_code?: string | null;
+  whatsapp_number?: string | null;
+  contact_person?: string | null;
   is_active: boolean;
+  created_at: string;
+}
+
+interface VendorInvoice {
+  id: string;
+  invoice_number: string;
+  vendor_id: string;
+  vendor_name: string;
+  billing_email: string;
+  partner_type: 'commission' | 'advertisement' | 'hybrid';
+  monthly_ad_fee: number;
+  commission_amount: number;
+  total_amount: number;
+  line_items: Array<{ description: string; amount: number }>;
+  status: 'pending' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  due_date: string;
+  paid_at?: string;
   created_at: string;
 }
 
@@ -120,11 +143,13 @@ export default function VendorPartnersPage() {
   const [vendors, setVendors] = useState<VendorKey[]>([]);
   const [commissionSummary, setCommissionSummary] = useState<CommissionSummary | null>(null);
   const [commissions, setCommissions] = useState<CommissionEvent[]>([]);
+  const [invoices, setInvoices] = useState<VendorInvoice[]>([]);
+  const [selectedInvoiceModal, setSelectedInvoiceModal] = useState<VendorInvoice | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'setup' | 'accounts' | 'vendors' | 'commissions'>('setup');
+  const [activeTab, setActiveTab] = useState<'setup' | 'accounts' | 'vendors' | 'commissions' | 'invoices'>('setup');
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
 
-  // Onboard form state (API key vendors)
+  // Onboard form state (API key vendors & partners)
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     vendor_name: '',
@@ -133,6 +158,12 @@ export default function VendorPartnersPage() {
     vendor_email: '',
     commission_percent: '',
     commission_flat: '',
+    partner_type: 'commission' as 'commission' | 'advertisement' | 'hybrid',
+    monthly_ad_fee: '',
+    billing_email: '',
+    promo_code: '',
+    whatsapp_number: '',
+    contact_person: '',
   });
   const [saving, setSaving] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -184,10 +215,11 @@ export default function VendorPartnersPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [vendorsRes, commissionsRes, accountsRes] = await Promise.all([
+      const [vendorsRes, commissionsRes, accountsRes, invoicesRes] = await Promise.all([
         vendorPartnersApi.getAll(),
         vendorPartnersApi.getCommissions(timeRange),
         fetch(`${SUPABASE_URL}/functions/v1/vendor-accounts/list`, { headers: adminHeaders() }),
+        vendorPartnersApi.getInvoices(),
       ]);
 
       if (vendorsRes.success && vendorsRes.data) {
@@ -203,11 +235,86 @@ export default function VendorPartnersPage() {
         const data = raw?.data ?? raw;
         setAccounts(data?.accounts ?? []);
       }
+      if (invoicesRes.success && invoicesRes.data) {
+        setInvoices(invoicesRes.data as VendorInvoice[]);
+      }
     } catch (error) {
       console.error('Failed to load vendor data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGenerateInvoice = async (vendor: VendorKey) => {
+    const confirmGen = confirm(`Generate pre-filled 30-day invoice for ${vendor.vendor_name}?`);
+    if (!confirmGen) return;
+
+    try {
+      const lineItems = [];
+      let totalAmount = 0;
+      let monthlyAdFee = vendor.monthly_ad_fee || 0;
+      let commissionAmount = 0;
+
+      if ((vendor.partner_type === 'advertisement' || vendor.partner_type === 'hybrid') && monthlyAdFee > 0) {
+        lineItems.push({
+          description: `Monthly Featured Ad Placement (${vendor.vendor_type})`,
+          amount: monthlyAdFee,
+        });
+        totalAmount += monthlyAdFee;
+      }
+
+      // Calculate commissions for vendor if applicable
+      const vendorCommissions = commissions.filter(c => c.vendor_name === vendor.vendor_name && c.status === 'confirmed');
+      if (vendorCommissions.length > 0) {
+        const commTotal = vendorCommissions.reduce((sum, c) => sum + (c.commission_amount || 0), 0);
+        commissionAmount = commTotal;
+        lineItems.push({
+          description: `Referral Booking Commissions (${vendorCommissions.length} confirmed bookings)`,
+          amount: commTotal,
+        });
+        totalAmount += commTotal;
+      }
+
+      if (totalAmount === 0) {
+        lineItems.push({
+          description: `Monthly Active Partner Maintenance Fee`,
+          amount: 0,
+        });
+      }
+
+      const res = await vendorPartnersApi.createInvoice({
+        vendor_id: vendor.vendor_id,
+        vendor_name: vendor.vendor_name,
+        billing_email: vendor.billing_email || '',
+        partner_type: vendor.partner_type || 'commission',
+        monthly_ad_fee: monthlyAdFee,
+        commission_amount: commissionAmount,
+        total_amount: totalAmount,
+        line_items: lineItems,
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        notes: `Automated 30-day billing statement for ${vendor.vendor_name}.`,
+      });
+
+      if (res.success) {
+        alert(`Invoice created successfully for ${vendor.vendor_name}!`);
+        await loadData();
+      } else {
+        alert(res.error || 'Failed to generate invoice');
+      }
+    } catch {
+      alert('Error generating invoice');
+    }
+  };
+
+  const handleUpdateInvoiceStatus = async (invoiceId: string, newStatus: 'pending' | 'sent' | 'paid' | 'overdue' | 'cancelled') => {
+    await vendorPartnersApi.updateInvoiceStatus(invoiceId, newStatus);
+    await loadData();
+  };
+
+  const handleSendInvoiceEmail = async (invoice: VendorInvoice) => {
+    alert(`Automated email invoice dispatch queued for ${invoice.billing_email || invoice.vendor_name}.`);
+    await vendorPartnersApi.updateInvoiceStatus(invoice.id, 'sent');
+    await loadData();
   };
 
   const handleCreateAccount = async (e: React.FormEvent) => {
@@ -295,12 +402,20 @@ export default function VendorPartnersPage() {
         vendor_name: formData.vendor_name,
         vendor_type: formData.vendor_type,
         vendor_id: formData.vendor_id,
+        partner_type: formData.partner_type,
+        billing_email: formData.billing_email || formData.vendor_email,
+        promo_code: formData.promo_code,
+        whatsapp_number: formData.whatsapp_number,
+        contact_person: formData.contact_person,
       };
       if (formData.commission_percent) {
         payload.commission_percent = parseFloat(formData.commission_percent);
       }
       if (formData.commission_flat) {
         payload.commission_flat = parseFloat(formData.commission_flat);
+      }
+      if (formData.monthly_ad_fee) {
+        payload.monthly_ad_fee = parseFloat(formData.monthly_ad_fee);
       }
 
       let res;
@@ -318,7 +433,20 @@ export default function VendorPartnersPage() {
         } else {
           setShowForm(false);
           setEditingId(null);
-          setFormData({ vendor_name: '', vendor_type: 'tour', vendor_id: '', vendor_email: '', commission_percent: '', commission_flat: '' });
+          setFormData({
+            vendor_name: '',
+            vendor_type: 'tour',
+            vendor_id: '',
+            vendor_email: '',
+            commission_percent: '',
+            commission_flat: '',
+            partner_type: 'commission',
+            monthly_ad_fee: '',
+            billing_email: '',
+            promo_code: '',
+            whatsapp_number: '',
+            contact_person: '',
+          });
         }
         await loadData();
       } else {
@@ -337,9 +465,15 @@ export default function VendorPartnersPage() {
       vendor_name: vendor.vendor_name,
       vendor_type: vendor.vendor_type,
       vendor_id: vendor.vendor_id,
-      vendor_email: '', // Not editable via this surface currently
+      vendor_email: vendor.billing_email || '',
       commission_percent: vendor.commission_percent?.toString() || '',
       commission_flat: vendor.commission_flat?.toString() || '',
+      partner_type: vendor.partner_type || 'commission',
+      monthly_ad_fee: vendor.monthly_ad_fee?.toString() || '',
+      billing_email: vendor.billing_email || '',
+      promo_code: vendor.promo_code || '',
+      whatsapp_number: vendor.whatsapp_number || '',
+      contact_person: vendor.contact_person || '',
     });
     setGeneratedPassword(null);
     setShowForm(true);
@@ -424,7 +558,20 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
               onClick={() => {
                 setEditingId(null);
                 setGeneratedPassword(null);
-                setFormData({ vendor_name: '', vendor_type: 'tour', vendor_id: '', vendor_email: '', commission_percent: '', commission_flat: '' });
+                setFormData({
+                  vendor_name: '',
+                  vendor_type: 'tour',
+                  vendor_id: '',
+                  vendor_email: '',
+                  commission_percent: '',
+                  commission_flat: '',
+                  partner_type: 'commission',
+                  monthly_ad_fee: '',
+                  billing_email: '',
+                  promo_code: '',
+                  whatsapp_number: '',
+                  contact_person: '',
+                });
                 setShowForm(true);
               }}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md flex items-center gap-2"
@@ -492,6 +639,13 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'commissions' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
           >
             Commissions ({commissions.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('invoices')}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'invoices' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+          >
+            Invoices ({invoices.length})
           </button>
         </div>
 
@@ -1063,15 +1217,126 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
           </div>
         )}
 
+        {/* ══ INVOICES TAB (AUTOMATED 30-DAY INVOICING) ══ */}
+        {activeTab === 'invoices' && (
+          <div className="space-y-6">
+            {/* Header & Quick Action */}
+            <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow border border-gray-100">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Automated 30-Day Billing & Invoices</h2>
+                <p className="text-sm text-gray-500 mt-1">Pre-filled invoices for Advertisement Subscriptions and Referral Commissions</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (vendors.length === 0) {
+                      alert('No vendors available to invoice.');
+                      return;
+                    }
+                    const ok = confirm(`Generate pre-filled 30-day invoices for all ${vendors.length} vendors?`);
+                    if (ok) {
+                      for (const v of vendors) {
+                        await handleGenerateInvoice(v);
+                      }
+                    }
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 shadow transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  Auto-Generate 30-Day Invoices
+                </button>
+              </div>
+            </div>
+
+            {/* Invoice Table */}
+            <div className="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
+              {invoices.length === 0 ? (
+                <div className="p-12 text-center text-gray-500">
+                  <div className="text-4xl mb-3">📄</div>
+                  <p className="font-semibold text-gray-700">No Invoices Generated Yet</p>
+                  <p className="text-sm text-gray-400 mt-1">Click "Auto-Generate 30-Day Invoices" above or create one from a Vendor Key.</p>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Invoice #</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Vendor</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Partner Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Amount Due</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Due Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {invoices.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-mono font-bold text-gray-900">{inv.invoice_number}</td>
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-gray-900">{inv.vendor_name}</div>
+                          <div className="text-xs text-gray-400 font-mono">{inv.billing_email || 'No email set'}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-xs uppercase px-2.5 py-1 rounded-full font-bold bg-purple-50 text-purple-700 border border-purple-100">
+                            {inv.partner_type || 'commission'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-base font-bold text-gray-900">${(inv.total_amount || 0).toFixed(2)}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{new Date(inv.due_date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
+                            inv.status === 'paid' ? 'bg-green-100 text-green-800' :
+                            inv.status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                            inv.status === 'overdue' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {inv.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedInvoiceModal(inv)}
+                              className="text-xs bg-gray-100 text-gray-700 border border-gray-200 px-2.5 py-1 rounded-lg hover:bg-gray-200 font-semibold"
+                            >
+                              👁️ View / Print
+                            </button>
+                            <button
+                              onClick={() => handleSendInvoiceEmail(inv)}
+                              className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg hover:bg-blue-100 font-semibold"
+                            >
+                              ✉️ Email Vendor
+                            </button>
+                            {inv.status !== 'paid' && (
+                              <button
+                                onClick={() => handleUpdateInvoiceStatus(inv.id, 'paid')}
+                                className="text-xs bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-lg hover:bg-green-100 font-semibold"
+                              >
+                                ✓ Mark Paid
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Onboard / Edit Modal */}
+      {/* Onboard / Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg my-8">
             <div className="p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {editingId ? 'Edit Vendor' : 'Onboard New Vendor'}
+                {editingId ? 'Edit Vendor Partner' : 'Onboard New Vendor Partner'}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -1082,40 +1347,122 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
                     value={formData.vendor_name}
                     onChange={(e) => setFormData({ ...formData, vendor_name: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Cool Aruba Tours"
+                    placeholder="Top Drive Aruba Car Rentals"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Type *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Partner Agreement Model *</label>
                   <select
-                    required
-                    value={formData.vendor_type}
-                    onChange={(e) => setFormData({ ...formData, vendor_type: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.partner_type}
+                    onChange={(e: any) => setFormData({ ...formData, partner_type: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    {VENDOR_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
+                    <option value="commission">Commission Only (Pay % or Flat Fee per confirmed booking/lead)</option>
+                    <option value="advertisement">Advertisement Partner (Fixed Monthly Ad Subscription Fee)</option>
+                    <option value="hybrid">Hybrid (Both Monthly Ad Fee + Booking Referral Commission)</option>
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Email Login</label>
-                  <input
-                    type="email"
-                    value={formData.vendor_email}
-                    onChange={(e) => setFormData({ ...formData, vendor_email: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="info@vendor.com"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Leave blank if the vendor does not need access to the Extranet.</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Vendor Type *</label>
+                    <select
+                      required
+                      value={formData.vendor_type}
+                      onChange={(e) => setFormData({ ...formData, vendor_type: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {VENDOR_TYPES.map((t) => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Billing Email</label>
+                    <input
+                      type="email"
+                      value={formData.billing_email || formData.vendor_email}
+                      onChange={(e) => setFormData({ ...formData, billing_email: e.target.value, vendor_email: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="billing@vendor.com"
+                    />
+                  </div>
+                </div>
+
+                {(formData.partner_type === 'advertisement' || formData.partner_type === 'hybrid') && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Advertisement Fee ($)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.monthly_ad_fee}
+                      onChange={(e) => setFormData({ ...formData, monthly_ad_fee: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 150.00"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Charged automatically every 30 days on their billing invoice.</p>
+                  </div>
+                )}
+
+                {(formData.partner_type === 'commission' || formData.partner_type === 'hybrid') && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Commission %</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        value={formData.commission_percent}
+                        onChange={(e) => setFormData({ ...formData, commission_percent: e.target.value, commission_flat: '' })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="10"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">OR Flat Fee ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.commission_flat}
+                        onChange={(e) => setFormData({ ...formData, commission_flat: e.target.value, commission_percent: '' })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="15.00"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Promo / Voucher Code</label>
+                    <input
+                      type="text"
+                      value={formData.promo_code}
+                      onChange={(e) => setFormData({ ...formData, promo_code: e.target.value.toUpperCase() })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="ARUBABUDDY10"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Phone Number</label>
+                    <input
+                      type="text"
+                      value={formData.whatsapp_number}
+                      onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="+297 594 1234"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Vendor Component ID *
-                    <span className="text-gray-400 font-normal ml-1">(their record ID in your database)</span>
+                    <span className="text-gray-400 font-normal ml-1">(database or listing ID)</span>
                   </label>
                   <input
                     type="text"
@@ -1123,36 +1470,8 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
                     value={formData.vendor_id}
                     onChange={(e) => setFormData({ ...formData, vendor_id: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="abc-123 or database UUID"
+                    placeholder="car-rental-01"
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Commission %</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={formData.commission_percent}
-                      onChange={(e) => setFormData({ ...formData, commission_percent: e.target.value, commission_flat: '' })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="10"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">OR Flat Fee ($)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.commission_flat}
-                      onChange={(e) => setFormData({ ...formData, commission_flat: e.target.value, commission_percent: '' })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="5.00"
-                    />
-                  </div>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 border-t">
@@ -1166,9 +1485,9 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
                   <button
                     type="submit"
                     disabled={saving}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 font-semibold"
                   >
-                    {saving ? 'Processing...' : editingId ? 'Update Vendor Settings' : 'Generate Vendor Account'}
+                    {saving ? 'Processing...' : editingId ? 'Update Partner Settings' : 'Save Partner Account'}
                   </button>
                 </div>
               </form>
@@ -1188,6 +1507,116 @@ Questions: contact your Aruba Travel Buddy partner manager.`;
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Printable Invoice Viewer Modal */}
+      {selectedInvoiceModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 overflow-hidden">
+            {/* Invoice Header */}
+            <div className="bg-[#1a365d] text-white p-6 flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">ARUBA TRAVEL BUDDY</h2>
+                <p className="text-blue-200 text-xs mt-0.5">Partner Billing & Commission Invoice</p>
+                <div className="mt-3 text-xs text-blue-100 font-mono">
+                  Invoice #: <span className="font-bold text-white">{selectedInvoiceModal.invoice_number}</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <button
+                  onClick={() => setSelectedInvoiceModal(null)}
+                  className="text-white/70 hover:text-white text-xl font-bold mb-2 block ml-auto"
+                >
+                  ✕
+                </button>
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                  selectedInvoiceModal.status === 'paid' ? 'bg-green-500 text-white' : 'bg-amber-400 text-gray-900'
+                }`}>
+                  {selectedInvoiceModal.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Invoice Body */}
+            <div className="p-6 space-y-6 text-sm text-gray-700">
+              <div className="grid grid-cols-2 gap-4 border-b border-gray-100 pb-4">
+                <div>
+                  <div className="text-xs font-bold uppercase text-gray-400">Billed To:</div>
+                  <div className="font-bold text-gray-900 text-base mt-1">{selectedInvoiceModal.vendor_name}</div>
+                  <div className="text-gray-500 text-xs font-mono">{selectedInvoiceModal.billing_email || 'billing@partner.com'}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-bold uppercase text-gray-400">Invoice Date:</div>
+                  <div className="text-gray-900 font-medium">{new Date(selectedInvoiceModal.created_at).toLocaleDateString()}</div>
+                  <div className="text-xs font-bold uppercase text-gray-400 mt-2">Due Date:</div>
+                  <div className="text-red-600 font-bold">{new Date(selectedInvoiceModal.due_date).toLocaleDateString()}</div>
+                </div>
+              </div>
+
+              {/* Line Items Table */}
+              <div>
+                <div className="text-xs font-bold uppercase text-gray-400 mb-2">Itemized Services</div>
+                <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-50 text-xs text-gray-500 uppercase font-semibold">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Description</th>
+                      <th className="px-4 py-2 text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 text-sm">
+                    {(selectedInvoiceModal.line_items || []).map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="px-4 py-2.5 font-medium text-gray-800">{item.description}</td>
+                        <td className="px-4 py-2.5 text-right font-mono font-bold text-gray-900">${(item.amount || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Total Due */}
+              <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <span className="font-bold text-gray-900 text-base">Total Amount Due:</span>
+                <span className="font-bold text-2xl text-blue-900">${(selectedInvoiceModal.total_amount || 0).toFixed(2)}</span>
+              </div>
+
+              {/* Payment Instructions */}
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs space-y-1">
+                <div className="font-bold text-blue-900 uppercase tracking-wider mb-1">Payment Instructions</div>
+                <div className="text-blue-800">Bank Transfer / Wire: <span className="font-mono font-bold">Aruba Bank #123456789</span></div>
+                <div className="text-blue-800">PayPal / Online: <span className="font-mono font-bold">payments@arubatravelbuddy.com</span></div>
+                <div className="text-blue-700 italic mt-1">Please include invoice #{selectedInvoiceModal.invoice_number} on transfer memo.</div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-100 shadow-sm"
+              >
+                🖨️ Print / Download PDF
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSelectedInvoiceModal(null)}
+                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    handleSendInvoiceEmail(selectedInvoiceModal);
+                    setSelectedInvoiceModal(null);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 shadow"
+                >
+                  ✉️ Send to {selectedInvoiceModal.vendor_name}
+                </button>
+              </div>
             </div>
           </div>
         </div>

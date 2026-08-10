@@ -11,6 +11,14 @@ import Icon from "@/components/Icon";
 export default function BlogsPage() {
   const blogs = [
     {
+      title: "A Hidden Mediterranean Gem in Noord: B25 Craft Mediterranean",
+      excerpt: "B25 Craft Mediterranean offers a cozy and stylish escape with great food, craft cocktails, and a vintage 1920s-inspired feel.",
+      image: "/b25-craft-mediterranean.png",
+      category: "Travel Tips",
+      readTime: "4 min read",
+      href: "/blogs/b25-craft-mediterranean-noord",
+    },
+    {
       title: "10 Essential Cultural Tips for Visiting Aruba",
       excerpt: "Discover the local customs, traditions, and cultural etiquette that will help you connect authentically with Aruban culture during your visit.",
       image: "/fort-zoutman-aruba.png",
