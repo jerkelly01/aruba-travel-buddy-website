@@ -36,6 +36,12 @@ import {
   IdentificationIcon,
   PaperAirplaneIcon,
   HomeIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  BanknotesIcon,
+  TicketIcon,
+  TagIcon,
+  WindIcon,
 } from '@heroicons/react/24/outline';
 
 export const Icons = {
@@ -85,6 +91,12 @@ export const Icons = {
   'identification': IdentificationIcon,
   'paper-airplane': PaperAirplaneIcon,
   'home': HomeIcon,
+  'arrow-trending-up': ArrowTrendingUpIcon,
+  'arrow-trending-down': ArrowTrendingDownIcon,
+  'banknotes': BanknotesIcon,
+  'ticket': TicketIcon,
+  'tag': TagIcon,
+  'wind': WindIcon,
 };
 
 export type IconName = keyof typeof Icons;
