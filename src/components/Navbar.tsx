@@ -32,10 +32,9 @@ const Navbar = () => {
   ];
 
   const travelTipsSubLinks = [
+    { name: 'Travel Buddy Guide', href: '/aruba-guide' },
     { name: 'Travel Tips', href: '/blogs' },
-    { name: 'Cultural Tips', href: '/cultural-tips' },
     { name: 'ED Card Info', href: '/ed-card' },
-    { name: 'Photo Challenges', href: '/photo-challenges' },
   ];
 
   const transportationSubLinks = [
@@ -122,18 +121,23 @@ const Navbar = () => {
               <span className="relative z-10">Home</span>
             </Link>
 
+
+
+            {/* Explore Aruba */}
             <Link
-              href="/about"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
-                  ? 'text-white/90 hover:text-white'
-                  : pathname === '/about'
-                    ? 'text-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
+              href="/explore-aruba"
+              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${(() => {
+                  const isExplorePage = pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/');
+                  if (isHomePage && !scrolled) {
+                    return isExplorePage ? 'text-white' : 'text-white/90 hover:text-white';
+                  }
+                  return isExplorePage ? 'text-[var(--brand-aruba)]' : 'text-gray-600 hover:text-[var(--brand-aruba)]';
+                })()
                 }`}
             >
-              {pathname === '/about' && (
+              {(pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')) && (
                 <motion.div
-                  layoutId="activeTabAbout"
+                  layoutId="activeTabExploreAruba"
                   className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
                       ? 'bg-white/20'
                       : 'bg-[rgba(0,188,212,0.1)]'
@@ -141,138 +145,8 @@ const Navbar = () => {
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
-              <span className="relative z-10">About</span>
+              <span className="relative z-10">Explore Aruba</span>
             </Link>
-
-            <Link
-              href="/features"
-              className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${isHomePage && !scrolled
-                  ? 'text-white/90 hover:text-white'
-                  : pathname === '/features'
-                    ? 'text-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)]'
-                }`}
-            >
-              {pathname === '/features' && (
-                <motion.div
-                  layoutId="activeTabFeatures"
-                  className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
-                      ? 'bg-white/20'
-                      : 'bg-[rgba(0,188,212,0.1)]'
-                    }`}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10">Features</span>
-            </Link>
-
-            {/* Explore Aruba Dropdown */}
-            <div className="relative" ref={attractionsDropdownRef}>
-              <button
-                onMouseEnter={() => setIsAttractionsOpen(true)}
-                onMouseLeave={() => setIsAttractionsOpen(false)}
-                className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 uppercase ${(() => {
-                    const isExplorePage = pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map';
-                    if (isHomePage && !scrolled) {
-                      return isExplorePage ? 'text-white' : 'text-white/90 hover:text-white';
-                    }
-                    return isExplorePage ? 'text-[var(--brand-aruba)]' : 'text-gray-600 hover:text-[var(--brand-aruba)]';
-                  })()
-                  }`}
-              >
-                {(pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map') && (
-                  <motion.div
-                    layoutId="activeTabExploreAruba"
-                    className={`absolute inset-0 rounded-xl ${isHomePage && !scrolled
-                        ? 'bg-white/20'
-                        : 'bg-[rgba(0,188,212,0.1)]'
-                      }`}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-1">
-                  Explore Aruba
-                  <svg
-                    className={`w-4 h-4 transition-transform duration-300 ${isAttractionsOpen ? 'rotate-180' : ''}`}
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M19 9l-7 7-7-7" />
-                  </svg>
-                </span>
-              </button>
-              <AnimatePresence>
-                {isAttractionsOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    onMouseEnter={() => setIsAttractionsOpen(true)}
-                    onMouseLeave={() => setIsAttractionsOpen(false)}
-                    transition={{ duration: 0.2 }}
-                    className="absolute left-0 top-full mt-2 w-64 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
-                  >
-                    <div className="p-2">
-                      <Link
-                        href="/explore-aruba"
-                        onClick={() => setIsAttractionsOpen(false)}
-                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">🗺️</span>
-                          <span>All Categories</span>
-                        </div>
-                      </Link>
-                      <Link
-                        href="/map"
-                        onClick={() => setIsAttractionsOpen(false)}
-                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">📍</span>
-                          <span>Interactive Map</span>
-                        </div>
-                      </Link>
-                      <div className="h-px bg-gray-200 my-2" />
-                      <Link
-                        href="/explore-aruba/beaches"
-                        onClick={() => setIsAttractionsOpen(false)}
-                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">🏖️</span>
-                          <span>Beaches</span>
-                        </div>
-                      </Link>
-                      <Link
-                        href="/explore-aruba/cultural-spots"
-                        onClick={() => setIsAttractionsOpen(false)}
-                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">🏛️</span>
-                          <span>Cultural Spots</span>
-                        </div>
-                      </Link>
-                      <Link
-                        href="/explore-aruba/natural-wonders"
-                        onClick={() => setIsAttractionsOpen(false)}
-                        className="block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-[var(--brand-aruba)]/5 hover:text-[var(--brand-aruba)]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">🌿</span>
-                          <span>Natural Wonders</span>
-                        </div>
-                      </Link>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
             {/* Attractions Dropdown */}
             <div className="relative" ref={attractionsDropdownRef}>
@@ -496,6 +370,15 @@ const Navbar = () => {
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-3">
             <Link
+              href="/partner"
+              className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-sm border ${isHomePage && !scrolled
+                  ? 'bg-transparent text-white border-white/50 hover:bg-white/20'
+                  : 'bg-white text-[var(--brand-aruba)] border-[var(--brand-aruba)] hover:bg-[rgba(0,188,212,0.05)]'
+                }`}
+            >
+              Partner With Us
+            </Link>
+            <Link
               href="https://onelink.to/75vkw3"
               className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${isHomePage && !scrolled
                   ? 'bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/30'
@@ -555,129 +438,19 @@ const Navbar = () => {
               >
                 Home
               </Link>
-              <Link
-                href="/about"
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${pathname === '/about'
-                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                  }`}
-              >
-                About
-              </Link>
-              <Link
-                href="/features"
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${pathname === '/features'
-                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
-                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
-                  }`}
-              >
-                Features
-              </Link>
-              {/* Explore Aruba with Submenu */}
-              <div>
-                <button
-                  onClick={() => setIsAttractionsMobileOpen(!isAttractionsMobileOpen)}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors flex items-center justify-between ${pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/') || pathname === '/map'
-                      ? 'bg-[var(--brand-aruba)]/10 text-[var(--brand-aruba)] font-semibold'
-                      : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <span>Explore Aruba</span>
-                  <motion.svg
-                    animate={{ rotate: isAttractionsMobileOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </motion.svg>
-                </button>
 
-                <AnimatePresence>
-                  {isAttractionsMobileOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pl-4 py-2 space-y-1">
-                        <Link
-                          href="/explore-aruba"
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsAttractionsMobileOpen(false);
-                          }}
-                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">🗺️</span>
-                            <span>All Categories</span>
-                          </div>
-                        </Link>
-                        <Link
-                          href="/map"
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsAttractionsMobileOpen(false);
-                          }}
-                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">📍</span>
-                            <span>Interactive Map</span>
-                          </div>
-                        </Link>
-                        <div className="h-px bg-gray-100 my-2"></div>
-                        <Link
-                          href="/explore-aruba/beaches"
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsAttractionsMobileOpen(false);
-                          }}
-                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">🏖️</span>
-                            <span>Beaches</span>
-                          </div>
-                        </Link>
-                        <Link
-                          href="/explore-aruba/cultural-spots"
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsAttractionsMobileOpen(false);
-                          }}
-                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">🏛️</span>
-                            <span>Cultural Spots</span>
-                          </div>
-                        </Link>
-                        <Link
-                          href="/explore-aruba/natural-wonders"
-                          onClick={() => {
-                            setIsOpen(false);
-                            setIsAttractionsMobileOpen(false);
-                          }}
-                          className="block px-4 py-2 text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg">🌿</span>
-                            <span>Natural Wonders</span>
-                          </div>
-                        </Link>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              {/* Explore Aruba */}
+              <Link
+                href="/explore-aruba"
+                onClick={() => setIsOpen(false)}
+                className={`block px-4 py-3 rounded-xl text-base font-bold transition-all duration-200 uppercase ${
+                  pathname === '/explore-aruba' || pathname?.startsWith('/explore-aruba/')
+                    ? 'text-[var(--brand-aruba)] bg-[rgba(0,188,212,0.1)] border-l-4 border-[var(--brand-aruba)]'
+                    : 'text-gray-600 hover:text-[var(--brand-aruba)] hover:bg-gray-50'
+                }`}
+              >
+                Explore Aruba
+              </Link>
 
               {/* Mobile Attractions */}
               <div>
@@ -850,7 +623,14 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
 
-              <div className="pt-4 mt-4 border-t border-gray-100">
+              <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
+                <Link
+                  href="/partner"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full px-4 py-3 rounded-xl text-base font-semibold text-[var(--brand-aruba)] border border-[var(--brand-aruba)] text-center transition-all duration-300"
+                >
+                  Partner With Us
+                </Link>
                 <Link
                   href="https://onelink.to/75vkw3"
                   onClick={() => setIsOpen(false)}

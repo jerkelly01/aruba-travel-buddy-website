@@ -169,7 +169,7 @@ function MapViewUpdater({ center, zoom }: { center: [number, number]; zoom: numb
   return <MapUpdaterComponent center={center} zoom={zoom} />;
 }
 
-export default function MapPage() {
+export default function InteractiveMap() {
   const [locations, setLocations] = useState<MapLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);

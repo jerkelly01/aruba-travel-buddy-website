@@ -22,7 +22,7 @@ export default function BlogsPage() {
       title: "10 Essential Cultural Tips for Visiting Aruba",
       excerpt: "Discover the local customs, traditions, and cultural etiquette that will help you connect authentically with Aruban culture during your visit.",
       image: "/fort-zoutman-aruba.png",
-      category: "Cultural Tips",
+      category: "Travel Buddy Guide",
       readTime: "5 min read",
       href: "/blogs/10-essential-cultural-tips",
     },
